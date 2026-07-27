@@ -1,0 +1,303 @@
+\section{A longitudinal case: one covariance matrix, many inverse graphs}
+\sectionmark{Many inverse graphs}
+
+An essay written in 2022 under the deliberately exaggerated title ``Inverse covariance is all
+you need'' placed a Gaussian chain, MSE reconstruction, sparse and ridge precision estimation,
+network deconvolution, balanced network deconvolution, and eigenmode deletion in one sequence
+\cite{wang2022inverse}.  The visual argument was compelling because the methods repeatedly took
+the same form: diagonalize a matrix, alter its eigenvalues, and reconstruct a cleaner graph.  Read
+through the operator framework, this family resemblance is real and stronger than a metaphor.
+For a symmetric observed matrix
+\begin{equation}
+O=U\diag(\lambda_1,\ldots,\lambda_d)U^{\mathsf T},
+\end{equation}
+most of the methods in the essay can be written
+\begin{equation}
+O\longmapsto
+U\diag\!\left(f(\lambda_1),\ldots,f(\lambda_d)\right)U^{\mathsf T},
+\label{eq:inverse-covariance-spectral-family}
+\end{equation}
+possibly preceded by centering or scaling and followed by block compression and contact ranking.
+The eigenvectors are often retained; the scientific decision is concentrated in the scalar
+function $f$.
+
+That algebraic statement explains why the works look so similar.  Each $f$ nevertheless estimates
+the graph defined by a different forward story.  Covariance
+inversion assumes a Gaussian probability law.  Network deconvolution assumes that indirect paths
+are matrix powers of a direct network.  Balanced deconvolution changes which path lengths exist in
+that story.  Leading-mode deletion treats selected spectral directions as nuisance rather than as
+indirect paths.  A deep contact predictor may use the transformed matrix only as an input feature,
+so its final edge is produced by the subsequent network rather than by $f$ alone.
+
+The common family can therefore be typed by the chain
+\begin{equation}
+\boxed{
+\begin{gathered}
+\text{observed statistic}
+\longrightarrow\text{propagation law}
+\longrightarrow\text{inverse or spectral transform}\\
+\longrightarrow\text{regularization}
+\longrightarrow\text{edge object}
+\longrightarrow\text{validation endpoint}
+\end{gathered}}
+\label{eq:inverse-graph-audit-chain}
+\end{equation}
+Two methods can be nearly identical in numerical linear algebra and different at any later arrow.
+This section rewrites the historical sequence in those coordinates.
+
+\subsection{The Gaussian chain: when the inverse really is the graph}
+
+Let independent unit Gaussian noises generate
+\begin{equation}
+A=\epsilon_A,\qquad B=A+\epsilon_B,\qquad
+C=B+\epsilon_C,\qquad D=C+\epsilon_D.
+\label{eq:gaussian-four-chain}
+\end{equation}
+The covariance matrix is dense because an upstream fluctuation propagates to every downstream
+variable.  For example, $A$ covaries with $C$ and $D$ even though the structural equations contain
+no $A$--$C$ or $A$--$D$ term.  The joint negative log density, however, is
+\begin{equation}
+-\log p(a,b,c,d)=\frac12\left[a^2+(b-a)^2+(c-b)^2+(d-c)^2\right]+\text{constant}.
+\end{equation}
+Its Hessian, and hence its precision matrix $\Theta=\Sigma^{-1}$, is
+\begin{equation}
+\Theta=
+\begin{pmatrix}
+2&-1&0&0\\
+-1&2&-1&0\\
+0&-1&2&-1\\
+0&0&-1&1
+\end{pmatrix}.
+\label{eq:gaussian-four-chain-precision}
+\end{equation}
+The tridiagonal support recovers the conditional-independence graph: for a nonsingular Gaussian
+law, $\Theta_{ij}=0$ if and only if $X_i$ and $X_j$ are conditionally independent given all other
+coordinates \cite{dempster1972}.  Here ``direct'' has an exact meaning because the probability
+family, conditioning set, and node variables have all been declared.
+
+This example also gives precision a limited physical interpretation.  In a Gaussian equilibrium
+field, covariance measures fluctuations or susceptibility, whereas precision is the quadratic
+restoring operator: it is the Hessian of the dimensionless Gaussian free energy.  A large
+eigenvalue of $\Sigma$ is a soft, strongly fluctuating direction; inversion makes it a small
+stiffness.  A small covariance eigenvalue is a stiff direction and becomes a large precision
+eigenvalue.  This language becomes literal molecular physics only if the variables are physical
+coordinates, the distribution is an equilibrium ensemble, and hidden degrees of freedom have
+been handled.  For one-hot MSA columns, $\Theta$ is instead a Gaussian surrogate for categorical
+sequence statistics.  Its graph is probability-exact inside that surrogate; forces and contacts
+require an additional correspondence.
+
+\subsection{MSE reconstruction: the same optimum through another objective}
+
+Chapter~7 showed that a regularized linear self-reconstruction problem can have an optimum that is
+an affine function of $(S+\lambda I)^{-1}$.  The 2022 essay emphasized the same fact from the
+opposite direction: a matrix learned by squared-error reconstruction can land on the same
+precision-like solution as a multivariate Gaussian fit even though the loss surfaces are not the
+same.  One route differentiates a log determinant and imposes positive definiteness; the other
+differentiates a quadratic reconstruction loss and can be implemented as an ordinary linear
+layer.
+
+The exact shared optimum is valuable.  It permits solvers and regularizers to move between
+statistical modeling and neural reconstruction.  The Gaussian objective identifies a normalized
+joint density when its constraints are satisfied.
+The MSE objective identifies a best linear reconstruction map under a chosen data geometry.  A
+common stationary point makes the fitted matrices equal, while thermodynamic and probabilistic
+interpretations remain tied to their respective objectives and constraints.
+
+This is the same pattern encountered in the 2019 unified framework \cite{dauparas2019}.  The
+horizontal equivalence there grouped models by reconstruction loss.  The present longitudinal
+case groups them by spectral action.  Together they show why implementation-level unification is
+scientifically productive: it exposes exactly which remainder must still be typed.
+
+\subsection{Sparse and ridge precision: regularization chooses the graph}
+
+Given an empirical covariance $S$, regularized Gaussian precision estimation takes the generic
+form
+\begin{equation}
+\widehat\Theta
+=\arg\min_{\Theta\succ0}
+\left\{\operatorname{tr}(S\Theta)-\log\det\Theta+R(\Theta)\right\}.
+\label{eq:regularized-gaussian-precision}
+\end{equation}
+PSICOV used sparse inverse covariance estimation for protein contact prediction
+\cite{jones2012}.  An $L_1$ penalty makes many fitted entries exactly zero, so it performs two jobs:
+it stabilizes an underdetermined estimate and declares a sparse Gaussian conditional graph.  Its
+zeros belong to that regularized model and express its selected conditional graph.  Experimental
+influence remains a separate endpoint.
+
+ResPRE instead used the Frobenius penalty $R(\Theta)=\rho\|\Theta\|_F^2$ and then supplied the raw
+$21\times21$ precision blocks to a deep residual contact predictor \cite{li2019respre}.  Its
+stationarity equation is
+\begin{equation}
+S-\Theta^{-1}+2\rho\Theta=0.
+\label{eq:respre-stationarity}
+\end{equation}
+If $S=V\Lambda V^{\mathsf T}$, the solution shares the eigenvectors of $S$ and transforms each
+eigenvalue by
+\begin{equation}
+k_\rho(\lambda)
+=\frac{-\lambda+\sqrt{\lambda^2+8\rho}}{4\rho},
+\qquad
+\widehat\Theta=V\diag(k_\rho(\lambda_i))V^{\mathsf T}.
+\label{eq:respre-ridge-filter}
+\end{equation}
+Thus the $L_2$ estimator is literally a smooth spectral filter.  It usually produces graded
+shrinkage, while $L_1$ fitting can select an exact support.  ResPRE then continued beyond the
+precision graph.
+Its final edge was a contact probability learned by a residual convolutional network from the
+full categorical blocks.  The precision matrix was a representation that made indirect
+correlations easier for a finite neural predictor to use.  Indeed, covariance and invertible
+precision contain the same information in principle; their empirical difference arose because
+the downstream learner, sample size, and regularization were finite.
+
+The two papers therefore differ less in their observed statistic than in the composite estimator.
+PSICOV couples Gaussian fitting to sparse support and a contact score.  ResPRE couples ridge
+spectral shrinkage to a nonlinear, structurally supervised decoder.  Calling both ``inverse
+covariance methods'' is correct but incomplete in the same way that calling AlphaFold 1 and
+AlphaFold 2 ``distance predictors'' is correct but incomplete.
+
+\subsection{Network deconvolution: inversion of a walk algebra}
+
+Network deconvolution begins from a different forward model.  It assumes that an observed
+similarity network contains direct edges and all of their transitive walks:
+\begin{equation}
+G_{\mathrm{obs}}
+=G_{\mathrm{dir}}+G_{\mathrm{dir}}^2+G_{\mathrm{dir}}^3+\cdots
+=G_{\mathrm{dir}}(I-G_{\mathrm{dir}})^{-1}.
+\label{eq:network-deconvolution-forward}
+\end{equation}
+Under the convergence and diagonalizability assumptions, inversion gives
+\begin{equation}
+G_{\mathrm{dir}}
+=G_{\mathrm{obs}}(I+G_{\mathrm{obs}})^{-1},
+\qquad
+f_{\mathrm{ND}}(\lambda)=\frac{\lambda}{1+\lambda}
+\label{eq:network-deconvolution-filter}
+\end{equation}
+after the paper's required spectral scaling \cite{feizi2013}.  The expression resembles a
+precision transform because both contain a matrix inverse.  The inverse is solving a different
+equation.  Gaussian precision inverts a fluctuation covariance under a joint probability law;
+network deconvolution inverts a geometric series of walks under a propagation model.  Its
+off-diagonal entry means ``direct relative to the assumed walk closure,'' not ``conditionally
+independent in a Gaussian law.''
+
+The distinction is more than philosophical.  Matrix multiplication counts weighted walks only
+after a node basis, edge composition rule, and treatment of signs have been fixed.  A categorical
+operator graph requires compatible fiber maps before $G^2$ even has a meaning.  For an ordinary
+scalar symmetric network the composition is automatic, but its biological validity remains an
+empirical assumption.  Network deconvolution improved several biological networks because that
+assumption was useful; the algebra alone cannot prove that an observed covariance was generated
+by the full walk series.
+
+\subsection{Balanced deconvolution: changing which paths exist}
+
+Balanced network deconvolution changed the forward model by retaining only odd path lengths:
+\begin{equation}
+G_{\mathrm{obs}}
+=G_{\mathrm{dir}}+G_{\mathrm{dir}}^3+G_{\mathrm{dir}}^5+\cdots
+=G_{\mathrm{dir}}(I-G_{\mathrm{dir}}^2)^{-1}.
+\label{eq:bnd-forward}
+\end{equation}
+Consequently its spectral inverse is
+\begin{equation}
+f_{\mathrm{BND}}(\lambda)
+=\begin{cases}
+\dfrac{-1+\sqrt{1+4\lambda^2}}{2\lambda},&\lambda\ne0,\\[6pt]
+0,&\lambda=0.
+\end{cases}
+\label{eq:bnd-filter}
+\end{equation}
+Removing even powers preserves the sign balance of eigenvalues and maps every real observed
+eigenvalue to a direct eigenvalue with magnitude below one, avoiding the network-dependent scaling
+required by the original transform \cite{sun2015}.  Applied as a postprocessor, BND improved
+contact rankings from several coevolutionary methods, with smaller gains for methods such as DCA
+and PSICOV that had already attempted to suppress transitive effects.
+
+In the language of this book, BND changes the algebra of admissible paths.  It should not be
+described as the same inverse covariance estimator with a technical fix: even-length paths are
+absent from its generative story.  Nor does odd-only propagation have an automatic physical law
+behind it.  Its justification is a combination of spectral behavior and downstream validation.
+This is a legitimate scientific route, but the validation endpoint, rather than the square root in
+Eq.~\ref{eq:bnd-filter}, supplies the biological evidence.
+
+\subsection{Leading-mode deletion: a nuisance model, not an inverse}
+
+Qin and Colwell analyzed why phylogenetic relatedness contaminates covariance matrices built from
+MSAs \cite{qin2018}.  Their random-matrix calculation predicts a power-law tail among the largest
+covariance eigenvalues.  On that model, selected leading directions are dominated by shared
+ancestry rather than by structural coupling.  The corresponding correction is a spectral
+projection such as
+\begin{equation}
+C_{\mathrm{clean}}
+=C-\sum_{k\in\mathcal P}\lambda_k u_ku_k^{\mathsf T},
+\label{eq:colwell-leading-mode-deletion}
+\end{equation}
+where $\mathcal P$ is chosen from the declared phylogenetic-tail criterion.  Removing those modes
+improved contact prediction in their tests.
+
+This method is especially revealing because it acts on the same eigendecomposition as precision
+estimation to target a different object from $C^{-1}$.  Inversion applies $f(\lambda)=1/\lambda$ to every
+retained direction, suppressing large covariance modes while amplifying small ones.  Leading-mode
+deletion applies $f(\lambda)=0$ to a selected nuisance set and $f(\lambda)=\lambda$ elsewhere.  The
+first transform follows from a Gaussian conditional model; the second follows from a phylogenetic
+null model.  They can improve the same contact benchmark for different reasons.
+
+This corrects an overstatement in the 2022 essay.  The Colwell construction belongs in the same
+spectral family.  Its conceptual advance is to identify which large modes should be removed and
+supply a model for
+why.  Without that null, deleting leading eigenvectors is only rank-relative cleaning and may
+erase real subfamily or functional structure.  With it, the projection is an estimand-level
+decision of the kind developed in Chapter~9.
+
+\subsection{What is genuinely the same}
+
+The longitudinal sequence can now be summarized without either exaggerating or dissolving the
+unification:
+\begin{center}
+\scriptsize
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.14\linewidth}
+                >{\raggedright\arraybackslash}p{0.26\linewidth}
+                >{\raggedright\arraybackslash}p{0.23\linewidth}
+                >{\raggedright\arraybackslash}p{0.29\linewidth}@{}}
+\toprule
+Method & Forward claim & Spectral action & Output semantics and endpoint \\
+\midrule
+Gaussian precision & covariance of one Gaussian joint law & $1/\lambda$ & conditional graph in the fitted Gaussian family \\
+MSE reconstruction & best linear reconstruction under squared loss & regularized inverse, up to an affine identity term & reconstruction weight; Gaussian meaning only under the equivalence conditions \\
+PSICOV / ResPRE & high-dimensional Gaussian surrogate plus regularization & sparse support or ridge filter $k_\rho$ & sparse coupling score, or full precision feature decoded into contacts \\
+Network deconvolution & observation is the sum of all directed walk powers & $\lambda/(1+\lambda)$ after scaling & direct edge relative to the all-walk propagation model \\
+BND & observation is the sum of odd walk powers & $f_{\mathrm{BND}}(\lambda)$ & direct edge relative to an odd-walk model; validated as contact postprocessing \\
+Qin--Colwell & leading covariance tail is enriched for phylogenetic nuisance & delete selected leading modes & phylogeny-corrected covariance used for contact ranking \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+At the level of Eq.~\ref{eq:inverse-covariance-spectral-family}, the methods really are close.
+They reuse the same matrix, eigenvectors, rational or thresholded scalar functions, and often the
+same contact benchmark.  This is why one implementation can suggest another and why
+regularization transfers are fruitful.  At the level of scientific objects, their differences are
+concentrated rather than negligible.  The forward law determines what has been inverted; the null
+determines what has been removed; the regularizer determines what can be identified from finite
+data; and the downstream decoder determines whether the transformed matrix is the answer or only
+an input feature.
+
+Formally, let a method be the composite map
+\begin{equation}
+\mathcal A_m
+=\mathcal V_m\circ\mathcal E_m\circ\mathcal R_m\circ
+\Phi_m\circ R_m(O-O_{0,m})R_m^{\mathsf T},
+\label{eq:composite-inverse-graph-method}
+\end{equation}
+where $O_{0,m}$ is a null expectation, $R_m$ a nuisance residualizer, $\Phi_m$ the inverse or
+spectral transform, $\mathcal R_m$ regularization, $\mathcal E_m$ edge extraction, and
+$\mathcal V_m$ validation or decoding.  Two methods are fully equivalent on a declared class of
+inputs only when these composite maps agree on that class.  Sharing $O$ or even sharing
+$\Phi_m(O)$ is a weaker correspondence.  Agreement of final contact rankings is weaker still,
+because scalarization can hide different categorical operators.
+
+The durable conclusion is therefore not that inverse covariance is literally everything.  It is
+that a surprisingly large body of protein inference can be organized as competing inverse
+problems on one second-order statistic.  Once written that way, what looked like many unrelated
+algorithms becomes one design space.  The important questions are no longer which paper used an
+inverse, a square root, or an eigenvalue cutoff.  They are: which propagation law was assumed,
+which modes were declared nuisance, which edge object survived the transform, and which experiment
+made that declaration credible.

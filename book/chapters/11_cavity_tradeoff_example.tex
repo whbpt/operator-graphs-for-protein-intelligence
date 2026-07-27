@@ -1,0 +1,53 @@
+\section*{The exact price of endpoint exclusion}
+\addcontentsline{toc}{section}{The exact price of endpoint exclusion}
+
+The cavity Bayes floor can be maximal even in a two-bit example.  Let $X_i$ and $X_j$ be independent
+uniform binary variables and define a desired edge label
+\begin{equation}
+Z_{ij}=\mathbf1[X_i=X_j].
+\label{eq:book-endpoint-label}
+\end{equation}
+An endpoint-visible router predicts the label perfectly: it compares the two bits.  A strict cavity
+router observes only
+\begin{equation}
+Y_{ij}=X_{[L]\setminus\{i,j\}},
+\end{equation}
+which is independent of $Z_{ij}$ in this construction.  Consequently,
+\begin{equation}
+\Pr(Z_{ij}=1\mid Y_{ij})=\frac12,
+\qquad
+e_{ij}^{\mathrm{cav}}=\frac12.
+\label{eq:book-maximal-cavity-floor}
+\end{equation}
+No training procedure, teacher graph, model scale, or randomized decision rule can reduce the
+strict inference error below one half without restoring endpoint information or adding a correlated
+side channel.
+
+The example exposes the semantic tradeoff cleanly.  The endpoint-visible router has perfect label
+accuracy, but its support changes when either endpoint is intervened upon.  It is a valid dynamic
+computational route and an invalid fixed conditional pair selector.  The cavity router preserves
+the edge definition during endpoint substitution, but the desired label is not identifiable from
+its allowed information.
+
+Real proteins lie between these extremes.  Neighboring sequence context, predicted secondary
+structure, templates, MSA-derived family evidence, or other modalities may make an edge partly
+predictable without direct endpoint access.  The cavity posterior then moves away from one half and
+the Bayes floor falls.  That gain should be attributed to the added observable evidence, not to an
+architecture overcoming an information theorem.
+
+This is why router performance and interaction semantics must be reported together.  A useful
+comparison includes at least three variants:
+\begin{equation}
+\begin{aligned}
+q_{ij}^{\mathrm{visible}}&=q(X_i,X_j,Y_{ij}),
+&&\text{adaptive computational support},\\
+q_{ij}^{\mathrm{cavity}}&=q(Y_{ij}),
+&&\text{strict endpoint-invariant support},\\
+q_{ij}^{\mathrm{fixed}}&=q(i,j),
+&&\text{static candidate geometry}.
+\end{aligned}
+\label{eq:book-router-comparison}
+\end{equation}
+The first measures the attainable predictive frontier, the second the price of strict conditional
+meaning, and the third the value of content-dependent routing itself.  No one variant is universally
+correct; each licenses a different claim.

@@ -1,0 +1,32 @@
+A static interaction graph describes a family by assigning one pair object to each edge.  A deep
+sequence model does something more elusive.  Its effective relation between two positions can
+change when a third residue changes, when the sequence enters another family-like background, or
+when information is rerouted through a different hidden path.  The model parameters are fixed,
+but the response graph is not.
+
+To see the distinction, hold all positions except $i$ and $j$ in a background $C$.  Substitute the
+source residue at $j$, observe the model's categorical prediction at $i$, and project away target-
+and source-only components.  The resulting operator
+\begin{equation}
+G_{i\leftarrow j}(C)
+\end{equation}
+is a section of the model's behavior through that background.  Repeating the audit over $C$ does
+not estimate the same quantity with noise; it reveals whether the quantity itself changes.
+
+This creates a clean comparison.  An additive pairwise Potts conditional produces the same gauged
+response for every background, so its dynamic variance is zero.  A nonlinear protein language
+model generally yields a distribution of edge operators.  Their mean is the best static
+approximation in the chosen reference geometry, while their fluctuation measures the failure of a
+single static edge to describe the model.
+
+The fluctuation has a precise higher-order interpretation.  Under a product reference it can be
+tied exactly to higher-order functional components containing both audited endpoints.  Under a correlated
+background law, orthogonality can fail and the same variance can contain cross terms.  The
+reference distribution is therefore part of both the scientific statement and the estimator.
+
+Two further questions run through the chapter.  First, when does a directed response deserve the
+conditional meaning of a pair interaction?  If the generator of the edge reads the endpoint being
+varied, the edge itself moves during the intervention.  Second, when do the two directed responses
+$j\to i$ and $i\to j$ integrate into one undirected pair energy?  That upgrade requires
+reciprocity after the relevant gauges have been aligned.  Context dependence and directionality
+are therefore measurable coordinates, not inconveniences to be symmetrized away at the outset.

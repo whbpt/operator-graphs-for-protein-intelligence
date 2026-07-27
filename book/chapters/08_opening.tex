@@ -1,0 +1,28 @@
+An interaction graph is never observed in the same way that a sequence is observed.  An MSA is a
+tensor of residues indexed by sequence, position, and category.  A structure is an ensemble of
+coordinates under an experimental and modeling pipeline.  A pLM response is produced by a chosen
+intervention and a chosen set of sequence backgrounds.  Each supplies observations from which a
+particular operator graph can be estimated.
+
+This distinction becomes critical in an MSA because its three axes support different notions of
+variation.  Modes across rows can reflect ancestry, taxonomy, or subfamilies.  Modes across
+positions can describe collective organization along the sequence.  Categorical constant modes
+are removed by the local gauge at each position.  Operations on these three axes generally survive
+one another because estimation, inversion, pair projection, scalarization, and spectral
+decomposition have a noncommuting order.
+
+The chapter compares two principal estimation routes.  A family Potts model uses many homologous
+sequences to estimate one static pair field.  A pretrained pLM uses amortized information to
+produce a background-dependent response from one query sequence, after which a family or another
+declared background law can be used to estimate its mean and variance.  Common reference-centered
+coordinates make the results comparable while the estimand ledger records their distinct targets.
+
+The difference between the two estimates can be decomposed into Potts estimation error, pairwise
+model misspecification, pLM transfer or response gap, and response-sampling error.  This ledger is
+more informative than one correlation coefficient.  It shows where disagreement can enter and
+which source of disagreement an additional dataset could resolve.
+
+Finally, evidence must be relative to a null that preserves the nuisance structure under
+discussion.  Sequence reweighting, phylogenetic projection, APC, and spectral mode removal each
+encode a specific nuisance hypothesis.  Their meaning comes from a declared estimand and a null
+ensemble that justifies what is being removed.

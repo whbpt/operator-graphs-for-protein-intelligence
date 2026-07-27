@@ -1,0 +1,151 @@
+Consider two positions, $i$ and $j$, in a protein family.  A structural biologist may draw a line
+between them because their atoms lie within a chosen distance.  A statistical physicist may fit a
+Potts model and attach a $q\times q$ coupling table to the same pair.  A Transformer may send a
+large attention weight from $j$ to $i$.  A model audit may find that substituting the residue at
+$j$ changes the predicted distribution at $i$.  A double-mutant experiment may report nonadditive
+fitness.  Each result is naturally drawn as an edge.  The pictures look alike, and that visual
+agreement invites a stronger conclusion: perhaps all five procedures have found the same
+interaction.
+
+They have not---at least not yet.  The structural line is defined by geometry.  The Potts table is
+a component of a probability model for an ensemble of homologous sequences.  Attention is a route
+inside a computation.  The substitution response is a directed input--output property of a fitted
+function.  Experimental epistasis is a statement about an intervention and a measured biological
+endpoint.  Agreement among these objects can be scientifically important.  Shared indices $(i,j)$
+provide the comparison point; the carried objects and validation criteria determine the meaning.
+
+This book begins with that apparently minor distinction because much of the conceptual difficulty
+in protein machine learning is concentrated inside it.  Words such as \emph{interaction},
+\emph{energy}, \emph{memory}, \emph{direct}, and \emph{graph} travel easily between statistical
+physics and neural computation.  The equations often travel with them, while their assumptions
+must be carried explicitly.
+
+\section{A residue pair enters five descriptions}
+
+Let $X=(X_1,\ldots,X_L)$ denote a protein sequence over an alphabet of size $q$.  Suppose that a
+multiple-sequence alignment, a trained protein language model, a three-dimensional structure, and
+a mutational assay are all available for one family.  For the pair $(i,j)$ they provide five
+candidate edge objects:
+\begin{figure}[htbp]
+\centering
+\small
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.18\linewidth}
+                >{\raggedright\arraybackslash}p{0.27\linewidth}
+                >{\raggedright\arraybackslash}p{0.43\linewidth}}
+\toprule
+Description & Edge object & Question answered \\
+\midrule
+Structure & contact indicator or geometric relation & Are the two sites close under a declared
+structural criterion? \\
+Potts model & coupling table $J_{ij}(a,b)$ & Which pair term helps a fitted family distribution
+explain sequence variation? \\
+Attention & route coefficient $\alpha_{ij}^{(h,\ell)}(x)$ & How much source-normalized weight does
+one head assign to this computational route? \\
+Model response & categorical map $G_{i\leftarrow j}(C)$ & How does a substitution at $j$ change
+the model prediction at $i$ in background $C$? \\
+Experiment & epistasis or another intervention response & Does the joint perturbation differ from
+the declared additive biological null? \\
+\bottomrule
+\end{tabular}
+\caption{The same endpoints support five different edge semantics.  Agreement must be established
+after the carried object and validation question have been declared.}
+\label{fig:five-edge-semantics}
+\end{figure}
+
+The entries differ along several axes at once.  Some are scalar and some are categorical tables.
+Some are symmetric and some directed.  Some are fixed across a family and some depend on the input
+sequence.  Some belong to a joint probability law; others belong to an algorithm or an assay.
+Even their zeros mean different things.  A zero Potts block may express conditional factorization
+within a fitted model, a zero route may mean skipped computation, and a missing structural contact
+may only mean that one distance threshold was not crossed.
+
+The first principle of the book is therefore simple:
+\begin{equation}
+\boxed{\text{shared endpoints do not imply a shared edge semantics.}}
+\label{eq:book-shared-endpoints}
+\end{equation}
+This principle sets the standard for unification: a successful comparison must preserve the
+relevant types.  If two edge objects are to be compared, their state spaces, normalization,
+conditioning information, invariances, dynamics, and validation criteria must remain visible
+during the comparison.
+
+The same caution applies to familiar formulas and familiar adjectives.  Softmax can normalize
+residue identities, source positions, memories, or complete configurations.  The normalization
+axis determines which probability law the shared algebra defines.  Likewise, an edge may be called \emph{direct}
+because it is a one-step computational route, a term in a declared factorization, a spatial
+contact, or an experimental effect that survives a lower-order null.  Chapter~2 separates these
+meanings systematically.  Here it is enough to retain one reading rule: before interpreting a
+formula or an edge, name the space in which it lives and the alternative explanations that have
+actually been excluded.
+
+\section{From an edge weight to an edge operator}
+
+For categorical sequences, a scalar edge weight is a compression of a richer object.  If residue
+$b$ at site $j$ is replaced by $b'$, the effect at site $i$ is a change across all possible target
+identities $a$.  A pair relation is therefore naturally represented by a table or
+operator
+\begin{equation}
+G_{i\leftarrow j}(a,b),
+\end{equation}
+mapping source substitutions to target contrasts.
+
+This operator contains information that every scalar compression discards.  Two edges can have
+the same Frobenius norm while favoring different amino-acid exchanges.  They can have the same
+support while acting in different singular directions.  They can generate the same contact score
+but make opposite predictions for a particular mutation.  A graph of scalar strengths is useful,
+but it is a shadow of the typed relation carried by the edge.
+
+Raw categorical tables introduce another problem.  A constant term, a function of $a$ alone, and
+a function of $b$ alone can be moved between one-body and pair terms without changing the modeled
+law.  The pair object is therefore an equivalence class until a reference geometry is declared.
+The reference-centered operator developed later in the book removes those lower-order directions and
+retains the genuinely bivariate action.  Gauge fixing supplies the identified coordinates that
+make edge operators comparable across models and references.
+
+\section{One family graph, many sequence responses}
+
+The contrast between a Potts model and a protein language model supplies the running mathematical
+problem.  In an additive pairwise Potts model, a fixed gauged block describes the response of site
+$i$ to site $j$ throughout the family model.  A nonlinear protein language model generally
+produces a different effective response in each sequence background $C$:
+\begin{equation}
+G_{i\leftarrow j}(C)
+=\overline G_{i\leftarrow j}+\delta G_{i\leftarrow j}(C).
+\label{eq:central-thesis}
+\end{equation}
+The mean $\overline G_{i\leftarrow j}$ is the best static approximation in a declared reference
+geometry.  The residual $\delta G_{i\leftarrow j}(C)$ measures context dependence.  Under a fixed
+product reference, its variance can be identified with higher-order functional components that
+contain both audited endpoints.  Under correlated empirical backgrounds, additional cross terms
+appear and the interpretation must change.
+
+This decomposition separates two questions that are often merged.  Does the model contain a
+stable family-like pair response?  How much of its behavior depends on the surrounding sequence?
+A model can answer both strongly, one strongly, or neither.  Calling the entire response a
+``learned Potts coupling'' erases the distinction.
+
+Directionality adds another layer.  The response from $j$ to $i$ and the response from $i$ to $j$
+are separately measurable.  They define a joint pair energy only if they satisfy a reciprocity
+condition after reference transport.  A directed response graph is therefore a valid primary
+object.  Symmetrization becomes a later operation, justified after its asymmetry has been measured.
+
+\section{The coordinate system to come}
+
+The rest of the book builds a mathematical coordinate system in which these comparisons can be
+made without flattening them.  Each model will be described by the variables carried at its nodes,
+the support and type of its edges, the context available to an edge, the represented interaction
+order, the updated state, the normalization or conserved quantity, the estimation procedure, and
+the external endpoint used for validation.
+
+The construction proceeds from local meaning to global claims.  We first establish a translation
+language across physics, probability, and computation.  We then define reference-centered
+categorical fibers and the operators between them.  Static and dynamic responses lead to
+higher-order decompositions, probability-exact edge geometry, and compatibility conditions for
+joint energies.  Potts, Gaussian, Hopfield, RBM, and Transformer models are subsequently placed in
+the same coordinates.  Only after the edge object has been declared do we turn to estimation,
+spectra, architectural realizability, and biological evidence.
+
+The ambition is to make differences between protein graphs mathematically explicit enough that
+genuine agreement becomes meaningful.  The edge between $i$ and $j$ begins a sequence of
+questions: an edge in which space, carrying what object, conditioned on what information, invariant
+under which changes, and validated against which world?

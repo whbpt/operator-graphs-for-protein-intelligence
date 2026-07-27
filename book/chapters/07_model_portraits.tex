@@ -1,0 +1,132 @@
+\section{One residue pair through six models}
+
+Return to the positions $(i,j)$ used throughout the book.  Instead of asking which model is most
+powerful, ask what object each model assigns to this pair and what operation would be required to
+compare the assignments.
+
+\subsection*{Portrait I: the PSSM has no edge}
+
+A position-specific scoring matrix assigns a field $h_i(a)$ to each residue identity at each site.
+Its reconstruction rule may be written
+\begin{equation}
+P(X_i=a)=\operatorname{softmax}_a h_i(a).
+\end{equation}
+There is no off-diagonal operator from $j$ to $i$.  Correlation can still appear in the observed
+family because sequences are phylogenetically related or sampled from subfamilies, but the PSSM
+does not represent that correlation as a pair interaction.  In operator coordinates it occupies
+the node-field branch and sets
+\begin{equation}
+\mathcal K_{i\leftarrow j}=0.
+\end{equation}
+This apparently trivial portrait is useful because it prevents every successful residue predictor
+from being described as an interaction model.
+
+\subsection*{Portrait II: the Potts model assigns a static categorical operator}
+
+A pairwise Potts model attaches a table $J_{ij}(a,b)$ to the unordered pair.  After reference
+projection,
+\begin{equation}
+G_{ij}^{\mathrm P}=P_iJ_{ij}P_j^{\mathsf T}
+\end{equation}
+is a static operator shared by every sequence evaluated under that fitted family model.  The
+conditional probability at $i$ changes with the surrounding sequence because all neighboring
+terms are summed, but the response rule contributed by $j$ is fixed.
+
+The edge belongs to one joint Gibbs law when the pair tables and fields are assembled consistently.
+That gives the Potts block a stronger probability semantics than an attention route.  It does not
+give it physical units, remove phylogenetic bias, or make every nonzero block a contact.  Those are
+estimation and validation questions.
+
+\subsection*{Portrait III: Gaussian precision changes the state space}
+
+For a nondegenerate Gaussian vector, a zero precision block has an exact conditional-independence
+meaning.  The edge object is a linear map between continuous coordinates, not a table between
+categorical contrasts.  If one-hot residue variables are approximated by a Gaussian, the precision
+matrix may provide a useful estimator, but the approximation does not erase the simplex constraint
+or reference-centered categorical coordinates.
+
+The correspondence is therefore structural:
+\begin{equation}
+\text{precision block}
+\longleftrightarrow
+\text{conditional linear edge},
+\end{equation}
+not literal equality with a Potts coupling.  The two models agree that conditional dependence is
+encoded by an off-diagonal block; they disagree about the node space and probability law in which
+that block lives.
+
+\subsection*{Portrait IV: Hopfield--Potts compresses edges into collective patterns}
+
+A Hopfield--Potts model factorizes static couplings through patterns
+\begin{equation}
+J_{ij}(a,b)=\sum_{\mu=1}^{p}\lambda_\mu
+\xi_{i\mu}(a)\xi_{j\mu}(b).
+\end{equation}
+For fixed $p$, many edge operators share a small collection of categorical directions.  The model
+is dense in position support but low rank in its global parameterization.  One pattern can touch
+many positions without declaring every touched pair to be a separate physical contact.
+
+This portrait separates support from rank.  A sparse Potts graph may carry independent full-rank
+operators on a few edges.  A Hopfield--Potts model may carry correlated low-rank operators on nearly
+all edges.  Both are pairwise energies; their compression assumptions are different.
+
+\subsection*{Portrait V: an RBM stores motifs and generates all visible orders}
+
+A restricted Boltzmann machine introduces hidden variables $r_\mu$ coupled to visible residues.
+Conditional on the hidden layer, the visible sites separate.  After the hidden variables are
+marginalized, each softplus term depends jointly on every visible position connected to that hidden
+unit.  Its expansion contains one-body, pairwise, and higher-order components.
+
+An RBM hidden unit is therefore closer to a distributed motif than to one edge.  Its pairwise
+operator can be extracted by functional projection, but that operator is only one shadow of the
+latent factor.  Reading all pairs touched by a hidden unit as direct contacts would confuse latent
+support with visible interaction order.
+
+The contrast with modern Hopfield retrieval is equally important.  Independent Bernoulli hidden
+variables allow several motifs to be active simultaneously.  A categorical Hopfield softmax makes
+stored memories compete on one simplex.  Both use log-sum-exp after marginalization; they sum over
+different latent sample spaces.
+
+\subsection*{Portrait VI: the Transformer has a route and an audited response}
+
+For a Transformer head, the native edge coefficient is
+\begin{equation}
+\alpha_{ij}^{(h)}(x)
+=\operatorname{softmax}_j s_{ij}^{(h)}(x).
+\end{equation}
+It tells us how a target distributes routing mass over source positions.  The associated frozen
+value-path map lies in the span of the head value/output maps.  Both quantities depend on the
+current hidden state and belong to the computation.
+
+The operator comparable with a Potts block is obtained elsewhere: vary the source residue, hold a
+declared background fixed, observe the categorical output at the target, and project the resulting
+table.  This gives $G_{i\leftarrow j}(C)$, a directed and generally background-dependent response.
+The route and response may correlate, but they answer different questions:
+\begin{equation}
+\begin{aligned}
+\alpha_{ij}^{(h)}(x)&:\quad \text{where one layer reads},\\
+G_{i\leftarrow j}(C)&:\quad \text{how the complete model prediction changes}.
+\end{aligned}
+\end{equation}
+
+The Transformer portrait is consequently double.  It is a dynamic graph computation internally
+and a background-dependent operator field under external audit.  Neither object is automatically a
+joint sequence energy.
+
+\section{What survives comparison}
+
+The six portraits meet only after a typed extraction.  PSSM fields, Potts blocks, Gaussian
+precision, Hopfield factors, RBM projections, attention routes, and pLM responses should not be
+placed in one matrix merely because they share position indices.  What can be compared is more
+specific:
+\begin{equation}
+\boxed{
+\text{state space}
++\text{edge operator}
++\text{context}
++\text{order}
++\text{normalization}
++\text{estimator}.}
+\end{equation}
+Agreement in the edge-operator coordinate can then be measured while the remaining differences are
+kept as part of the result.

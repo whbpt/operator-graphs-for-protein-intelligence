@@ -1,0 +1,28 @@
+Spectral analysis begins after the graph has been defined, not before.  This ordering sounds
+obvious, yet protein sequence analysis offers many matrices with plausible eigenvectors: an MSA
+covariance, a Potts norm matrix, an attention route, a dynamic response shadow, a signed coupling
+graph, or a connection operator acting on categorical fibers.  Their spectra live in different
+spaces and answer different questions.
+
+The first decision is what has been compressed.  A scalar Laplacian describes smoothness of
+functions over residue positions relative to nonnegative edge weights.  A signed Laplacian retains
+one oriented scalar polarity.  A connection Laplacian transports vectors between local
+categorical spaces and can test whether substitution directions remain coherent around the graph.
+No one spectrum contains the others.
+
+Directionality creates an earlier branch.  A row-softmax route is naturally a Markov operator.
+Its Euclidean asymmetry need not imply irreversible circulation: a symmetric score kernel can
+produce an entrywise asymmetric but reversible route under its stationary measure.  Conversely, a
+doubly stochastic route can remain nonreciprocal.  Reversibility, detailed-balance defect, and
+directed singular modes should be measured before projecting the route to an undirected shadow.
+
+Context dependence adds another noncommutativity.  The spectrum of a mean graph, the mean spectrum
+of context-specific graphs, and the distribution of spectral projectors are different objects.
+Near degeneracy makes individual eigenvectors unstable even when their invariant subspace is
+stable.  Spectral claims should therefore be phrased at the level of the appropriate projector and
+calibrated against replicate null graphs rather than inferred from rank alone.
+
+The guiding question of the chapter is not ``what does the leading eigenvector mean?'' but ``which
+operator, on which space, relative to which null, produced this eigenvector?''  Only then can a
+spectral mode be connected responsibly to conservation, sectors, communication, allostery, or
+another biological interpretation.

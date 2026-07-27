@@ -1,0 +1,134 @@
+\section{New coordinates, old decision engines}
+\sectionmark{New coordinates, old decision engines}
+
+The contrast between an MSA estimator and a protein language model can be generalized.  Many recent
+protein methods preserve the statistical decision engine while replacing the coordinates in which
+it operates.  A useful abstraction is
+\begin{equation}
+\boxed{
+x\xrightarrow{\phi_\theta}z
+\xrightarrow{\mathcal T_D}(\widehat y,\widehat\sigma)
+\xrightarrow{\mathcal A}\text{ranking, retrieval, or experiment}.}
+\label{eq:new-coordinates-old-engines}
+\end{equation}
+Here $\phi_\theta$ is a pretrained representation, $\mathcal T_D$ is fitted on the task-specific
+data $D$, and $\mathcal A$ converts its output into a decision.  Most of the expensive biological
+regularity may be amortized into $z$, while the final estimator remains a random forest, Gaussian
+process, bilinear similarity, nearest-neighbor rule, or sequence-alignment algorithm.
+
+A better coordinate system can turn a difficult nonlinear problem in raw sequence space into a
+statistically efficient problem for a simple estimator.  Novelty must therefore be
+located correctly.  Improved performance can come from the representation, the downstream
+estimator, the acquisition rule, or the data loop.  Calling the complete pipeline a new foundation
+model obscures which component actually changed.
+
+\subsection{EVOLVEpro: a learned coordinate system inside classical active learning}
+
+EVOLVEpro uses a protein language model to embed candidate sequences, fits a random-forest
+regressor to measured activity, and uses that surrogate to choose variants for the next
+experimental round \cite{jiang2025evolvepro}.  Schematically,
+\begin{equation}
+x\xrightarrow{\mathrm{PLM}}z(x)
+\xrightarrow{\mathrm{RF}_D}\widehat y(x)
+\xrightarrow{\mathrm{rank}}\text{next experimental batch}.
+\label{eq:evolvepro-pipeline}
+\end{equation}
+The language model supplies a coordinate system in which evolutionary and biochemical regularities
+may already be easier to separate.  The random forest supplies piecewise-constant regression and
+nonlinear feature selection from a small labeled set.  The iterative experiment supplies the most
+important new information: measured values near the region currently being optimized.
+
+The scientific object is an adaptive estimator whose training distribution changes after every
+acquisition.  Feature importance describes how the forest uses its coordinates; residue interaction
+and calibrated campaign uncertainty require their own estimators and measurements.  The achievement
+is that amortized sequence coordinates make a classical
+small-data optimization loop substantially more useful.
+
+\subsection{VIRAL: modern embeddings, Gaussian-process geometry}
+
+VIRAL places viral protein sequences in an ESM3-derived representation and models measured fitness
+with a Gaussian process, using its predictive distribution to explore the landscape
+\cite{ito2025viral}.  For a kernel $k$ on the learned coordinates, the posterior mean and variance
+at a candidate $z_*$ have the familiar form
+\begin{align}
+\widehat m(z_*)&=k_*^{\mathsf T}(K+\sigma_n^2I)^{-1}y,\nonumber
+\widehat v(z_*)&=k(z_*,z_*)-
+k_*^{\mathsf T}(K+\sigma_n^2I)^{-1}k_*.
+\label{eq:viral-gp}
+\end{align}
+The same inverse-covariance operation now acts on distances defined by a pretrained representation
+and a chosen kernel, in place of raw one-hot sequence coordinates.  A
+rational-quadratic kernel can mix several length scales, but those scales are geometric scales in
+embedding space; physical interaction ranges and evolutionary times require separate calibration.
+
+An upper-confidence acquisition rule such as
+\begin{equation}
+a(z)=\widehat m(z)+\beta^{1/2}\widehat v(z)^{1/2}
+\label{eq:viral-ucb}
+\end{equation}
+then balances predicted fitness against model uncertainty.  The exploration term is meaningful only
+relative to the GP prior, kernel, noise model, and observed region.  Other sources of biological
+failure remain outside that posterior.  VIRAL is a particularly clear instance of old probabilistic
+machinery becoming powerful because the representation changes which sequences count as nearby.
+
+\subsection{PLMSearch: representation narrows the search, alignment retains the verdict}
+
+PLMSearch addresses remote homology by using protein-language-model representations to retrieve
+promising candidates and then retaining classical sequence comparison in the decision pipeline
+\cite{liu2024plmsearch}.  A simplified decomposition is
+\begin{equation}
+q\xrightarrow{\phi_\theta}\text{embedding retrieval candidates}
+\xrightarrow{\text{sequence alignment}}\text{homology ranking}.
+\label{eq:plmsearch-pipeline}
+\end{equation}
+The learned coordinate system supplies sensitivity and speed at large database scale.  Alignment
+restores residue-level order, gaps, and local correspondence discarded by a pooled vector.
+The two stages therefore answer different questions: which proteins should be compared closely,
+and what ordered residue correspondence supports the final score?
+
+This hybrid construction assigns a distinct evidential role to each stage.  Proximity in
+representation space records encoder similarity; homology, structural mechanism, and evolutionary
+history enter through additional evidence.  The learned representation remains consequential
+because it changes the candidate
+distribution on which the expensive classical rule operates and can expose remote relationships
+that raw-sequence screening misses.
+
+\subsection{The repeated pattern is an estimator factorization}
+
+The three systems can be compared in the same ledger:
+\begin{center}
+\small
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.15\linewidth}
+                >{\raggedright\arraybackslash}p{0.22\linewidth}
+                >{\raggedright\arraybackslash}p{0.23\linewidth}
+                >{\raggedright\arraybackslash}p{0.29\linewidth}@{}}
+\toprule
+System & New coordinate & Decision engine & First unlicensed claim \\
+\midrule
+EVOLVEpro & PLM sequence embedding & random-forest regression plus iterative ranking & feature importance describes surrogate use; mechanism requires intervention \\
+VIRAL & ESM3-derived embedding geometry & Gaussian-process posterior and acquisition rule & kernel distance lives in embedding geometry; posterior variance is model-relative \\
+PLMSearch & pLM retrieval representation & similarity screening plus sequence alignment & embedding proximity supports retrieval; alignment restores residue correspondence \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The shared mathematical structure is
+\begin{equation}
+\boxed{
+\begin{gathered}
+\text{pretraining moves the data into new coordinates;}\\
+\text{a declared estimator still decides what follows}.
+\end{gathered}}
+\label{eq:representation-estimator-factorization}
+\end{equation}
+This factorization is useful for evaluation.  Freeze $\phi_\theta$ and compare downstream engines;
+freeze the engine and compare representations; preserve the acquisition rule while changing the
+uncertainty model; and evaluate the complete loop prospectively.  An aggregated benchmark gain
+leaves attribution among the biological prior, statistical estimator, and decision policy
+unresolved.
+
+In the coordinates of this book, these methods mostly change the observation and estimator maps;
+the interaction-edge definition remains a separate coordinate.  Their representations may contain relational
+information, but extracting an operator graph still requires endpoint-controlled interventions,
+reference projection, and a declared validation target.  A powerful coordinate system can make an
+old engine newly effective without turning that engine into a new physical theory.

@@ -1,0 +1,69 @@
+\section*{A two-background calculation}
+\addcontentsline{toc}{section}{A two-background calculation}
+
+The static--dynamic identity can be seen without fitting a large model.  Continue with uniform
+three-state references and let the persistent pair component be
+\begin{equation}
+G_0=
+\begin{pmatrix}
+2&-1&-1\\
+-1&1&0\\
+-1&0&1
+\end{pmatrix}.
+\end{equation}
+Introduce a second centered direction
+\begin{equation}
+H=
+\begin{pmatrix}
+0&1&-1\\
+1&-1&0\\
+-1&0&1
+\end{pmatrix}.
+\end{equation}
+Both matrices have zero row and column means, and they are orthogonal under the uniform weighted
+inner product.  Let a third position $k$ supply a binary background contrast $C\in\{-1,+1\}$ with
+equal probability, and define the effective edge
+\begin{equation}
+G_{i\leftarrow j}(C)=G_0+\lambda C H.
+\label{eq:book-two-background-edge}
+\end{equation}
+
+The response of the pair $(i,j)$ now changes when position $k$ changes.  Its mean and residual are
+\begin{equation}
+\overline G_{i\leftarrow j}=G_0,
+\qquad
+\delta G_{i\leftarrow j}(C)=\lambda C H.
+\end{equation}
+Direct calculation gives
+\begin{equation}
+\|G_0\|_{p_i,p_j}^2=\frac{10}{9},
+\qquad
+\|H\|_{p_i,p_j}^2=\frac{6}{9}=\frac23.
+\end{equation}
+Therefore
+\begin{equation}
+\E_C\|G(C)\|_{p_i,p_j}^2
+=\frac{10}{9}+\frac{2\lambda^2}{3},
+\end{equation}
+and the dynamic fraction is
+\begin{equation}
+\rho_{i\leftarrow j}^{\mathrm{dyn}}
+=\frac{6\lambda^2}{10+6\lambda^2}.
+\label{eq:book-two-background-rho}
+\end{equation}
+At $\lambda=0$ the response is exactly static.  At $\lambda=1$, three eighths of its squared mass
+is dynamic.  As $|\lambda|$ grows, the pair is increasingly described by its background modulation
+rather than by one persistent block.
+
+The construction also displays interaction order.  The term $CH$ jointly involves the audited
+target $i$, source $j$, and background position $k$.  It is stored observationally as a
+background-dependent edge, but functionally it is a third-order component.  A scalar graph can
+record the variance of this edge across backgrounds; it cannot by itself say which categorical
+direction $H$ carries or which position produced the modulation.
+
+Finally, the calculation assumes that $C$ is held fixed while the endpoint categories are varied.
+If the coefficient were emitted by a gate that also reads $X_j$, then enumerating the source state
+$b$ would change both the message and the gate selecting the message.  Double projection would
+still center the resulting table, but Eq.~\ref{eq:book-two-background-edge} would no longer describe
+one fixed conditional pair operator.  This is the practical reason endpoint exclusion appears as a
+separate requirement rather than as a consequence of gauge fixing.

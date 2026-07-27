@@ -1,0 +1,106 @@
+\subsection{Wavelets: spectral selection with spatial localization}
+
+Fourier modes answer which graph frequencies are present, but each eigenvector is generally spread
+over the whole graph.  A wavelet asks a more localized question: at what scale, and around which
+node, does a change occur?  On a self-adjoint graph Laplacian
+$L=V\Lambda V^{\mathsf T}$, choose a band-pass generating function $\psi$ and define
+\begin{equation}
+\Psi_s
+=\psi(sL)
+=V\psi(s\Lambda)V^{\mathsf T},
+\qquad
+\psi_{s,i}=\Psi_s\delta_i.
+\label{eq:graph-wavelet-atom}
+\end{equation}
+The vector $\psi_{s,i}$ is a graph-wavelet atom centered at node $i$ and scale $s$
+\cite{hammond2011}.  Its spectrum is selected by $\psi(s\lambda)$, while its node-space profile
+records how that band is expressed around $i$.  Graph wavelets couple spectral selectivity to
+spatial localization.
+
+The scale convention depends on the chosen generator.  For the common dilation
+$\psi(s\lambda)$, increasing $s$ shifts a fixed band-pass profile toward smaller eigenvalues and
+usually produces a broader node-space atom.  Small scales emphasize finer graph variation; large
+scales emphasize coarser organization.  This is a statement relative to $L$.  Atomic-motion and
+protein-domain interpretations require a separately calibrated correspondence between graph scale
+and the biological geometry.
+
+Localization follows from the spectral construction.  If $\psi(s\lambda)$ is approximated by a
+degree-$K$ polynomial,
+\begin{equation}
+\psi(sL)\approx\sum_{k=0}^{K}c_k(s)L^k,
+\label{eq:graph-wavelet-polynomial}
+\end{equation}
+then $\psi(sL)\delta_i$ is supported, up to approximation error, within $K$ graph steps of $i$.
+This is the same spectral-to-spatial passage used by Chebyshev graph filters.  The wavelet family
+organizes several band-pass scales around localized centers; a task-specific graph filter instead
+learns the propagation profile required by its objective.
+
+A low-pass scaling function $\phi_J$ retains the coarsest component.  A stable wavelet transform
+requires more than an appealing collection of bands.  If constants $0<A\leq B<\infty$ satisfy
+\begin{equation}
+A
+\leq
+|\phi_J(\lambda)|^2+\sum_{s\in\mathcal S}|\psi(s\lambda)|^2
+\leq B
+\label{eq:graph-wavelet-frame-spectrum}
+\end{equation}
+on the spectrum of $L$, then
+\begin{equation}
+A\|y\|_2^2
+\leq
+\|\phi_J(L)y\|_2^2
++\sum_{s\in\mathcal S}\|\psi(sL)y\|_2^2
+\leq B\|y\|_2^2.
+\label{eq:graph-wavelet-frame}
+\end{equation}
+The transform is then a stable frame: it can be redundant without losing control of the signal
+energy.  This distinguishes multiscale analysis from an arbitrary collection of spectral plots.
+
+Heat diffusion, wavelets, and graph convolution can now be placed in one functional calculus:
+\begin{equation}
+\begin{aligned}
+e^{-tL}&:&\quad&\text{low-pass smoothing at diffusion scale }t,\\
+\psi(sL)&:&\quad&\text{localized band-pass analysis at scale }s,\\
+\sum_{k=0}^{K}\theta_kL^k&:&\quad&\text{finite-hop polynomial filtering},\\
+S^KH&:&\quad&\text{repeated propagation with possible over-smoothing}.
+\end{aligned}
+\label{eq:spectral-operator-family}
+\end{equation}
+Their common mathematics is $g(L)$; their state, objective, and interpretation remain different.
+A heat kernel describes smoothing relative to a graph, a wavelet transform analyzes a signal, and a
+GCN layer is trained as part of a predictor.
+
+For an operator-valued protein graph, the analyzed signal must still be declared.  It might be a
+scalar conservation score, a static interaction norm, a mutational response field, or a categorical
+section $f\in\bigoplus_i\mathcal H_i^0$.  Scalar signals can be analyzed with a scalar Laplacian.
+Categorical sections require the connection Laplacian so that neighboring contrasts are transported
+between fibers before they are compared:
+\begin{equation}
+f\longmapsto\psi(s\mathbb L_{\mathrm{conn}})f.
+\label{eq:connection-wavelet}
+\end{equation}
+The resulting coefficient measures scale-dependent coherence in the declared transport geometry.
+Recovery of the original edge operator would require an additional invertible representation and
+its associated reconstruction map.
+
+Classical spectral graph wavelets also assume a self-adjoint operator with real spectral calculus.
+A directed attention route $P$ is generally nonnormal and therefore calls for a different spectral
+construction.  One may analyze the reversible
+Laplacian, a singular-value construction, or a declared symmetrization, but each discards or
+reorganizes directed circulation differently.  Thus the order of reasoning remains
+\begin{equation}
+\boxed{
+\begin{gathered}
+\text{declare the graph and signal}
+\longrightarrow
+\text{choose the operator geometry}\\
+\longrightarrow
+\text{choose the scale filters}
+\longrightarrow
+\text{interpret localized coefficients}.
+\end{gathered}}
+\label{eq:wavelet-audit-order}
+\end{equation}
+Low-, band-, and high-frequency coefficients are mathematical facts about that construction.
+Calling them conservation, allostery, physical vibration, or mechanism requires an external
+endpoint that licenses the name.

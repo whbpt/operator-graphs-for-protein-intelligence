@@ -1,0 +1,28 @@
+Interpretability claims are often evaluated by accumulation: more correlations, more visual
+examples, more downstream benchmarks.  A typed framework suggests a different standard.  Every
+semantic upgrade should have an observation that could reject it while leaving weaker claims
+intact.
+
+The first level is mathematical calibration.  A gauge projection should satisfy its zero-marginal
+identities.  Reference transport should preserve the underlying equivalence class.  A Potts audit
+should recover the known coupling in the additive limit.  A claimed Hopfield realization should
+show Lyapunov descent under the conditions of the proof.  These tests establish whether the named
+mathematical object has actually been implemented; biological validation begins at a later rung.
+
+The second level compares estimators.  Static MSA fields and mean pLM responses should be evaluated
+as full categorical blocks in a common reference, with their estimand gap and uncertainty exposed.
+Dynamic residuals should be tested across natural, mutational, and held-out backgrounds.  Route
+reversibility should be separated from response reciprocity.  Null ensembles should preserve the
+nuisance structure that the analysis claims to remove.
+
+The third level is biological and must match the type of the prediction.  A scalar position score
+can be compared with contacts or distances.  A typed edge operator calls for a gauge-aligned
+double-mutant matrix.  A background-dependent response calls for the same perturbations across
+multiple sequence contexts.  A higher-order residual calls for combinatorial interventions beyond
+pairs.  Validation becomes stronger when the endpoint retains the structure of the inferred
+object instead of compressing it prematurely.
+
+Falsification is constructive here.  Failure of static agreement can reveal transfer or
+misspecification.  Failure of reciprocity can expose directed computation.  Failure of pair
+truncation can quantify higher-order dependence.  A theory earns scope not by surviving every
+possible test, but by saying precisely what each failure means.

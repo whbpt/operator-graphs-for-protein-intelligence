@@ -1,0 +1,204 @@
+Mathematical notation creates a powerful illusion of continuity.  Write an exponential, divide by
+a sum, and a probability simplex appears.  Write a quadratic form and one is tempted to call it an
+energy.  Place coefficients between indexed objects and a graph seems to have been defined.  These
+moves are algebraically legitimate.  The difficulty begins when the semantic content of the
+symbols is allowed to travel farther than the derivation.
+
+Cross-disciplinary work depends on such travel.  Statistical physics, graphical modeling, and
+machine learning would remain isolated if every familiar operation had to be renamed in each
+field.  The aim is to preserve enough type information for analogies and equivalence claims to
+remain distinguishable.
+
+This chapter develops that discipline.  The central rule is that an equation is interpreted only
+after its random variable, sample space, conditioning information, invariance class, and validation
+claim have been named.  The same numerical kernel can then connect several theories without
+collapsing them into one.
+
+\section{The sample space comes before the probability}
+
+A probability vector is incomplete until we know what its coordinates enumerate.  Consider
+\begin{equation}
+\operatorname{softmax}_{u}(s)_u
+=\frac{e^{s_u}}{\sum_v e^{s_v}}.
+\label{eq:book-generic-softmax}
+\end{equation}
+The expression guarantees positivity and unit mass.  The meaning of that mass comes from whether
+$u$ denotes a residue identity, a source position, a stored memory, an edge type, or an entire
+protein configuration.
+Each choice produces a different random object.
+
+For a Potts conditional, $u=a\in[q]$ and the simplex describes the possible identities of one
+residue given the remaining sequence.  For attention, $u=j\in[L]$ and the simplex distributes one
+unit of routing mass over source positions for a fixed target and head.  In a modern Hopfield
+update, $u=\mu\in[M]$ indexes memories that compete for retrieval.  In a latent relation model,
+$u=z$ may index the possible states of one candidate edge.  A globally normalized Gibbs law is
+different again: its index ranges over complete configurations, often an exponentially large set.
+
+These distributions can share software and calculus while retaining different normalization
+constraints.  Source-softmax makes positions compete.  Edge-state softmax resolves uncertainty
+about one relation and acquires a degree budget only when edges are coupled.  A site conditional is
+normalized for each context; compatibility with one joint distribution is a further property to be
+established.
+
+The normalization axis is consequently part of the mathematical type.  Omitting it is comparable
+to omitting the units from a physical measurement: the remaining number can still be manipulated,
+but its comparisons become unsafe.
+
+\section{The exact content of the Gibbs analogy}
+
+Once a finite state space $\mathcal Z$ has been declared, softmax possesses an exact variational
+meaning.  Let $r_z$ be a score and let $E_z=-r_z$.  At temperature $\tau>0$,
+\begin{equation}
+p_z=\frac{e^{-E_z/\tau}}{\sum_{z'}e^{-E_{z'}/\tau}}.
+\label{eq:book-local-gibbs}
+\end{equation}
+The associated free energy satisfies
+\begin{equation}
+-\tau\log\sum_z e^{-E_z/\tau}
+=\min_{q\in\Delta(\mathcal Z)}
+\left\{\sum_zq_zE_z-\tau H(q)\right\}.
+\label{eq:book-free-energy}
+\end{equation}
+This is more than a metaphor.  The distribution exactly balances expected energy against entropy.
+As $\tau$ decreases it concentrates on score maxima; as $\tau$ increases it spreads mass across
+alternatives.  Adding the same constant to every $E_z$ changes the free energy by that constant but
+leaves $p$ unchanged, so only energy differences are observable within this coordinate.
+
+The identity gives the exact geometry of a declared categorical choice.  A physical reading adds
+further structure: calibrated energy units, a thermodynamic temperature, an equilibrium ensemble,
+and compatibility with a global Hamiltonian.  Learned logits and routing temperatures supply these
+features only when the corresponding model and calibration establish them.
+
+This distinction is especially sharp for graphs.  Suppose each candidate edge $e$ has a latent
+state $z_e$ and an independent softmax posterior $q_e(z_e\mid x)$.  The resulting law is
+\begin{equation}
+Q(G\mid x)=\prod_{e\in E_c}q_e(z_e\mid x).
+\label{eq:book-factorized-graph}
+\end{equation}
+Every factor has a local Gibbs representation.  The product is a factorized graph distribution;
+shared degree budgets, reciprocal constraints, loop energies, connectivity, geometric exclusion,
+and chemical consistency require additional coupled factors or a restricted graph space.
+
+A coupled graph ensemble instead has one normalization over admissible graphs:
+\begin{equation}
+P(G\mid x)
+=\frac{\exp[-\mathcal H_{\mathrm{graph}}(G;x)/\tau]}
+{\sum_{G'}\exp[-\mathcal H_{\mathrm{graph}}(G';x)/\tau]}.
+\label{eq:book-global-graph-law}
+\end{equation}
+The two laws coincide only when the graph energy separates over edges and the admissible set adds
+no global coupling.  Thus ``each edge is Gibbs distributed'' and ``the graph is a Gibbs system''
+are different statements.
+
+\section{Four uses of interaction}
+
+The word \emph{interaction} can now be separated by the object whose nonadditivity is at issue.
+
+\paragraph{Computational interaction.}
+Changing one node can alter another through a route, message, attention coefficient, residual
+path, or nonzero network response.  This is a property of an implemented function and its
+execution graph.
+
+\paragraph{Statistical interaction.}
+A joint or conditional function contains a component outside the span of the declared lower-order
+terms.  The statement depends on a reference measure, a projection or factorization,
+and an interaction order.
+
+\paragraph{Physical interaction.}
+A term belongs to a justified Hamiltonian or effective energy under an explicit coarse graining,
+symmetry class, and regime of validity.  Statistical fit alone does not supply those assumptions.
+
+\paragraph{Biological interaction.}
+A joint perturbation produces a reproducible effect on structure, fitness, activity, or another
+biological endpoint relative to a declared null.  This is an experimental statement and inherits
+the scope of the assay.
+
+The four meanings can support one another without forming a chain of automatic implications.  A
+computational route can help predict a statistical coupling.  A fitted coupling can correlate
+with contact geometry.  A contact can constrain mutational fitness.  Each transition is an
+empirical result with its own failure modes.
+
+\section{Four graphs on the same protein}
+
+The corresponding graphs must also be typed.
+
+The \emph{route graph} records where a computation can read or send a message.  In ordinary
+self-attention its support is usually the complete directed graph; what varies is the weight and
+the effective value-path operator.  The \emph{statistical support graph} records nonzero pair
+components in a declared probability or conditional model.  The \emph{operator graph} records the
+full categorical action attached to each directed pair.  The \emph{physical or biological graph}
+records relations defined by structural, energetic, kinetic, or intervention criteria.
+
+These distinctions matter even when all graphs predict the same contact benchmark.  Contact
+prediction compresses a rich pair object to a scalar label.  Agreement at that level leaves
+substitution specificity, reciprocity, background dependence, and mediation as separate comparison
+questions.  Agreement after scalar
+compression is evidence, but it is evidence about the compressed observable.
+
+Topology adds information that no isolated edge contains.  Support determines which effects are
+represented as direct and which require paths.  Degree, components, cycles, bottlenecks, and
+spectral modes describe collective organization.  Yet topology alone remains incomplete for
+categorical systems.  Two graphs with identical support can carry different edge operators and
+make different mutational predictions.  This is why the position graph will later appear as a
+shadow of a richer operator-valued object.
+
+Static and dynamic graphs occupy different roles as well.  A family-level interaction graph held
+fixed while homologous sequences are modeled resembles a quenched structure.  A route graph that
+changes with sequence, layer, and head is an adaptive computational state.  It is sometimes useful
+to compare the latter with an annealed graph, but input dependence alone does not produce an
+equilibrium measure over graph configurations.
+
+\section{A claim is a path with missing arrows}
+
+Cross-disciplinary overstatement often takes the form of a skipped arrow.  A route is observed and
+called an interaction; a conditional score is observed and called a Hamiltonian; a contact
+correlation is observed and called a mechanism.  A more durable argument makes the missing arrows
+explicit:
+\begin{equation}
+\begin{gathered}
+\text{projected bivariate component}
+\xRightarrow[\text{fixed context}]{\text{endpoint exclusion}}
+\text{conditional response}\\
+\xRightarrow[\text{one joint law}]{\text{compatibility}}
+\text{distributional interaction}
+\xRightarrow[\text{matched endpoint}]{\text{independent intervention}}
+\text{biological interaction}.
+\end{gathered}
+\label{eq:book-claim-ladder-detailed}
+\end{equation}
+Each arrow names an additional assumption or experiment.  The ladder preserves the value of every
+established level: a computational route can be useful before conditional semantics are known, and
+a statistical interaction can remain predictive while its microscopic interpretation is open.
+
+This also changes how negative results are read.  Failure of reciprocity may reject a joint Potts
+interpretation while revealing directed model behavior.  Failure of background invariance may
+reject a static pair description while quantifying higher-order context.  Failure to predict
+contacts may reject one structural interpretation without erasing an operator's role in sequence
+prediction.
+
+\section{The translation ledger}
+
+Before identifying two constructions, we will record the following coordinates:
+\begin{equation}
+\boxed{
+\begin{gathered}
+\text{object and sample space},\quad
+\text{normalization axis},\quad
+\text{conditioning information},\\
+\text{gauge or invariance class},\quad
+\text{state dynamics},\quad
+\text{estimator and validation endpoint}.
+\end{gathered}}
+\label{eq:book-translation-ledger}
+\end{equation}
+The ledger is deliberately asymmetric across fields.  Translating a Hamiltonian into a score may
+discard physical assumptions; translating a score into a Hamiltonian requires adding them.  A
+hidden feature can function as a memory without being a metastable thermodynamic state.  A sparse
+execution graph can save computation without identifying conditional independence.  A gauge-fixed
+pair table can isolate statistical nonadditivity without establishing biological causality.
+
+This asymmetry is the price of honest unification.  The common language developed in the next part
+will be strong enough to compare models because it refuses to pretend that every coordinate has
+the same semantics.  We begin with the categorical edge itself: what remains of a pair table after
+constants and one-body effects have been removed, and how that remainder acts as an operator
+between reference-centered state spaces.

@@ -1,0 +1,37 @@
+\section*{Coda: local coordinates and finite laws}
+\addcontentsline{toc}{section}{Coda: local coordinates and finite laws}
+
+The reference-centered operator is now connected to an exact statistical object.  Linear double
+projection gives the tangent direction that preserves marginals to first order.  Multiplicative
+matrix scaling follows the same quotient at finite displacement and enforces the marginal
+constraints exactly.  Information geometry explains both the relation and the difference.
+
+This distinction will recur in every model correspondence.  Potts fields may belong to one global
+Gibbs law.  Gaussian precision blocks encode conditional structure under a different sample
+space.  Hopfield and RBM free energies arise by marginalizing different latent variables.
+Transformer softmaxes usually normalize routes rather than configurations.  Similar algebra does
+not tell us which level of probability geometry a model inhabits.
+
+Matrix scaling also admits an exact variational reading.  If
+$\overline K=\exp(S)/\sum_{a,b}\exp S(a,b)$, then the scaled coupling satisfies
+\begin{equation}
+Q^*=\underset{Q\in\mathcal U(p_i,p_j)}{\operatorname{argmin}}
+\operatorname{KL}(Q\|\overline K).
+\label{eq:book-sinkhorn-information-projection}
+\end{equation}
+It is the distribution closest to the score-induced pair law while obeying the prescribed
+one-site marginals.  If $S=-E/\tau$, the same objective can be written as an energy--entropy
+competition, which explains the formal connection to Gibbs and free-energy language.
+
+The physical scope of that connection depends on what supplied $E$, $\tau$, and the marginals.
+They must represent a justified coarse-grained energy, temperature, and ensemble before $Q^*$ can
+be read as a physical equilibrium pair law.  Even then, one pair law is only a marginal; separately
+valid pair couplings need not be compatible with a single many-residue distribution.  Mutual
+information measures departure from independence in this probability geometry.  It is not a
+binding free energy, an interaction enthalpy, or a mechanical coupling unless an additional
+thermodynamic construction establishes that identity.  When those conditions are absent, the
+variational statement remains exact as information geometry and should be named that way.
+
+With the common edge coordinate and its probabilistic boundary established, the book can now turn
+outward.  The next part places familiar sequence and neural models into these coordinates, then
+asks how their operators are estimated and what survives spectral compression.

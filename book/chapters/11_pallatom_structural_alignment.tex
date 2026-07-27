@@ -1,0 +1,180 @@
+\section{Inductive bias as structural alignment}
+\sectionmark{Inductive bias as structural alignment}
+
+An inductive bias is the preference that makes a learning procedure choose some solutions over
+other solutions that fit the available data
+equally well.  It may enter through a prior, a regularizer, a function class, or the architecture
+itself.  Battaglia et al. use this idea to argue that entity--relation structure should be built
+into neural computation when the world is usefully described by entities, relations, and reusable
+composition rules \cite{battaglia2018relational}.  A structural assumption that matches the
+data-generating organization can
+reduce sample complexity and support combinatorial generalization.
+
+In concrete terms, choosing an inductive bias means writing a function whose organization can
+correspond to regularities internal to the data.  That correspondence is a hypothesis about how
+the problem is structured.  A representation $\phi_\theta$ chooses which
+distinctions and relations become easy to express, while a function class $\mathcal H$ determines
+which maps of those representations can be learned efficiently.  Let
+\begin{equation}
+m(x)=\mathbb E[Y\mid X=x]
+\end{equation}
+be the population response.  A structurally aligned representation--function pair makes
+\begin{equation}
+\inf_{f\in\mathcal H}
+\mathbb E\!\left[\bigl(m(X)-f(\phi_\theta(X))\bigr)^2\right]
+\label{eq:representation-bias-alignment}
+\end{equation}
+small while keeping $\mathcal H$ simple enough to estimate from the available data.  The
+representation exposes a regularity; the function class is organized so that this regularity can
+be expressed without relearning the structure from scratch.  This is the precise content of
+``matching the function to the data structure.''  It is an architectural claim to be tested, not
+a property guaranteed by scale, pretraining, or a graph-shaped input alone.
+
+One-body structure is one special inductive bias, not a synonym for inductive bias.  An additive
+class $f(x)=c+\sum_i h_i(x_i)$ prefers explanations assembled from independent site effects; a
+pairwise Potts class enlarges that preference to include $G_{ij}(x_i,x_j)$; low-rank constraints
+and sparse support impose further biases inside the pairwise class.  Other architectures may
+instead prefer locality, symmetry, relational composition, hierarchy, or low-rank structure.
+Whether one-body, pairwise, local, equivariant, compositional, or low-rank structure is appropriate
+is an empirical claim about the endpoint in the chosen coordinates.
+
+For coordinate models, symmetry supplies a particularly explicit example.  A global rigid motion
+$g=(R,t)$ acts on every atomic coordinate by
+\begin{equation}
+g\cdot r_i=Rr_i+t,
+\qquad R\in SO(3),\quad t\in\mathbb R^3,
+\qquad g\in SE(3).
+\label{eq:se3-action-on-coordinates}
+\end{equation}
+A coordinate-valued map is $SE(3)$-equivariant when
+$F(g\cdot r)=g\cdot F(r)$; a scalar readout is invariant when
+$q(g\cdot r)=q(r)$.  Restricting the function class to obey these identities builds the physical
+irrelevance of the laboratory frame into the model before any data are observed.  This is a group-
+theoretic inductive bias.  Reflections belong to the larger Euclidean group $E(3)$, but are not in
+$SE(3)$; because protein stereochemistry is chiral, a mirror reflection is not generally a
+physically equivalent coordinate change.
+
+Finally, low approximation error on one benchmark establishes task alignment.  Alignment with the
+scientific mechanism requires separating alternatives such as phylogeny,
+experimental batch, database composition, or another nuisance regularity.  Prospective tests,
+clade-aware splits, uncertainty calibration, and endpoint-specific interventions are what
+distinguish useful structural alignment from shortcut alignment.
+
+\subsection{Pallatom: a case study in structural alignment}
+
+Pallatom makes this idea unusually concrete \cite{qu2025pallatom}.  Its coordinate convention,
+relational architecture, denoising objective, and sequence readout are designed together around
+one hypothesis: sequence identity, backbone shape, and side-chain packing can be generated
+coherently by modeling a suitably represented all-atom coordinate distribution.
+
+The first bias is introduced before the neural network sees any data.  A residue with variable
+chemical topology is embedded into fourteen coordinate slots.  Native heavy atoms occupy their
+standard slots; absent atoms are represented by virtual points at the $C_\alpha$ coordinate:
+\begin{equation}
+(x,a)\xmapsto{\Psi_{14}}
+r_0\in\mathbb R^{N\times14\times3}.
+\label{eq:pallatom-atom14-map}
+\end{equation}
+This map converts transdimensional generation into ordinary Euclidean point-cloud diffusion.  It
+asserts that a residue is the stable compositional unit, that fourteen slots suffice for the
+canonical amino acids, and that the artificial coincidence of unused slots at $C_\alpha$ is a
+learnable nuisance.  These assumptions make the problem computationally regular; their status is
+representational, while molecular cardinality and atom existence belong to the physical ontology.
+
+The second bias is relational and multiscale in the sense emphasized by Battaglia et al.
+\cite{battaglia2018relational}.  Pallatom uses local atom-level attention for fine geometry and a
+globally communicating residue track with pair features for fold-scale organization.  Residue
+features are broadcast to atoms; atom features are aggregated back to residues; denoised
+coordinates are recycled into pair features; and triangle updates encourage relational
+consistency.  The architecture therefore assumes
+\begin{equation}
+\text{local atomic geometry}
+\longleftrightarrow
+\text{residue identity and state}
+\longleftrightarrow
+\text{global residue--residue organization}.
+\label{eq:pallatom-relational-bias}
+\end{equation}
+This hierarchy is well matched to folded proteins and avoids global attention over every atom
+pair.  Long-range atom--atom effects are therefore mediated through a residue-level bottleneck,
+which defines the model's relational capacity at fold scale.
+
+The slogan ``learn $P(\text{all-atom})$'' should be read with care.  Pallatom supplies the denoiser
+with a reduced side-chain labeling, and several amino acids share geometrically degenerate atom14
+patterns.  Coordinates alone therefore leave sequence ambiguous.  The trained
+object combines coordinate score matching with supervised sequence cross-entropy, residue- and
+atom-level distogram losses, smooth-LDDT loss, and intermediate supervision.  Schematically,
+\begin{equation}
+\mathcal L
+=\lambda\mathcal L_{\mathrm{atom}}
++\alpha_0\mathcal L_{\mathrm{seq}}
++\alpha_1\mathcal L_{\mathrm{LDDT}}
++\alpha_2\mathcal L_{\mathrm{dist,res}}
++\alpha_3\mathcal L_{\mathrm{dist,atom}}
++\alpha_4\mathcal L_{\mathrm{intermediate}}.
+\label{eq:pallatom-composite-loss}
+\end{equation}
+Thus the representation, architecture, and auxiliary targets together make the sequence--structure
+relation learnable beyond the information in an unsupervised coordinate density alone.
+Pallatom encourages the $SE(3)$ identity statistically through coordinate centering, random
+rigid-motion augmentation, and a Kabsch-aligned coordinate loss.  The function class still admits
+departures from exact equivariance.  This distinction
+is substantive: symmetry learned from augmentation is an approximate empirical regularity,
+whereas symmetry imposed by the architecture holds by construction.
+
+The training distribution contributes a third, unusually strong bias.  The reported model uses
+short monomers, crops of length at most 128, 7,459 filtered PDB structures, and 27,697 heavily
+curated AFDB structures.  AFDB candidates are required to have high predicted confidence and are
+then filtered for packing density, core-residue fraction, loop content and length, radius of
+gyration, secondary-structure segmentation, and redundancy.  Consequently the learned density is
+better written as
+\begin{equation}
+p_\theta\!\left(r\mid r\in\mathcal F_{\mathrm{compact,designable}}
+(\mathrm{PDB}\cup\mathrm{AFDB})\right)
+\label{eq:pallatom-curated-distribution}
+\end{equation}
+than as a universal distribution over proteins.  This is a legitimate design choice: it aligns
+the training set with the desired endpoint of compact, prediction-compatible monomers.  It also
+limits claims about disordered proteins, complexes, alternate states, membrane environments, and
+functional negative examples.
+
+The ablations support this alignment interpretation.  In the reported setup, atom14 achieves
+$87\%$ all-atom designability, compared with $5\%$ for a sequence-guided hybrid14 representation;
+removing differentiable recycling lowers it to $21\%$.  These results identify the computational
+representation that works with this denoiser and objective.  A claim about physical ontology would
+require independent physical evidence.  Indeed, changing the sampling step scale raises reported
+designability while reducing diversity and shifting the fraction of all-helical outputs.  The
+sampler is therefore part of the inductive bias and changes which region of the learned
+distribution is visited.
+
+The evaluation closes the same loop.  Pallatom reports $85.03\%$ all-atom designability in its
+primary comparison, where a sample passes when ESMFold assigns mean pLDDT above 80 and the
+all-atom RMSD between the generated structure and the structure predicted from its generated
+sequence is below $2$~\AA.  ProteinMPNN, ESMFold, Foldseek, and MMseqs2 provide useful tests of
+self-consistency, backbone redesignability, novelty, and diversity.  Their own training
+distributions and structural priors also enter the measurement.  High designability therefore
+licenses the statement that the generated sequence and coordinates are mutually recoverable under
+current predictors.  Stability, catalytic activity, binding specificity, equilibrium weights, and
+experimental success remain separate validation endpoints.
+
+Pallatom remains context-dependent even though its final sequence head is residuewise.  The head
+pools atomic embeddings and applies a linear classifier after those embeddings have received global
+residue, pair, triangle, and recycled-coordinate information.  The output logit at residue $i$ is
+therefore a function of the generated molecular context.  A
+local readout can therefore express pairwise and higher-order context already mixed into its input
+representation.
+
+Pallatom's main methodological achievement is therefore an alignment result.  A fixed-cardinality
+all-atom representation, a local--global relational network, curated compact-protein data, a
+composite geometric objective, and predictor-based designability metrics all point toward the
+same target.  That alignment explains the model's strong in-silico performance more precisely
+than saying that it simply ``learned chemistry.''  The remaining scientific question is whether
+the aligned target is broad enough for the intended use; answering it requires prospective
+synthesis and measurements under functional and negative-control conditions.
+
+Structural alignment and conditional identifiability answer successive questions.  Pallatom shows
+how a representation, architecture, objective, and evaluation loop can point coherently toward one
+endpoint.  The next sections ask a different question: when an edge or router is interpreted as a
+conditional relation, can its context be held fixed while the endpoint categories are varied?
+That requirement leads to endpoint-removable context and exposes an information tradeoff that good
+architectural alignment alone leaves unresolved.

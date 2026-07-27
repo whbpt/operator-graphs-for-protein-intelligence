@@ -1,0 +1,60 @@
+\section*{An estimand ledger with exact cancellation}
+\addcontentsline{toc}{section}{An estimand ledger with exact cancellation}
+
+The four-term decomposition turns an aggregate comparison into a ledger of discrepancies.  It also
+exposes agreement produced by cancellation.  Let $U$ be one unit-norm direction in the common
+reference-centered operator space and suppose the
+four gaps along that direction are
+\begin{equation}
+\begin{aligned}
+\widehat G^{\mathrm P}-G^{\mathrm{P},*}&=+0.10U,
+&&\text{finite Potts estimation},\\
+G^{\mathrm{P},*}-G^{F,(2)}&=+0.25U,
+&&\text{pairwise objective or misspecification},\\
+G^{F,(2)}-\overline G^{\mathrm{pLM}}&=-0.30U,
+&&\text{pLM transfer and response gap},\\
+\overline G^{\mathrm{pLM}}-widehat{\overline G}^{\mathrm{pLM}}&=-0.05U,
+&&\text{response sampling}.
+\end{aligned}
+\label{eq:book-estimand-cancellation}
+\end{equation}
+Their sum is zero.  The estimated Potts block and estimated pLM mean agree exactly along $U$, even
+though neither estimator equals the family pair component and the pLM has a substantial transfer
+gap.  Agreement arose by cancellation.
+
+The reverse situation is also possible.  If the four terms point in orthogonal operator
+directions, the total discrepancy has squared norm equal to the sum of their squared norms.  A
+single scalar correlation then reports the aggregate disagreement but cannot say whether more MSA
+depth, a richer statistical model, a different pLM, or more response backgrounds would reduce it.
+
+The ledger suggests an end-to-end comparison protocol.
+
+\paragraph{Fix one anchor geometry.}
+Estimate site marginals from a declared training partition, smooth unsupported categories, and
+hold those references fixed for both estimators.  Transport every block into these fibers before
+averaging or subtraction.
+
+\paragraph{Separate family sampling from response sampling.}
+Fit the Potts model on weighted or clade-partitioned MSA rows.  Estimate the pLM response mean on a
+separate set of sequence backgrounds.  Resample the two axes independently so that each uncertainty
+term remains identifiable.
+
+\paragraph{Preserve the operator before scalarization.}
+Report block alignment, singular-direction agreement, reciprocity, and dynamic variance before
+taking norms or contact scores.  Two methods can agree in magnitude while disagreeing on which
+substitutions compensate.
+
+\paragraph{Use a synthetic oracle to identify all four terms.}
+In real protein families the true pair component $G^{F,(2)}$ and Potts population optimum
+$G^{\mathrm{P},*}$ are unknown.  Resampling can estimate the first and fourth finite-sample terms,
+but misspecification and transfer remain partly confounded.  A controlled generative family with a
+known conditional score is needed to separate all four contributions exactly.
+
+\paragraph{Use biological data only for the claim it can test.}
+Contacts can validate scalar positional association.  Double-mutant matrices can test categorical
+operator alignment.  The same mutations across multiple backgrounds can test the dynamic field.
+No one endpoint identifies every term in Eq.~\ref{eq:estimand-decomposition}.
+
+The practical lesson is that a high Potts--pLM correlation is an observation, not an explanation.
+The estimand ledger identifies which stronger conclusions require additional sampling, a richer
+family model, a synthetic oracle, or an external intervention.
