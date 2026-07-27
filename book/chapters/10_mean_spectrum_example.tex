@@ -1,0 +1,58 @@
+\section*{When averaging graphs creates a mode that no context has}
+\addcontentsline{toc}{section}{When averaging graphs creates a mode that no context has}
+
+Consider three positions and two equally likely sequence contexts.  In context $A$, only positions
+1 and 2 are connected; in context $B$, only positions 2 and 3 are connected.  Their unnormalized
+Laplacians are
+\begin{equation}
+L_A=
+\begin{pmatrix}
+1&-1&0\\
+-1&1&0\\
+0&0&0
+\end{pmatrix},
+\qquad
+L_B=
+\begin{pmatrix}
+0&0&0\\
+0&1&-1\\
+0&-1&1
+\end{pmatrix}.
+\label{eq:book-context-laplacians}
+\end{equation}
+Each graph consists of one edge and one isolated vertex, so both spectra are
+\begin{equation}
+\operatorname{spec}(L_A)
+=\operatorname{spec}(L_B)
+=\{0,0,2\}.
+\end{equation}
+
+The mean Laplacian is
+\begin{equation}
+\overline L
+=\frac12(L_A+L_B)
+=\begin{pmatrix}
+1/2&-1/2&0\\
+-1/2&1&-1/2\\
+0&-1/2&1/2
+\end{pmatrix},
+\end{equation}
+with spectrum
+\begin{equation}
+\operatorname{spec}(\overline L)=\{0,1/2,3/2\}.
+\label{eq:book-mean-laplacian-spectrum}
+\end{equation}
+The mean graph is connected even though no context contains both edges simultaneously.  Averaging
+has created a path $1\!-\!2\!-\!3$ that exists only across contexts.  Correspondingly, the second
+zero mode present in every individual context disappears from the mean.
+
+This tiny example separates three claims.  The mean context spectrum is $\{0,0,2\}$.  The spectrum
+of the mean graph is $\{0,1/2,3/2\}$.  The distribution of zero-mode projectors records which vertex
+is isolated in each context.  None determines the others.
+
+For protein responses, the distinction can be biological.  Two alternative sequence backgrounds
+may support mutually exclusive communication paths.  Their mean graph suggests a connected route
+through all three positions, while no individual protein realizes that route.  A spectral analysis
+of $\E_C A(C)$ therefore answers a population-level aggregation question, not a statement about a
+typical sequence.  Context-specific projectors or their distribution must be retained when that
+difference matters.

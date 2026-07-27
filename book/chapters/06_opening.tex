@@ -1,0 +1,26 @@
+A centered interaction table lives in a linear space.  A joint probability table occupies a
+constrained subset: its entries remain nonnegative, sum to one, and often preserve two prescribed
+marginals.  These constraints form a transport polytope.  The two geometries describe an
+infinitesimal interaction coordinate and a finite probabilistic model.
+
+Begin with independent marginals $p_i(a)p_j(b)$ and tilt them by a pair score.  At weak coupling,
+double centering removes directions that only change one marginal, leaving the tangent interaction
+inside the zero-marginal subspace.  At finite coupling, however, linear projection is insufficient:
+exponentiation bends the geometry and generally changes both marginals.
+
+Exact marginal preservation requires multiplicative row and column factors.  Matrix scaling finds
+those factors and returns the unique information projection onto the transport polytope under the
+usual positivity assumptions.  The nonlinear construction and the linear gauge are complementary
+resolutions: the gauge-fixed operator is the local tangent coordinate through which the
+probability-exact family passes.
+
+This relation matters whenever a pair table is given probabilistic language.  Tangent-space norms
+and finite-strength mutual information are different functionals.  A centered logit table reaches
+a joint law with desired marginals through matrix scaling, and separately fitted conditionals reach
+one global distribution only when their compatibility equations hold.  Probability geometry
+supplies these finite constraints around the local operator coordinate.
+
+The chapter develops that distinction without abandoning the operator view.  Exact pair laws,
+information projections, and tangent operators describe different resolutions of the same local
+departure from independence.  Keeping the resolution explicit prevents a convenient linear score
+from being mistaken for a fully normalized physical model.

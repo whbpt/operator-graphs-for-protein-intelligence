@@ -1,0 +1,186 @@
+\section{A longitudinal case: the 2019 unified framework}
+
+In 2019, Dauparas et al. proposed a \emph{Unified Framework for Modeling Multivariate
+Distributions in Biological Sequences} \cite{dauparas2019}.  The paper placed PSSMs, Potts or
+Markov random fields, multivariate Gaussian models, and autoencoders inside one reconstruction
+diagram.  Read retrospectively, its importance lies in two achievements.  It exposed exact
+equivalences that had been hidden by disciplinary notation, and it made those equivalences
+operational enough that a regularization choice could be transferred from one model family to
+another.  It also shows where semantic typing begins after an algebraic unification succeeds.
+
+This distinction marks a genuine progression that builds on the original result.  The
+2019 question was: how many familiar sequence models can be implemented as nearby versions of one
+input--output reconstruction system?  The question of this book is stricter: after that
+implementation has been unified, which mathematical object does each system identify, and what
+must remain different when probability, energy, computation, and experiment are translated?
+
+\subsection{The common reconstruction diagram}
+
+Let an MSA contain $N$ sequences of length $L$ over an alphabet of size $q$.  Flatten the one-hot
+tensor to $X\in\{0,1\}^{N\times d}$ with $d=Lq$.  A linear reconstruction system has preactivation
+\begin{equation}
+H=B+XW,
+\label{eq:book-unified-linear-map}
+\end{equation}
+where $B$ supplies one-site fields and $W$ carries cross-coordinate dependence.  The models in the
+2019 framework are obtained by changing four choices: the admissible blocks of $W$, the output
+loss, the treatment of self-connections, and the regularizer.  Adding hidden layers replaces the
+single linear map by a nonlinear encoder--decoder while preserving the reconstruction view.
+
+For a PSSM, $W=0$ and a sitewise categorical softmax learns only $B_i(a)$.  For a Potts
+pseudolikelihood model, the logits at target position $i$ are
+\begin{equation}
+H_i(a;x_{-i})
+=B_i(a)+\sum_{j\ne i}\sum_b x_j(b)W_{j\to i}(b,a),
+\label{eq:book-unified-potts-logit}
+\end{equation}
+and categorical cross-entropy is applied over the residue alphabet at $i$.  Because one-hot targets
+satisfy $\sum_a x_i(a)=1$, the loss is exactly the negative sitewise Potts log
+pseudolikelihood:
+\begin{equation}
+\mathcal L_{\mathrm{CCE}}
+=-\frac1N\sum_{n,i}
+\log
+\frac{\exp H_i(x_i^{(n)};x_{-i}^{(n)})}
+{\sum_a\exp H_i(a;x_{-i}^{(n)})}
+=\mathcal L_{\mathrm{PL}}.
+\label{eq:book-unified-cce-pl}
+\end{equation}
+The equality is an exact identity of objectives after the categorical sample space and the
+targetwise normalization have been matched.
+
+The Gaussian branch begins from a different law.  Center the flattened observations to
+$\widetilde X$ and consider a regularized self-reconstruction objective of the form
+\begin{equation}
+\mathcal L_{\mathrm{MSE}}(W)
+=\frac1N\|\widetilde X-\widetilde XW\|_F^2
++\lambda\|W\|_F^2-2\gamma\operatorname{tr}(W).
+\label{eq:book-unified-mse}
+\end{equation}
+Writing $C=N^{-1}\widetilde X^{\mathsf T}\widetilde X$, its stationary solution is
+\begin{equation}
+W=(\gamma-\lambda)(C+\lambda I)^{-1}+I.
+\label{eq:book-unified-mse-solution}
+\end{equation}
+After the identity map is separated, the learned cross-coordinate map is therefore an affine
+transform of a regularized precision matrix.  With the corresponding choice of $\gamma$, the MSE
+system and Gaussian likelihood share the same global optimum, even though one is written as a
+neural self-map and the other as covariance inversion.
+
+The resulting family resemblance can be summarized without erasing the differences:
+\begin{center}
+\small
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.14\linewidth}
+                >{\raggedright\arraybackslash}p{0.19\linewidth}
+                >{\raggedright\arraybackslash}p{0.16\linewidth}
+                >{\raggedright\arraybackslash}p{0.19\linewidth}
+                >{\raggedright\arraybackslash}p{0.19\linewidth}@{}}
+\toprule
+Model & Reconstruction map & Objective & Native probability object & First semantic remainder \\
+\midrule
+PSSM & bias field only & sitewise CCE & independent categorical sites & no represented pair edge \\
+Potts/MRF & linear cross-position blocks & categorical CCE = pseudolikelihood & compatible categorical conditionals, when parameters are tied into one law & raw block retains gauge freedom; contact is a separate endpoint \\
+Gaussian/MG & centered linear self-map & regularized MSE & continuous Gaussian law through precision & one-hot simplex and categorical contrasts are approximated \\
+Autoencoder & factorized or nonlinear reconstruction & chosen output loss & generally a conditional predictor unless a joint law is supplied & hidden paths can induce higher-order final responses \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The diagram unified implementation at exactly the moment when neural-network software made that
+unification useful.  Pseudolikelihood Potts fitting could be expressed as ordinary categorical
+reconstruction; Gaussian inverse-covariance estimation could be expressed through an MSE layer;
+and either branch could acquire hidden layers without changing the outer input--output task.
+
+\subsection{The empirical test made the unification scientific}
+
+The 2019 work went beyond redrawing four models with the same boxes.  Its contact-prediction
+experiment asked whether a choice that worked in one formulation could improve another.  The MRF
+literature commonly used $L_2$ regularization, whereas Gaussian DCA was often expressed through a
+pseudocount applied to the covariance.  Transferring the MRF-style shrinkage logic to the MSE
+formulation improved contact prediction over GaussDCA.  Removing the diagonal self-map gave a
+further small improvement and connected the resulting score to partial correlation.  The
+categorical cross-entropy model still performed better, but the gap narrowed when the
+regularization comparison was made more like-for-like.
+
+This is the strongest form of useful mathematical unification.  An equivalence should permit a
+controlled transfer of an estimator, regularizer, diagnostic, or computational method.  Here it
+did.  The result showed that part of the apparent difference between model families came from
+training conventions and could be reduced by matching those conventions across graphical forms.
+It also showed that the remaining difference mattered: categorical cross-entropy respected the
+amino-acid sample space more faithfully than squared error on a continuous relaxation.
+
+The contact endpoint introduced one more irreversible step.  Both fitted matrices were reduced to
+scalar position scores, corrected by average-product correction, and ranked against structural
+contacts.  Success at that endpoint established predictive utility for contact ranking.  Gaussian
+precision entries, Potts tables, and neural weights retained their native meanings; the common
+benchmark compared their scalar shadows after model-specific estimation and shared postprocessing.
+
+\subsection{What was unified, and what remained plural}
+
+The phrase ``the difference between the models comes down to the loss function'' is exact at the
+level of the single-layer reconstruction diagram under the paper's stated constraints.  It becomes
+too strong if it is transported unchanged to probability or physics.  Four remainders survive.
+
+First, the sample spaces differ.  Potts pseudolikelihood normalizes over residue identities at one
+site while holding a categorical background fixed.  Gaussian MSE treats centered coordinates as
+continuous.  The shared outer matrix multiplication therefore sits above two distinct probability
+geometries.
+
+Second, a collection of categorical reconstructions yields one joint energy when parameter tying,
+gauge handling, and compatibility of the
+targetwise conditionals.  A generic linear CCE network may have directed blocks
+$W_{j\to i}$ and $W_{i\to j}$ that fail the reciprocity criterion of
+Eq.~\ref{eq:reciprocity}.  Its loss remains well defined, while the joint-Hamiltonian reading stops
+at the failed compatibility condition.
+
+Third, the matrix $W$ carries several kinds of structure at once.  Its diagonal may encode trivial
+self-reconstruction.  Its row and column directions may contain one-body gauge terms.  A block norm
+for contact prediction removes sign and categorical orientation.  The 2019 framework made the
+shared matrix visible; the reference-centered operator construction of Chapter~3 identifies which
+part of each categorical block is irreducibly bivariate.
+
+Fourth, adding hidden layers changes more than expressive power.  Nonlinear composition can turn
+pairwise first-layer messages into higher-order output responses.  The weight connecting two
+visible coordinates, a hidden computational route, and the audited substitution response of the
+complete autoencoder are therefore different edge candidates.  The reconstruction diagram leaves
+their selection to a typed output audit.
+
+These remainders can be stated as a progression of audit maps:
+\begin{equation}
+\begin{aligned}
+\text{2019:}\quad
+M&\longmapsto
+(\text{reconstruction map},\text{ loss},\text{ regularizer}),\\
+\text{this book:}\quad
+M&\longmapsto
+(\text{fiber},\text{ edge operator},\text{ context},\text{ order},
+\text{ normalization},\text{ estimator},\text{ validation}).
+\end{aligned}
+\label{eq:book-two-unifications}
+\end{equation}
+The second map extends the first from the point where it succeeds.  Once common code
+and common algebra have removed superficial differences, the remaining differences become sharp
+enough to type.
+
+\subsection{From horizontal equivalence to a longitudinal program}
+
+The 2019 framework is a horizontal unification across contemporary model families.  Its later
+consequences are longitudinal.  PSSM bias fields became the simplest node-state baseline.  Potts
+CCE made masked categorical prediction continuous with pseudolikelihood.  Autoencoder hidden
+layers opened the route from static family models to amortized nonlinear predictors.  Modern pLMs
+greatly enlarged that route, but in doing so separated the training objective, internal
+communication graph, and query-specific output response more strongly than the one-layer picture
+had to confront.
+
+The scientific question consequently moved.  It was first useful to ask whether PSSM, MRF,
+Gaussian, and autoencoder fitting could share one computational grammar.  It is now necessary to
+ask which typed relations survive depth, pretraining, context dependence, and geometric
+supervision.  The operator graph is the next unification in that sequence: a coordinate system
+that records the exact correspondence and the exact remainder together.
+
+This case also supplies a standard for the longitudinal analyses that follow.  A historical
+sequence of models becomes theoretically informative only when each transition identifies four
+things: the state that was added, the information that was discarded, the objective that licensed
+the new state, and the scientific claim that still remained unavailable.  The GCN lineage below
+applies the standard to graph computation; Chapter~8 then applies it to the three generations of
+AlphaFold.

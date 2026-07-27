@@ -1,0 +1,32 @@
+Once an interaction object has been defined, it is tempting to design an architecture that emits
+it directly.  The difficulty is that semantic requirements become information constraints.  If an
+edge is claimed to be invariant under substitutions at its endpoints, then the mechanism choosing
+that edge cannot depend on those endpoint values.  If a zero edge is claimed to save computation,
+the implementation must actually skip its work.  If an update is claimed to descend an energy,
+its memories, state variables, and parameter tying must satisfy the assumptions of the descent
+proof.
+
+These constraints are easy to blur because neural architectures combine several roles in one
+tensor.  An attention coefficient can select a route, scale a message, and contribute to an output
+response.  A pair representation can store persistent state or merely cache a transient feature.
+A soft gate can express uncertainty without producing exact support.  The operator framework
+separates these roles before asking which implementation is efficient.
+
+The chapter develops two kinds of result.  The first kind is semantic: endpoint-removable context,
+strict targetwise support, reciprocity, and state--energy compatibility state what an architecture
+must satisfy for a particular interpretation to be valid.  The second kind is constructive:
+signed routing, affine deletion, persistent pair tracks, sparse execution, and optional MSA
+supervision are possible ways to meet or approximate those requirements.  The constructions are
+examples, not definitions of the framework.
+
+Two limitations are especially revealing.  A deterministic graph router that must remain globally
+invariant to all active endpoint identities can collapse to a fixed graph.  Relaxing the claim to a
+targetwise directed conditional operator avoids that collapse but gives up the semantics of one
+globally identified undirected graph.  Separately, a router forbidden from observing two endpoint
+residues faces an irreducible Bayes error whenever the desired edge label depends on information
+contained only in those residues.  Training data and teacher supervision can approach that floor;
+they cannot remove it at inference.
+
+Realizability is therefore not an afterthought.  It marks the boundary between a mathematically
+well-defined interaction and a trainable mechanism that can infer or execute it under finite
+information and compute.

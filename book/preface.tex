@@ -1,0 +1,53 @@
+\chapter*{Preface}
+\addcontentsline{toc}{chapter}{Preface}
+
+Protein science, statistical physics, graphical modeling, and modern machine learning repeatedly
+use the same words for different mathematical objects.  A coupling may mean a term in a joint
+Hamiltonian, a conditional dependence parameter, a message map, or an experimentally measured
+epistatic effect.  A graph may encode model factorization, computational communication, an
+operator-valued response, or physical contact.  Softmax may normalize configurations, residue
+identities, source positions, memories, or latent edge states.  The formulas can look nearly
+identical while their scientific claims remain incompatible.
+
+This book develops a typed mathematical language for navigating those translations.  Its central
+object is a reference-centered operator-valued graph: every sequence position carries a categorical
+contrast space, and every directed edge carries a map between such spaces.  This construction
+places Potts couplings, protein-language-model responses, attention routes, latent memories,
+spectral summaries, and biological interventions in common coordinates without declaring them
+equivalent.
+
+The purpose is not to attach physical language to every neural computation.  It is to identify
+exactly what additional assumptions turn a score into an energy coordinate, a collection of
+conditionals into a joint law, a route into an interaction, a scalar network into an operator
+graph, and a predictive association into biological evidence.  Where those assumptions fail, the
+book treats the failure as information rather than as a defect to conceal.
+
+The material grew from a theory paper and retains theorem--proof precision, but its natural scope
+is broader.  The translation dictionary, gauge geometry, static--dynamic decomposition,
+higher-order hierarchy, graph probability, model correspondences, spectral analysis,
+realizability constraints, and falsification program are parts of one framework.  Presenting them
+as a book allows each layer to keep its proper meaning instead of forcing every distinction into
+the narrow arc of a single research claim.
+
+\section*{How to read this book}
+
+Part I establishes the cross-disciplinary vocabulary and the hierarchy of claims.  Part II is the
+theorem--proof core: it builds the operator geometry and develops static, dynamic, higher-order,
+and probability-exact edge objects.  Part III has a mixed role.  It contains exact model
+correspondences where their assumptions permit them, then uses the same coordinates as a
+structured audit of Potts models, Gaussian models, Hopfield systems, RBMs, Transformers, and the
+three generations of AlphaFold before turning to MSA estimators and graph spectra.  In particular,
+the AlphaFold comparison is an architectural reading of published systems, not an equivalence
+theorem about their algorithms.  Part IV asks which objects are realizable
+in trainable architectures and what evidence is required for statistical, physical, or biological
+interpretation.
+
+Readers interested primarily in protein language models can begin with Chapters 1, 4, 7, 8, and 9.
+Readers coming from statistical physics may prefer Chapters 2, 3, 6, 7, 8, and 10.  Readers designing
+sparse or interpretable architectures should read Chapters 3, 4, 8, 11, and 12 before treating an
+internal route as an identified interaction.
+
+The front-matter object map gives a lighter first route through the notation.  On a first reading,
+the opening prose, boxed equations, worked cases, and codas carry the conceptual argument.  Proofs
+and mathematical interludes can be read on a second pass; they establish the exact boundaries of
+the claims rather than introducing a separate storyline.

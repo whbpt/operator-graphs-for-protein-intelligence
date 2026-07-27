@@ -1,0 +1,68 @@
+\section*{A two-state finite-coupling calculation}
+\addcontentsline{toc}{section}{A two-state finite-coupling calculation}
+
+The difference between tangent geometry and an exact pair law is already visible for two uniform
+binary variables.  Let
+\begin{equation}
+p_i=p_j=(1/2,1/2)^{\mathsf T}
+\end{equation}
+and choose the centered score
+\begin{equation}
+S_\theta
+=\theta
+\begin{pmatrix}
+1&-1\\
+-1&1
+\end{pmatrix}.
+\label{eq:book-binary-score}
+\end{equation}
+Because symmetry gives equal row and column sums after exponentiation, exact matrix scaling can be
+written in closed form:
+\begin{equation}
+Q_\theta
+=\frac{1}{4\cosh\theta}
+\begin{pmatrix}
+e^\theta&e^{-\theta}\\
+e^{-\theta}&e^\theta
+\end{pmatrix}
+=\frac14
+\begin{pmatrix}
+1+t&1-t\\
+1-t&1+t
+\end{pmatrix},
+\qquad t=\tanh\theta.
+\label{eq:book-binary-scaled-law}
+\end{equation}
+Every row and column sums exactly to $1/2$ for every finite $\theta$.
+
+Near independence, $t=\theta+O(\theta^3)$ and
+\begin{equation}
+Q_\theta-p_ip_j^{\mathsf T}
+=\frac{\theta}{4}
+\begin{pmatrix}
+1&-1\\
+-1&1
+\end{pmatrix}
++O(\theta^3),
+\label{eq:book-binary-tangent}
+\end{equation}
+which is exactly the tangent direction predicted by
+Eq.~\ref{eq:sinkhorn-linearization}.  At finite strength the linear coordinate $\theta$ is replaced
+in the probability table by the bounded coordinate $\tanh\theta$.  The transport polytope bends
+and eventually saturates as probability concentrates on the two matching states.
+
+The mutual information is also exact:
+\begin{equation}
+I(\theta)
+=\frac{1+t}{2}\log(1+t)
++\frac{1-t}{2}\log(1-t).
+\label{eq:book-binary-mutual-information}
+\end{equation}
+For weak coupling, $I(\theta)=\theta^2/2+O(\theta^4)$, agreeing with the quadratic tangent norm.
+At strong coupling, the nonlinear probability geometry matters and the quadratic approximation no
+longer describes the finite law.
+
+Finally, add arbitrary row and column scores to $S_\theta$.  They change the unscaled exponential
+matrix, but exact marginal scaling absorbs them and returns the same $Q_\theta$.  The nonlinear
+probability model therefore respects precisely the same gauge quotient as the linear operator,
+while encoding finite displacement on that quotient rather than only its tangent direction.

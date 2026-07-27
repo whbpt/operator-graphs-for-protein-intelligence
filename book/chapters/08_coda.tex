@@ -1,0 +1,34 @@
+\section*{Coda: the estimand survives the pipeline only by declaration}
+\addcontentsline{toc}{section}{Coda: the estimand survives the pipeline only by declaration}
+
+The path from data to graph contains several irreversible operations.  Correlated sequences are
+weighted or projected; a model is fitted; raw tables are gauge-fixed; dynamic responses are
+averaged; operators may be scalarized; null expectations are subtracted.  Changing the order can
+change the result.  A transparent analysis therefore names the target operator before choosing
+the correction pipeline.
+
+This perspective also clarifies the role of disagreement.  A Potts estimate and a pLM response
+mean can differ because of finite family sampling, pairwise misspecification, transfer failure, or
+background sampling.  The common operator coordinate makes the difference decomposable rather
+than mysterious.  It does not privilege either estimator as the truth by construction.
+
+Their physical interpretations are not interchangeable.  A Potts coupling is an effective
+statistical energy coordinate for variation across a protein family when the fitted joint law is
+adequate.  The sampled objects are sequences shaped by ancestry, selection, and experimental
+ascertainment, not equilibrium molecular conformations.  A pLM substitution response is instead a
+finite-difference susceptibility of a trained predictor: it measures how one model output changes
+under a sequence intervention.  It becomes a physical susceptibility only if the intervention is
+conjugate to a physical field, the response is a calibrated observable, and the background law
+matches the physical ensemble of interest.
+
+Agreement between the two estimators can therefore support a shared relational pattern without
+identifying its origin.  Structural contacts can test geometric proximity; deep-mutational scans
+can test single-site functional consequences; double-mutant cycles can test nonadditivity in a
+matched experimental background.  Those endpoints supply different missing arrows from a
+statistical operator toward physical structure or biological mechanism.  No correction of the MSA
+or increase in pLM sample size can replace the endpoint needed for the stronger claim.
+
+Once an operator graph has been estimated, a new temptation appears: diagonalize the first matrix
+available and interpret its leading eigenvectors.  Spectra can be powerful summaries, but only
+after the space, edge compression, directionality, normalization, and null geometry have been
+declared.  That is a separate stage of reasoning and therefore a separate chapter.

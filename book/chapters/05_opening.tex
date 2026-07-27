@@ -1,0 +1,31 @@
+Several different simplifications are routinely called ``sparse interaction.''  A model may use
+few position pairs, compress the categorical action on each pair, truncate all dependence above
+order two, or reduce every edge to one scalar score.  These operations save different resources
+and discard different information.  None implies the others.
+
+Graph support answers whether a position pair is represented.  Categorical rank answers how many
+independent substitution-contrast directions its edge operator carries.  Interaction order asks
+how many sequence coordinates participate irreducibly in one functional component.  A sparse
+position graph can attach a full-rank $q\times q$ operator to each surviving edge.  A complete graph
+can reuse a one-dimensional message family.  A network built from pairwise messages can generate
+higher-order dependence after nonlinear aggregation.
+
+These counterexamples are not pathological.  They identify three distinct approximation budgets:
+\begin{equation}
+\text{number of edges},\qquad
+\text{rank per edge},\qquad
+\text{maximum interaction order}.
+\label{eq:book-three-complexities}
+\end{equation}
+A claim of compression should say which budget is controlled and how the discarded component is
+measured.
+
+The chapter then confronts the most common compression: replacing an operator $G_{ij}$ by a scalar
+such as its norm.  This step is often necessary for contact prediction, visualization, or ordinary
+graph spectra.  It is also irreversible.  Sign, singular directions, and the identity of favored
+substitutions disappear.  Projection and scalarization do not commute: a large raw norm can come
+entirely from one-body structure that vanishes in the canonical pair gauge.
+
+Scalar graphs are therefore not rejected here.  They are located.  A scalar shadow answers a
+declared question about the magnitude of an already identified operator.  Trouble begins only when
+properties of the shadow are read back as though no categorical information had been discarded.

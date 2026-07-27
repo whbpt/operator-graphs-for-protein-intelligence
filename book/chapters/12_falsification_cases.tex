@@ -1,0 +1,113 @@
+The framework is most useful when its objects are forced to fail separately.  The following three
+cases move from a system whose truth is known, through a family comparison with partially known
+estimands, to biological interventions where the endpoint itself limits the conclusion.
+
+\subsection*{Case I: the additive limit must be boring}
+
+Begin with sequences sampled from a known pairwise Potts model under a product or exactly controlled
+background law.  The ground-truth fields, pair blocks, support, and gauge class are available.  A
+correct substitution audit must recover
+\begin{equation}
+G_{i\leftarrow j}(C)=P_iJ_{ij}P_j^{\mathsf T}
+\end{equation}
+for every background $C$.  Dynamic variance must vanish up to numerical and sampling error, and the
+two directed responses must satisfy reciprocity after transport to the same reference.
+
+This case is intentionally uninteresting biologically.  Its purpose is to make implementation
+errors visible.  A nonzero dynamic residual can reveal that endpoint identities leaked into the
+reference or router, that logits were compared in inconsistent gauges, or that the source
+intervention changed more than one coordinate.  A reciprocity defect can reveal transposed endpoint
+conventions or incompatible reference transport.  A mismatch between tangent norm and exact mutual
+information at weak coupling can reveal a scaling error.
+
+The same synthetic system can then be perturbed one assumption at a time.  Add a pure third-order
+term while keeping the pair component fixed.  The mean pair response should remain the projected
+second-order component under the product reference, while dynamic variance increases by the exact
+higher-order mass.  Introduce phylogenetic sampling without changing the generative Hamiltonian.
+The underlying operator stays fixed, but its estimator becomes biased and its uncertainty ceases to
+follow an independent-row bootstrap.  Replace the product background by a correlated one.  The
+mean--residual Pythagorean identity remains exact under the new law, while the decomposition of
+dynamic variance into order-specific ANOVA masses acquires cross terms.
+
+Each modification targets a different coordinate.  Higher-order structure changes the estimand,
+phylogeny changes the sampling law, and background correlation changes the geometry of the
+decomposition.  Distinguishing them requires operator and sampling diagnostics alongside contact
+precision.
+
+\subsection*{Case II: family field and pLM response may agree for the wrong reason}
+
+Choose a protein family with sufficient effective depth to fit a range of regularized Potts models.
+Partition the MSA by clade rather than by random rows.  Use the training clades to define an anchor
+reference and fit the family field; use held-out natural or designed sequences as backgrounds for
+the pLM substitution audit.
+
+The first comparison is operator-valued:
+\begin{equation}
+\widehat G_{i\leftarrow j}^{\mathrm P}
+\quad\text{versus}\quad
+\widehat{\overline G}_{i\leftarrow j}^{\mathrm{pLM}}.
+\end{equation}
+Report alignment of full blocks, singular directions, reciprocity, and the pLM dynamic fraction.
+Only then compress to contact scores.  A high norm correlation with poor singular-direction
+agreement means the models locate strong pairs but disagree about substitution chemistry.  Good
+mean-block agreement with large dynamic variance means the pLM contains a reusable family-like
+component plus substantial context dependence.  Poor mean agreement with useful contact ranking
+means the scalar benchmark has hidden an operator-level discrepancy.
+
+The second comparison separates routes from responses.  Measure attention or another internal
+route using its own stationary geometry, detailed-balance defect, and directed support.  Then
+replace the route by its stationary reversibilization or a matched doubly stochastic control while
+holding value and output maps as fixed as the architecture permits.  If masked-token loss and the
+categorical response change, the model functionally uses the removed circulation.  If contact
+scores change while output responses remain stable, the intervention localizes the fragility to
+the attention interpretation rather than the model behavior.
+
+The result can fail in several informative ways.  Potts--pLM disagreement may reflect finite MSA
+sampling, pairwise misspecification, transfer failure, or response sampling.  Off-manifold
+substitutions may dominate the pLM variance.  MSA removal may alter confidence without altering the
+decoded edge operator.  The estimand ledger determines which additional control is relevant; one
+aggregate correlation does not.
+
+\subsection*{Case III: biological evidence should retain the predicted type}
+
+Suppose the model predicts a strong static operator on $(i,j)$, a particular compensatory
+substitution direction, and a dynamic modulation by a third position $k$.  Three increasingly rich
+experiments test different parts of that statement.
+
+A structure supplies a distance or contact endpoint.  It can test whether the position pair is
+geometrically associated, but not whether the predicted amino-acid direction is correct.  A linked
+double-mutant panel supplies an epistasis table.  After its own one-body terms are removed and its
+reference is aligned, it can test the categorical shape of the static operator.  Repeating that
+panel in multiple backgrounds that vary $k$ can test the predicted dynamic component.
+
+The experiments need not agree.  A spatially distant pair can carry a reproducible functional or
+compensatory operator.  A close contact can show weak epistasis under one phenotype.  A static mean
+can agree with double-mutant data while the predicted background modulation fails.  Together these
+outcomes identify which edge semantics survive the intervention, replacing an abstract choice of
+the one ``correct'' graph with a typed empirical comparison.
+
+Scale and units require their own care.  Model logits, evolutionary energies, binding free energies,
+and measured fitness occupy different numerical scales.  A link function between an inferred
+operator and an experimental table must be fitted on one subset and evaluated on held-out
+mutations.  The word ``energy'' names their formal role only after the relevant physical or
+statistical construction has been specified.
+
+\subsection*{What a clean failure looks like}
+
+A falsifiable theory permits each layer to succeed or fail independently.  The outcomes can be read
+locally:
+\begin{itemize}
+\setlength{\itemsep}{2pt}
+\item failure in the additive synthetic limit rejects the implementation;
+\item recovery in the additive limit but failure under controlled third-order terms rejects the
+claimed higher-order audit;
+\item stable estimation with Potts--pLM disagreement rejects transfer, not the common coordinate;
+\item contact agreement with operator disagreement supports a scalar positional signal, not typed
+mechanism recovery;
+\item operator agreement in one background with failed replication rejects background invariance;
+\item route ablation without response change weakens the proposed internal mechanism while leaving
+the output association intact.
+\end{itemize}
+
+This locality is the practical value of the claim ladder.  Evidence can stop at the strongest rung
+it supports without forcing the weaker results to disappear.

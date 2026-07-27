@@ -1,0 +1,145 @@
+\chapter*{Objects and Notation}
+\addcontentsline{toc}{chapter}{Objects and Notation}
+
+The notation in this book is easiest to read as a sequence of typed transformations.  Data do not
+begin as an interaction graph, and a spectrum is not computed until an edge object has been
+declared.  The main path is
+\begin{center}
+\fbox{\begin{minipage}{0.91\linewidth}
+\centering
+observations
+$\longrightarrow$
+estimator
+$\longrightarrow$
+typed edge operator
+$\longrightarrow$
+declared compression
+$\longrightarrow$
+spectrum or experiment.
+\end{minipage}}
+\end{center}
+Every arrow can lose information.  The book repeatedly asks what survives each arrow and what new
+assumption would be required to reverse its interpretation.
+
+\section*{The recurring objects}
+
+\begin{center}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.16\linewidth}
+                >{\raggedright\arraybackslash}p{0.31\linewidth}
+                >{\raggedright\arraybackslash}p{0.43\linewidth}@{}}
+\toprule
+Symbol & Type & Question answered \\
+\midrule
+$X=(X_1,\ldots,X_L)$ & sequence in $[q]^L$ & Which residue identity occurs at each position? \\
+$p_i$ & reference distribution on the alphabet at site $i$ & Relative to which background are categorical contrasts centered? \\
+$\mathcal H_i^0$ & $(q-1)$-dimensional centered categorical fiber & Which source and target perturbations count as genuine contrasts? \\
+$P_i$ & projection onto $\mathcal H_i^0$ & Which constant and one-body directions are removed from a table? \\
+$G_{i\leftarrow j}$ & reference-centered $q\times q$ kernel & Which source-category contrasts are coupled to which target-category contrasts? \\
+$\mathcal K_{i\leftarrow j}$ & map $\mathcal H_j^0\to\mathcal H_i^0$ induced by $G_{i\leftarrow j}$ & How does a centered contrast at $j$ act on centered predictions at $i$? \\
+$\mathbb K$ & block operator on $\bigoplus_i\mathcal H_i^0$ & How are all local maps assembled without scalarizing them? \\
+$G_{i\leftarrow j}(C)$ & categorical kernel conditional on background $C$ & Does the effective relation change with the surrounding sequence? \\
+$\overline G,\delta G$ & mean operator and context-dependent residual & What is the best static approximation, and what does it leave unexplained? \\
+$Q_{ij}$ & pair probability law with declared marginals & Does a finite normalized pair law realize the local score geometry? \\
+$A,L_G$ & scalar shadow and a declared graph Laplacian & Which positional organization remains after categorical information is compressed? \\
+$\epsilon_{ij}$ & projected experimental epistasis table & Does a matched intervention support the predicted categorical relation? \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The same letter can appear with a superscript identifying its origin, such as
+$G^{\mathrm P}$ for a Potts estimate or $G^{\mathrm{pLM}}$ for a language-model response.  An arrow
+$j\to i$ uses $j$ as source and $i$ as target.  Static pair energies may eventually identify the
+two directions, but directed responses are kept separate until reciprocity has been tested.
+
+The distinction between $G$ and $\mathcal K$ is representational, not a second scientific claim.
+In the declared categorical bases, $G_{i\leftarrow j}$ is the matrix kernel of
+$\mathcal K_{i\leftarrow j}$.  The calligraphic symbol emphasizes the typed input and output;
+the plain capital emphasizes the entries that are estimated, projected, plotted, or compressed.
+
+\section*{How the notation carries type}
+
+The typography follows a small grammar.  It does not make every symbol globally unique, but it
+narrows the possibilities before an equation is read in detail.
+\begin{center}
+\small
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.23\linewidth}
+                >{\raggedright\arraybackslash}p{0.28\linewidth}
+                >{\raggedright\arraybackslash}p{0.39\linewidth}@{}}
+\toprule
+Form & Usual role & Examples \\
+\midrule
+Lower-case italic & indices, states, scalar functions, or vectors & $i,j,a,b,t$; $f,u,v$ \\
+Plain capital & finite table, matrix, random object, or model state & $T,J,G,A,P,X$ \\
+Calligraphic capital & space, set, typed map, or functional & $\mathcal H,\mathcal U,\mathcal K,\mathcal E$ \\
+Blackboard/fraktur capital & assembled system or expectation operator & $\mathbb K,\mathfrak G,\mathbb E$ \\
+Arrow and indices & source, target, and level of action & $G_{i\leftarrow j}$ maps source $j$ toward target $i$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Decorations have stable meanings throughout the main construction:
+\begin{equation*}
+\begin{aligned}
+\widehat G&:\ \text{sample estimate}, &
+\overline G&:\ \text{declared background average},\\
+\delta G&:\ G-\overline G, &
+(\cdot)^*&:\ \text{population target or adjoint, as stated locally}.
+\end{aligned}
+\end{equation*}
+Superscripts such as ${\mathrm P}$, ${\mathrm{pLM}}$, ${\mathrm{stat}}$, and ${\mathrm{dyn}}$
+name origin or role; they do not change the domain and codomain unless the text explicitly says so.
+
+Four overloaded letters remain because they are standard in the literatures being compared.  Their
+syntax disambiguates them.  $L$ is sequence length in $[q]^L$ and an index bound, whereas $L_G$ or a
+subscripted $L_{\mathrm{sym}},L_{\mathrm{rw}}$ is a graph Laplacian.  $P_i$ is categorical
+centering, bare $P$ in the routing chapters is a row-stochastic matrix, and $P(\cdot)$ denotes a
+probability.  $Q_{ij}$ is a pair law, while $Q_i$ is the Euclidean form of a categorical projector;
+nuisance residualizers are written $R$ rather than adding another meaning to $Q$.  Finally, bare
+$G$ can denote a generic graph in a quoted graph-network formalism, while an indexed
+$G_{i\leftarrow j}$ is always a categorical kernel in this book.
+
+\clearpage
+\section*{Three spaces that should not be merged}
+
+The book moves among three geometries:
+\begin{center}
+\small
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.22\linewidth}
+                >{\raggedright\arraybackslash}p{0.32\linewidth}
+                >{\raggedright\arraybackslash}p{0.36\linewidth}@{}}
+\toprule
+Geometry & Native object & Typical operation \\
+\midrule
+Observation space & MSA rows, positions, and residue categories & weighting, residualization, covariance estimation \\
+Categorical operator space & centered contrasts and maps between local fibers & gauge projection, reference transport, response audit \\
+Position-graph space & one scalar or transported vector state per residue position & Laplacian spectrum, heat filtering, wavelets \\
+\bottomrule
+\end{tabular}
+\end{center}
+An eigenvector across MSA rows, a categorical constant mode, and an eigenvector across residue
+positions are therefore different objects even when all three are called modes.
+
+\section*{A first and a second reading}
+
+The main argument can be followed from the opening prose of each chapter, the boxed equations,
+the worked cases, and the codas.  The theorem and proof blocks establish exactness but need not be
+read on the first pass.  Long derivations labeled as mathematical interludes answer a narrower
+question and can likewise be deferred without losing the book's conceptual sequence.
+
+On a second reading, each proposed correspondence can be checked with the same ledger:
+\begin{equation*}
+\begin{gathered}
+\text{sample space},\quad
+\text{normalization axis},\quad
+\text{available context},\\
+\text{gauge or symmetry},\quad
+\text{state dynamics},\quad
+\text{estimator},\quad
+\text{validation endpoint}.
+\end{gathered}
+\end{equation*}
+These are not seven hurdles that every useful model must clear.  They are seven coordinates that
+prevent a valid statement in one space from being silently promoted into a stronger statement in
+another.

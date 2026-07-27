@@ -1,0 +1,654 @@
+AlphaFold did not advance through three versions of one unchanged algorithm.  Each generation
+reorganized the statistical experiment.  The first compressed a family alignment into engineered
+site and pair features, predicted explicit geometric distributions, and optimized coordinates in
+the resulting learned potential.  The second kept the alignment as an evolving neural state,
+coupled it repeatedly to a persistent pair representation, and realized geometry through an
+equivariant structure module.  The third shortened the lifetime of the alignment state, enlarged
+the molecular type system, concentrated relational evidence in a pair representation, and replaced
+the protein-specific coordinate module with conditional all-atom diffusion.
+
+The progression is often summarized as an improvement in accuracy and scope.  For the purposes of
+this book, it is more revealing to read it as the evolution of an edge object:
+\begin{equation}
+\begin{aligned}
+\text{AF1:}&\quad \text{explicit distance distribution and derived pair potential},\\
+\text{AF2:}&\quad \text{persistent protein pair state coupled to an MSA state},\\
+\text{AF3:}&\quad \text{persistent multimolecular pair state conditioning a generator}.
+\end{aligned}
+\label{eq:af-generational-edge}
+\end{equation}
+At every step the pair representation becomes more capable and less self-interpreting.  That
+tradeoff makes the three systems an unusually strong test of the operator-graph framework.
+
+This chapter uses the theory developed here as a retrospective coordinate system.  Its conclusions
+are therefore audit claims: they classify which sample spaces, information bottlenecks, graph
+states, symmetries, consistency operations, and probabilistic outputs are present in each published
+architecture.  They are not derivations of AlphaFold from the operator framework, nor equivalence
+theorems among the three generations.  The historical question of the designers' explicit
+theoretical influences would require different evidence.  Within this scope, the framework makes
+the architectural choices comparable in one language and identifies the additional assumptions
+needed for physical or biological interpretation.
+
+\section{One audit, three generations}
+
+We will track six coordinates through the three systems.
+
+\paragraph{Evidence.}
+What query-specific information is observed at inference: a current MSA, templates, chemical
+identity, covalent structure, or recycled predictions?
+
+\paragraph{State.}
+Which axes remain explicit inside the network: alignment row, residue or molecular token, pair,
+rigid frame, or atom coordinate?
+
+\paragraph{Edge carrier.}
+Is a pair represented by a categorical coupling table, a distance distribution, a hidden vector,
+an attention route, or an audited response operator?
+
+\paragraph{Composition.}
+How do paths and triples update pair information?  Is the operation a linear graph diffusion, a
+nonlinear triangle computation, or a coordinate-equivariant message?
+
+\paragraph{Normalization and dynamics.}
+Which variable is normalized by softmax or diffusion, and is an iterative update guaranteed to
+decrease any declared energy?
+
+\paragraph{Licensed interpretation.}
+What can be concluded directly from the architecture, and what would require a gauge, a compatible
+joint law, a null model, or a biological intervention?
+
+The resulting comparison is summarized before it is derived:
+\begin{center}
+\small
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.10\linewidth}
+                >{\raggedright\arraybackslash}p{0.24\linewidth}
+                >{\raggedright\arraybackslash}p{0.25\linewidth}
+                >{\raggedright\arraybackslash}p{0.29\linewidth}}
+\toprule
+System & Main relational state & Irreversible bottleneck & Strongest immediate semantics \\
+\midrule
+AF1 & explicit distogram and torsion-related outputs from an $L\times L$ trunk & raw MSA rows
+removed before the neural trunk & learned pairwise geometric evidence \\
+AF2 & evolving $z_{ij}$ coupled bidirectionally to $m_{si}$ & alignment information gradually
+projected into pair and first-row states & joint MSA--pair computation with equivariant coordinate
+realization \\
+AF3 & heterogeneous token-pair state conditioning all-atom denoising & MSA rows discarded after a
+short MSA module; provenance deposited into $z_{ij}$ & multimolecular relational conditioning and a
+conditional coordinate generator \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+None of the final-column statements is yet a claim of microscopic energy, direct evolutionary
+coupling, or biological mechanism.
+
+\section{AlphaFold 1: an explicit geometric edge}
+
+\subsection{The alignment disappears before the network begins}
+
+AlphaFold 1 constructs a query-specific MSA and transforms it into engineered one-site and pair
+features before the main neural trunk \cite{senior2020}.  Site features include profiles, deletion
+statistics, and effective alignment counts.  Pair features include gap covariation,
+pseudolikelihood coupling tensors, and scalar summaries of those tensors.  Schematically,
+\begin{equation}
+X_{sia}
+\longmapsto
+\{\phi_i(X),\Psi_{ij}(X)\}
+\longmapsto
+F_\theta(\phi_i,\phi_j,\Psi_{ij}),
+\label{eq:book-af1-compression}
+\end{equation}
+where the MSA row index $s$ is no longer present after the first arrow.
+
+This is an irreversible statistical decision.  The two-dimensional network can learn how to
+combine profiles, couplings, templates, and positional context.  Individual homologous sequences
+and new representations of row-level phylogeny are no longer addressable after this compression.  Any
+correction for redundancy, subfamily structure, alignment errors, or finite-depth noise must be
+performed during feature construction or inferred indirectly from the summaries that remain.
+
+The compression has an advantage that later systems partly surrender: the provenance of the input
+features is comparatively visible.  There is a named profile, a named coupling tensor, and a named
+gap statistic.  What is lost in adaptivity is gained in inspectable interfaces.
+
+\subsection{Distogram softmax is local geometry, not a global conformation law}
+
+The two-dimensional residual network predicts a distribution over distance bins for each residue
+pair,
+\begin{equation}
+P_{ij}(d=r_k\mid X)
+=\operatorname{softmax}_{k}s_{ij,k}(X).
+\label{eq:book-af1-distogram}
+\end{equation}
+The normalization axis is the set of possible distances for one fixed pair.  This is already much
+richer than a binary contact: it distinguishes short, intermediate, and long separations and can
+encode multimodal geometric uncertainty.
+
+This is a collection of pairwise marginals, while a joint distribution over atomic coordinates
+requires mutual realizability in three dimensions.  Triangle
+inequalities, chain connectivity, chirality, excluded volume, and stereochemistry couple different
+pairs.  The product
+\begin{equation}
+\prod_{i<j}P_{ij}(d_{ij}\mid X)
+\end{equation}
+therefore requires a separate compatibility argument before it can be read as the marginalization
+of one normalized conformation ensemble.
+
+AF1 addresses realization algorithmically.  The predicted distance distribution is compared with
+a learned background distribution and converted into an effective potential of mean force,
+schematically
+\begin{equation}
+U_{ij}(r;X)
+=-\log\frac{P_{ij}(r\mid X)}{P_{ij}^{\mathrm{ref}}(r)},
+\label{eq:book-af1-pmf}
+\end{equation}
+then combined with torsional and stereochemical terms during coordinate optimization.  This is an
+effective learned geometric objective.  The logarithm gives it a legitimate energy coordinate;
+the background ratio gives it a useful statistical reference.  Its dependence on the complete
+input sequence and learned structural database makes it an effective statistical potential whose
+pair terms can absorb collective constraints beyond a physical two-body force decomposition.
+
+The distinction is subtle but important.  AF1 uses energy language at the level needed for
+optimization: compatible structures should lie in low-objective regions.  Calibrated
+thermodynamics, conformational populations, kinetics, solvent free energies, and transferable
+atomic forces would require additional physical calibration.
+
+\subsection{The operator-graph reading}
+
+AF1's native pair object is geometric.  Each edge carries a distribution
+over distance states and related orientation information.  The input may contain a
+$q\times q$-like pseudolikelihood tensor, but after learned mixing the output edge no longer says
+how one amino-acid substitution acts on another residue's categorical distribution.
+
+In the terminology of this book, AF1 builds a dense scalar-state geometric graph from compressed
+family evidence.  It exposes its edge readout clearly; the alignment sample axis is compressed
+before the network, and the computation has no identified categorical operator.  Its great conceptual move is to replace contact
+classification with a learned geometric field; its corresponding limitation is that the route from
+individual evolutionary observations to that field is largely one-way.
+
+\section{AlphaFold 2: the pair state becomes a dynamical memory}
+
+\subsection{An architectural discontinuity}
+
+AlphaFold 2 changes the state space \cite{jumper2021}.  Persistent single and pair representations
+replace refinement of a fixed AF1-style potential.
+The Evoformer maintains an MSA representation
+\begin{equation}
+m_{si}^{(\ell)}\in\mathbb R^{c_m}
+\end{equation}
+and a pair representation
+\begin{equation}
+z_{ij}^{(\ell)}\in\mathbb R^{c_z}
+\end{equation}
+through many blocks.  The sequence axis $s$ is now an evolving part of the neural computation rather
+than a feature-engineering prelude.
+
+The two states communicate repeatedly.  Pair features bias row-wise attention in the MSA.  The MSA
+updates the pair state through an outer-product mean,
+\begin{equation}
+\Delta z_{ij}
+=W\left[
+\frac{1}{N}\sum_s
+a(m_{si})\otimes b(m_{sj})
+\right].
+\label{eq:book-af2-opm}
+\end{equation}
+The expression is an adaptive, learned second-moment-like statistic.  The vectors being multiplied
+have already passed through attention, pair bias, nonlinear transitions,
+and earlier blocks.  Their row average can carry denoised family signals, deletion structure,
+phylogenetic patterns, and model priors together.
+
+This explains why retaining raw MSA rows can outperform replacing them by fixed profiles and pair
+frequencies.  The result shows that adaptive access to row-level information matters.  Attribution
+of the gain among higher-order coevolution, improved weighting, denoising, and alignment
+heterogeneity remains an empirical decomposition.
+
+\subsection{A graph whose edges have memory}
+
+The pair state $z_{ij}^{(\ell)}$ persists and changes across the trunk.  It is edge memory on a
+dense position graph, updated jointly across residue pairs rather than emitted as a final score.
+Information deposited from the MSA at one layer can influence later MSA routing, later triangle
+updates, the structure module, and recycling.
+
+This is a major shift in graph semantics.  In AF1 the pair grid is primarily the domain of a learned
+geometric predictor.  In AF2 the pair grid is an evolving relational workspace: the model infers
+and computes with edge state.
+
+The channels of the hidden vector $z_{ij}$ are learned coordinates.  A categorical interpretation
+requires a decoder
+\begin{equation}
+T_{ij}(a,b)=D_\theta(z_{ij};a,b)
+\end{equation}
+followed by reference-gauge projection, while a geometric interpretation requires its own readout.
+Norms, eigenvectors, and individual channels summarize hidden-state geometry before either typed
+identification has been performed.
+
+\subsection{Triangle operations as higher-order computation}
+
+AF2 updates an edge through other edges that share an endpoint.  A schematic triangle
+multiplication has the form
+\begin{equation}
+\Delta z_{ij}
+\sim
+\sum_k
+g_{ijk}\odot A(z_{ik})\odot B(z_{kj}),
+\label{eq:book-af2-triangle}
+\end{equation}
+with learned projections and gates.  Triangle attention provides a related content-dependent
+aggregation.  The index $k$ makes relational consistency explicit: the state of $(i,j)$ is judged
+in the context of two-edge paths through $k$.
+
+Three claims must be separated.
+
+First, the computation is genuinely triple-indexed.  It can compare or compose the relations
+$(i,k)$ and $(k,j)$ while updating $(i,j)$.  Second, the stored output remains a pair state.  The
+architecture can realize the dependence without retaining an explicit hyperedge variable
+$h_{ijk}$.  Third, a three-body Hamiltonian interpretation additionally requires a compatible
+energy and global law.  The update is gated, channel-dependent,
+input-dependent, and embedded in a deep residual system.  An irreducible three-body statistical
+component must be established at the audited output after lower orders have been removed.
+
+Triangle operations differ from ordinary graph-Laplacian diffusion.  A Laplacian applies a fixed
+or declared linear edge geometry to node signals; AF2 composes learned edge states nonlinearly and
+changes the effective operator at every layer.  Local Jacobians, singular directions, and
+intervention responses are more faithful diagnostics than the eigenvectors of one scalarized pair
+matrix.
+
+\subsection{Invariant point attention separates symmetry from energy}
+
+After the Evoformer, AF2 maps the first-row representation and pair state into three-dimensional
+structure.  Invariant point attention represents residues by rigid frames, forms query and key
+points in local coordinates, compares them in global space, and uses pair features as additional
+biases.  The construction makes the update equivariant to global rigid motion while allowing the
+attention weights themselves to depend on invariant distances.
+
+This is a precise use of physical symmetry.  Rotating or translating the entire protein changes the
+coordinates in the required way while preserving the intrinsic prediction.  The architecture
+guarantees this transformation law directly.
+
+Equivariance states how the output changes when the coordinate frame changes.  A physical-force or
+potential-gradient interpretation adds a separate dynamical model.  The structure module is a
+learned coordinate map trained with geometric losses.  Its attention softmax normalizes source
+residues for an update; conformation probabilities live in another space.
+Symmetry controls transformation law, not thermodynamic semantics.
+
+\subsection{Recycling as iterative inference}
+
+AF2 feeds predicted structure and internal representations back into the network.  Recycling lets
+the model refine a hypothesis after seeing its own geometric consequences.  It resembles iterative
+inference and can correct globally inconsistent early states.
+
+But an iterative map
+\begin{equation}
+y^{(t+1)}=F_\theta(y^{(t)},X)
+\end{equation}
+is an iterative inference dynamics.  An energy-descent reading becomes available with a declared
+state function $E(y)$ and evidence that
+\begin{equation}
+E(y^{(t+1)})\leq E(y^{(t)})
+\end{equation}
+under fixed memories and update conditions.  AF2 provides a powerful learned refinement process;
+the weaker description is also the accurate one.
+
+\section{AlphaFold 3: relational conditioning becomes multimolecular}
+
+\subsection{The node and edge types expand}
+
+AlphaFold 3 moves from protein structure prediction to complexes containing proteins, nucleic
+acids, small molecules, ions, modified residues, and covalent links \cite{abramson2024}.  Standard
+polymer residues can be represented as tokens, while non-polymer components are tokenized more
+nearly at heavy-atom resolution.  The token-pair representation must therefore relate objects with
+different internal state spaces and different sources of evidence.
+
+This immediately makes the pair track heterogeneous.  Two protein residues may receive family
+evidence from an MSA, whereas a protein--ligand pair draws on chemical identity, covalent
+structure, spatial context, templates where applicable, and learned priors.  The same tensor index
+type contains several relation types.
+
+The operator-graph view handles this naturally by allowing typed node fibers and typed edge maps.
+It also warns against treating the hidden $z_{ij}$ as one homogeneous scalar graph.  Any analysis
+must stratify or transport across entity types before norms and spectra can be compared.
+
+\subsection{The MSA deposits evidence and then disappears}
+
+AF3 still constructs MSAs for polymer chains, including paired rows when cross-chain genetic
+information is available \cite{evans2022,abramson2024}.  But the explicit MSA state has a much
+shorter lifetime than in AF2.  A small MSA module updates both row representations and the pair
+state through outer-product means, pair-weighted averaging, and triangle operations.  After that
+module, the MSA rows are discarded.
+
+The main Pairformer operates on a single-token state $s_i$ and pair state $z_{ij}$.  Pair features
+bias token attention, while triangle operations continue to update the pair track.  Within the
+Pairformer, information flow is asymmetric: pair state shapes token updates, while the AF2-style
+token-to-pair write-back loop is absent.  Much of the relational
+evidence has already been deposited into $z$.
+
+The change can be written as a shift in bottleneck location:
+\begin{equation}
+\begin{aligned}
+\text{AF2:}&\quad m_{si}\rightleftarrows z_{ij}\quad\text{throughout the trunk},\\
+\text{AF3:}&\quad m_{si}\longrightarrow z_{ij}\quad\text{near the entrance},
+\qquad z_{ij}\longrightarrow s_i\quad\text{in the core}.
+\end{aligned}
+\label{eq:book-af2-af3-bottleneck}
+\end{equation}
+AF3 gains a common trunk for heterogeneous molecular systems and reduces the cost of maintaining a
+large alignment axis.  It loses direct access to row-level provenance once the compression has
+occurred.
+
+The pair state becomes the principal relational memory of the model.  That makes it more central
+than in AF2, not more interpretable.  Evolutionary evidence, templates, chemical type, covalent
+relations, recycling information, interface geometry, and confidence-relevant signals can coexist
+inside the same vector.
+
+\subsection{Mathematical interlude: one probability flow, two path laws}
+
+AF3 replaces the AF2 structure module with a diffusion model over all-atom coordinates.  The
+following interlude isolates the mathematical object introduced by this replacement and the scope
+of its physical interpretation.  Let $R_0$
+denote a clean structure and $R_t$ a noised version.  A denoiser or score-like network is trained
+under a forward corruption process and conditioned on the trunk representations.  In score
+notation, the learned field is associated with
+\begin{equation}
+s_\theta(R_t,t\mid s,z)
+\approx
+\nabla_{R_t}\log p_t(R_t\mid s,z).
+\label{eq:book-af3-score}
+\end{equation}
+This probability space consists of noisy coordinate configurations conditional on the model inputs
+and trunk state.  Attention, distograms, and masked-token heads normalize over three other sample
+spaces: source positions, distance bins, and amino-acid identities.
+
+The compact formula hides three different objects: a deliberately chosen corruption process, a
+vector field estimated from corrupted data, and a numerical transport procedure.  Their separation
+reveals what diffusion contributes and prevents the sampling dynamics from being mistaken for
+molecular dynamics.
+
+\paragraph{The forward SDE destroys information in a controlled way.}
+
+A continuous-time idealization of Gaussian corruption is the It\^o stochastic differential
+equation (SDE)
+\begin{equation}
+\mathrm dR_t=f(R_t,t)\,\mathrm dt+g(t)\,\mathrm dW_t,
+\qquad 0\leq t\leq T,
+\label{eq:book-af3-forward-sde}
+\end{equation}
+where $f$ is a prescribed drift, $g$ is a noise amplitude, and $W_t$ is Brownian motion.  An SDE
+specifies infinitesimal transition laws for an ensemble of nonsmooth paths: over a short interval
+$\Delta t$, the deterministic displacement is of order $\Delta t$,
+while the random displacement is of order $\sqrt{\Delta t}$.  Its ensemble density obeys the
+Fokker--Planck equation
+\begin{equation}
+\partial_t p_t(R)
+=-\nabla_R\!\cdot\!\bigl[f(R,t)p_t(R)\bigr]
++\frac12g(t)^2\Delta_Rp_t(R).
+\label{eq:book-af3-fokker-planck}
+\end{equation}
+The first term transports probability; the second smooths it.  In the drift-free case this is the
+heat equation.  If the added variance is $\sigma_t^2$, then
+\begin{equation}
+p_t=p_0*\mathcal N(0,\sigma_t^2I)
+=\exp\!\left(\frac{\sigma_t^2}{2}\Delta_R\right)p_0.
+\label{eq:book-af3-heat-semigroup}
+\end{equation}
+Thus forward diffusion is Gaussian convolution, or heat-semigroup smoothing, viewed at a sequence
+of resolutions.  Fine features of the data density disappear first; at sufficiently large noise,
+the terminal law is chosen to be close to a simple reference distribution.
+
+The common finite-time parameterization
+\begin{equation}
+R_t=\alpha_tR_0+\sigma_t\epsilon,
+\qquad \epsilon\sim\mathcal N(0,I),
+\label{eq:book-af3-gaussian-corruption}
+\end{equation}
+is the transition law of an appropriate linear SDE.  The forward schedule is a design choice, and
+its clock records noise scale.  A physical-time interpretation would require an independently
+identified molecular dynamics.
+
+\paragraph{Denoising learns the score of every smoothed density.}
+
+At a fixed noise level, the score is the spatial log-density gradient
+\begin{equation}
+s_t(R\mid s,z)=\nabla_R\log p_t(R\mid s,z).
+\label{eq:book-af3-conditional-score}
+\end{equation}
+It points toward locally increasing probability density and contains no normalization constant.
+For the Gaussian corruption in Eq.~\ref{eq:book-af3-gaussian-corruption}, least-squares noise
+prediction estimates a conditional mean,
+\begin{equation}
+\epsilon_\theta(R_t,t,s,z)
+\longrightarrow
+\mathbb E[\epsilon\mid R_t,s,z],
+\qquad
+s_t(R_t\mid s,z)
+=-\frac{1}{\sigma_t}\mathbb E[\epsilon\mid R_t,s,z].
+\label{eq:book-af3-noise-score}
+\end{equation}
+Equivalently, a minimum-square denoiser estimates the posterior mean of the clean coordinates.
+Tweedie's identity gives
+\begin{equation}
+\mathbb E[R_0\mid R_t,s,z]
+=\frac{R_t+\sigma_t^2s_t(R_t\mid s,z)}{\alpha_t}.
+\label{eq:book-af3-tweedie}
+\end{equation}
+Noise prediction, clean-coordinate denoising, and score estimation are therefore different
+parameterizations of the same conditional object when the Gaussian kernel and scaling convention
+are fixed.  The essential learned quantity is a multiscale family of density-gradient fields from
+which clean structures are generated.
+
+This also explains how denoising recovers structure through population statistics.  The posterior
+over the particular $\epsilon$ used for one corrupted example retains uncertainty given $R_t$.
+Squared-error training returns its conditional expectation, which is precisely the
+quantity needed to reconstruct the score of the noised population.
+
+\paragraph{The reverse SDE transports noise back toward data.}
+
+For the forward process in Eq.~\ref{eq:book-af3-forward-sde}, the time-reversed diffusion has drift
+\begin{equation}
+\mathrm dR_t=
+\left[f(R_t,t)-g(t)^2\nabla_R\log p_t(R_t\mid s,z)\right]\mathrm dt
++g(t)\,\mathrm d\overline W_t,
+\qquad t:T\longrightarrow0,
+\label{eq:book-af3-reverse-sde}
+\end{equation}
+where $\overline W_t$ is Brownian motion in the reverse-time filtration
+\cite{anderson1982,song2021}.  The displayed differential is integrated with decreasing $t$; this
+convention matters when interpreting its signs.  The score correction is the information that
+turns a generic noisy reference law back toward the learned conditional data law.  Replacing the
+unknown score by $s_\theta$ and discretizing the equation yields a sampler.
+
+The reverse SDE is a probability-generating dynamics.  Its individual paths are algorithmic
+transport paths; Brownian increments are introduced by the model, the drift depends on a
+noise-indexed training density, and time runs backward along an artificial corruption schedule.
+An exact score recovers the intended data distribution.  Molecular kinetics would additionally
+require a physically calibrated forward-time process.
+
+\paragraph{The probability-flow ODE exposes the deterministic core.}
+
+The same forward marginals $p_t$ also satisfy the continuity equation generated by the ordinary
+differential equation (ODE)
+\begin{equation}
+\frac{\mathrm dR_t}{\mathrm dt}
+=f(R_t,t)-\frac12g(t)^2\nabla_R\log p_t(R_t\mid s,z).
+\label{eq:book-af3-probability-flow-ode}
+\end{equation}
+Indeed,
+\begin{align}
+-\nabla_R\!\cdot\!\left[
+\left(f-\frac12g^2\nabla_R\log p_t\right)p_t
+\right]
+&=-\nabla_R\!\cdot(fp_t)+\frac12g^2\Delta_Rp_t,
+\label{eq:book-af3-ode-continuity}
+\end{align}
+which is exactly Eq.~\ref{eq:book-af3-fokker-planck}.  Run from the terminal reference law at $T$
+back to time zero, this probability-flow ODE transports the same one-time marginal distributions
+as the reverse SDE when the score is exact \cite{song2021}.
+
+An ODE assigns a smooth deterministic path once its initial point is fixed.  An SDE continues to
+inject Brownian randomness along the path.  Their one-time marginal densities agree, while their
+path measures, couplings between times, numerical errors, and exploration behavior remain different.
+In the usual sampling experiment the ODE still begins from a random terminal point drawn from the
+reference law.  The probability-flow result isolates the common mathematical core shared by the
+stochastic and deterministic transports:
+\begin{equation}
+\boxed{
+\text{multiscale density smoothing}
+\longrightarrow
+\text{conditional score estimation}
+\longrightarrow
+\text{reverse probability transport}.}
+\label{eq:book-af3-diffusion-core}
+\end{equation}
+SDE and ODE samplers are two realizations of the last arrow.  With an approximate neural score and
+a finite step size, each incurs a characteristic law-approximation error; sampler choice is
+therefore a numerical and statistical decision.
+
+Diffusion changes the epistemic status of the output.  Multiple coordinate samples can be drawn
+from the same conditioning state, allowing the generator to express some multimodality and
+sampling variability.  A deterministic coordinate map and a conditional coordinate distribution
+are different objects even when their top-ranked structures are similar.  Calibration of sample
+diversity additionally depends on the learned score, the terminal law,
+the numerical solver, and any selection or ranking imposed after generation.
+
+\paragraph{From statistical energy to molecular energy.}
+
+The score is the gradient of a learned log density.  A physical equilibrium force additionally
+requires a calibrated density with physical units and temperature, an appropriate measure on
+configuration space, correct treatment of solvent and chemical state, and a relation such as
+\begin{equation}
+F(R)=-\nabla_R U(R)
+\end{equation}
+for the intended physical potential.  The diffusion score follows the noised training distribution
+and depends on the conditioning network.  Its native interpretation is a principled generative
+vector field; molecular force-field or kinetic interpretations enter through the additional
+physical structure above.
+
+One may always define a noise-dependent statistical energy
+\begin{equation}
+E_t^{\mathrm{stat}}(R\mid s,z)=-\log p_t(R\mid s,z)+C_t,
+\qquad
+s_t=-\nabla_RE_t^{\mathrm{stat}}.
+\label{eq:book-af3-statistical-energy}
+\end{equation}
+This identity is mathematical bookkeeping.  To identify
+$k_{\mathrm B}T\,s_0$ with a thermodynamic mean force would additionally require the learned
+density to equal the relevant equilibrium distribution under the correct configuration-space
+measure and experimental conditions.  To identify a reverse trajectory with kinetics would
+require still more: a physically valid mobility, noise law, and forward-time dynamics.  Those
+identifications require evidence beyond AF3's conditioning variables and database distribution.
+
+Repeated diffusion samples reflect the learned structural distribution, training data,
+conditioning information, noise
+schedule, and sampling procedure.  Comparing sample frequencies with experimental populations
+requires separate calibration.
+
+\paragraph{Return to AlphaFold 3.}
+The interlude identifies the coordinate generator, while AF3's protein-specific content enters
+through the conditioning fields $s_i$ and $z_{ij}$.  The score network is conditional: it reads a
+token state and a persistent pair state into which MSA, template,
+chemical, and geometric evidence has already been compressed.  Diffusion changes the output law;
+the pair track still determines which relational evidence is available to shape that law.
+
+\subsection{Input chemical graph, relational graph, and coordinate graph}
+
+AF3 also makes three graphs especially easy to conflate.  The input chemical graph records known
+covalent bonds and molecular identity.  The Pairformer graph is a dense or broadly connected
+token-pair relational workspace.  The generated coordinate graph is obtained only after distances,
+contacts, and interactions are defined on a sampled structure.  A covalent edge can condition the
+pair state without being inferred; a noncovalent pair state can be important without becoming a
+bond; a spatial contact can emerge in a sample without corresponding to one persistent internal
+edge channel.
+
+The broader molecular scope therefore validates the need for typed graphs.  Once proteins,
+ligands, nucleic acids, ions, and modifications coexist, ``one graph over tokens'' is too weak a
+description.  Node type, edge provenance, allowed context, and output interpretation become part
+of the mathematical object.
+
+\section{What the three generations mastered}
+
+AlphaFold's most impressive theoretical competence is architectural.  Several principles recur.
+
+\paragraph{They promote relations to state.}
+AF1 makes pair geometry an explicit prediction target.  AF2 and AF3 go further by giving pair
+representations persistent memory and their own update algebra.  Relations become state well
+before the final layer.
+
+\paragraph{They choose bottlenecks deliberately.}
+AF1 compresses the MSA before learned inference, AF2 delays compression, and AF3 moves it back
+toward the entrance after a learned deposition step.  These are different judgments about the
+value and cost of provenance.
+
+\paragraph{They use paths to enforce relational consistency.}
+Triangle updates make the state of one edge depend on two-edge paths.  This is a powerful way to
+make dense pair predictions geometrically coherent without storing an explicit variable for every
+triple.
+
+\paragraph{They separate geometric handling from biological content.}
+AF2 hard-codes rigid-motion behavior in its structure module.  AF3 explicitly handles coordinate
+geometry, rigid transformations, and noisy structures inside a conditional generative procedure,
+with transformation guarantees that differ from IPA.  In both
+cases geometric transformation is controlled more directly than the biological content, which
+remains learned from data and supervision.
+
+\paragraph{They match output objects to tasks.}
+AF1 predicts distance distributions.  AF2 predicts frames and coordinates with geometric
+confidence.  AF3 samples an all-atom conditional distribution.  Across generations, the output
+state space itself expands.
+
+\paragraph{They iterate hypotheses.}
+Recycling and denoising let later computation condition on an evolving structural proposal.  The
+systems behave more like inference procedures than one-pass regressors, even when no exact energy
+descent theorem applies.
+
+These principles are close to the concerns of statistical physics: state choice, coarse graining,
+symmetry, collective consistency, iteration, and probability.  They operate first at the level of
+architecture; physical-observable status is a further identification problem.
+
+\section{What the operator framework still asks}
+
+The three systems solve structure prediction far more successfully than they solve internal
+identification.  The framework adds a set of questions left open by predictive performance.
+
+For AF1, how much of a learned geometric edge comes from categorical coupling rather than profile,
+gap, phylogenetic, or template structure?  Does the background-corrected distance potential behave
+consistently across families and sequence interventions?
+
+For AF2, can a decoder from $z_{ij}$ recover a reference-centered categorical field?  How stable is
+that field across backgrounds?  How much higher-order response is produced by triangle operations
+and deep composition?  Are the two directed substitution responses reciprocal even when the
+attention routes are not?
+
+For AF3, how should operator fibers be typed across residues, nucleotides, ligand atoms, and ions?
+Which pair-state components originate in MSA evidence and which in learned chemical priors?  Does
+diffusion sampling reproduce experimentally measured alternate-state populations, or only generate
+plausible structural modes?  Which noncovalent relations persist under matched changes of ligand,
+sequence, template, and diffusion seed?
+
+Across all generations, attention maps should be separated from output response graphs, hidden
+pair norms from decoded operators, and coordinate accuracy from physical mechanism.  The required
+experiments are interventions: remove or null the MSA while preserving composition, alter one
+evidence track at a time, decode typed pair responses, compare backgrounds, test reciprocity, and
+validate against mutation or binding measurements that preserve the predicted categorical or
+chemical structure.
+
+\section{The changing location of interpretability}
+
+The three generations reveal a general law of model development.  Later representations often
+integrate more evidence and support more accurate predictions, while preserving less information
+about where each component came from.
+
+AF1 exposes explicit statistical and geometric interfaces but discards individual MSA rows early.
+AF2 preserves the row axis and builds a rich pair dynamics, but the pair channels mix evolution,
+geometry, templates, and learned priors.  AF3 expands to heterogeneous molecular systems and a
+generative coordinate law, but concentrates still more kinds of evidence in one pair state before
+diffusion.
+
+Integration is often exactly what prediction requires.  Interpretation must therefore distinguish
+computational factorization into MSA, pair, single, and coordinate tracks from biological
+disentanglement of phylogeny,
+evolutionary constraint, physical interaction, and function.
+
+AlphaFold's deeper lesson concerns the design of representation: successful molecular inference
+depends on choosing when evidence should remain
+separate, when it should be compressed, which relations deserve persistent state, which symmetries
+should be exact, and which uncertainty should be represented by a distribution.  Those are the
+same design questions posed by the operator framework, answered in three different regimes.

@@ -1,0 +1,101 @@
+\section*{A three-state table, taken apart}
+\addcontentsline{toc}{section}{A three-state table, taken apart}
+
+The decomposition becomes concrete in the smallest example that retains more than one categorical
+contrast.  Let both endpoints have three states and use uniform references
+\begin{equation}
+p_i=p_j=\frac13(1,1,1)^{\mathsf T}.
+\end{equation}
+Consider the raw pair table
+\begin{equation}
+T=
+\begin{pmatrix}
+10&5&3\\
+5&5&2\\
+6&5&4
+\end{pmatrix}.
+\label{eq:book-three-state-raw}
+\end{equation}
+Its grand mean is $c=5$.  Its row means are $(6,4,5)$, so the centered target-only term is
+\begin{equation}
+u=(1,-1,0)^{\mathsf T}.
+\end{equation}
+Its column means are $(7,5,3)$, giving the centered source-only term
+\begin{equation}
+v=(2,0,-2)^{\mathsf T}.
+\end{equation}
+Subtracting these three lower-order pieces leaves
+\begin{equation}
+G=T-c\mathbf1\mathbf1^{\mathsf T}
+-u\mathbf1^{\mathsf T}-\mathbf1v^{\mathsf T}
+=
+\begin{pmatrix}
+2&-1&-1\\
+-1&1&0\\
+-1&0&1
+\end{pmatrix}.
+\label{eq:book-three-state-gauged}
+\end{equation}
+Every row and column of $G$ sums to zero.  Equivalently,
+\begin{equation}
+p_i^{\mathsf T}G=0,
+\qquad
+Gp_j=0.
+\end{equation}
+The large entry $T_{11}=10$ is therefore not itself the interaction.  It contains the grand
+baseline, a target propensity, a source propensity, and the bivariate residual.  In this example
+those contributions are $5+1+2+2$.
+
+Now alter the raw table by adding any new row and column effects,
+\begin{equation}
+T'(a,b)=T(a,b)+\widetilde u(a)+\widetilde v(b)+\widetilde c.
+\end{equation}
+The numerical entries and their ordinary Frobenius norm can change substantially, but double
+projection returns the same $G$.  The identified interaction is therefore the quotient class of
+$T$, while Eq.~\ref{eq:book-three-state-gauged} is its representative in the uniform reference.
+
+The edge becomes an operator when it acts on a source contrast.  Take
+\begin{equation}
+f=(1,-1,0)^{\mathsf T},
+\qquad p_j^{\mathsf T}f=0.
+\end{equation}
+Then
+\begin{equation}
+\mathcal K_{i\leftarrow j}f
+=GD_jf
+=\frac13Gf
+=
+\begin{pmatrix}
+1\\[-2pt]
+-2/3\\[-2pt]
+-1/3
+\end{pmatrix},
+\label{eq:book-three-state-action}
+\end{equation}
+whose target mean is again zero.  The source contrast does not merely activate an edge of strength
+$\|G\|$; it produces a particular target contrast.  Another source direction produces another
+response.
+
+For uniform references the whitened edge matrix is $\widetilde G=G/3$.  Its two nonzero singular
+values are $1$ and $1/3$, and its Hilbert--Schmidt norm is
+\begin{equation}
+\|\mathcal K_{i\leftarrow j}\|_{\mathrm{HS}}
+=\frac{\sqrt{10}}{3}.
+\end{equation}
+The scalar norm retains their combined magnitude but discards both singular directions.  This one
+calculation contains the sequence of transformations used throughout the book:
+\begin{equation}
+\boxed{
+\text{raw table}
+\longrightarrow
+\text{gauge class}
+\longrightarrow
+\text{reference representative}
+\longrightarrow
+\text{fiber operator}
+\longrightarrow
+\text{scalar shadow}.}
+\label{eq:book-table-to-shadow}
+\end{equation}
+Only the first four objects retain the typed substitution action.  The final scalar is useful only
+after the loss has been declared.

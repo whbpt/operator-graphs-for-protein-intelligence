@@ -1,0 +1,33 @@
+A pair table appears to be one of the simplest objects in sequence modeling.  Choose two positions,
+list the possible residue identities along the rows and columns, and attach a number to every
+combination.  The result is finite, visible, and easy to store.  Yet before it can represent an
+interaction, a basic ambiguity must be resolved: which part of the table belongs specifically to
+the pair?
+
+Suppose a table $T(a,b)$ is changed by
+\begin{equation}
+T(a,b)\longmapsto T(a,b)+u(a)+v(b)+c.
+\label{eq:book-table-gauge-opening}
+\end{equation}
+In a conditional model, the added row term may be absorbed into a local field at the target; in a
+joint energy, row and column terms can be redistributed among one-body potentials.  Different raw
+tables can therefore encode the same observable distribution or the same categorical response.
+Taking the matrix at face value confuses a parameterization with an identified pair object.
+
+The remedy is often called gauge fixing, but the phrase can make the operation sound like a
+convention chosen for numerical convenience.  The construction in this chapter is stronger.  A
+reference distribution at each endpoint defines which directions count as constants and one-body
+effects.  Double projection removes exactly those directions.  What remains is the canonical
+bivariate component relative to that reference.
+
+The geometric interpretation is the key.  Position $i$ carries a $(q-1)$-dimensional space of
+centered categorical contrasts behind its $q$ labels.  A pair interaction is a map from the source
+contrast space to the target contrast space.  The resulting protein graph is a bundle of local
+categorical spaces connected by typed linear operators; scalar edge weights are compressed shadows
+of these maps.
+
+This shift resolves several problems at once.  It explains why raw Potts tables are not directly
+comparable across gauges, why reference changes require a transport law, why scalar norms lose
+substitution direction, and why directed model responses can be compared with static couplings
+without pretending that their original parameters are the same.  The formal definitions below
+make these claims exact.

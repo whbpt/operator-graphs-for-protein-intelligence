@@ -1,0 +1,54 @@
+\section*{Two operators with the same scalar shadow}
+\addcontentsline{toc}{section}{Two operators with the same scalar shadow}
+
+Return to uniform three-state references and consider two gauged blocks
+\begin{equation}
+G_A=
+\begin{pmatrix}
+2&-1&-1\\
+-1&1&0\\
+-1&0&1
+\end{pmatrix},
+\qquad
+G_B=\sqrt{\frac53}
+\begin{pmatrix}
+0&1&-1\\
+1&-1&0\\
+-1&0&1
+\end{pmatrix}.
+\label{eq:book-same-shadow-blocks}
+\end{equation}
+Both have zero row and column means.  Their ordinary squared Frobenius norms are both $10$, so
+their weighted scalar shadows are identical:
+\begin{equation}
+M_A=M_B=\frac{\sqrt{10}}{3}.
+\label{eq:book-same-shadow-norm}
+\end{equation}
+
+The operators are nevertheless different.  The two nonzero singular values of the whitened
+$G_A$ are $1$ and $1/3$, whereas those of the whitened $G_B$ are both $\sqrt5/3$.  One concentrates
+more strength in a leading substitution direction; the other distributes its strength equally
+across the two-dimensional contrast fiber.
+
+Their action on the same source contrast $f=(1,-1,0)^{\mathsf T}$ makes the difference explicit:
+\begin{equation}
+\mathcal K_Af
+=
+\begin{pmatrix}
+1\\[-2pt]-2/3\\[-2pt]-1/3
+\end{pmatrix},
+\qquad
+\mathcal K_Bf
+=\frac{1}{3}\sqrt{\frac53}
+\begin{pmatrix}
+-1\\[-2pt]2\\[-2pt]-1
+\end{pmatrix}.
+\label{eq:book-same-shadow-actions}
+\end{equation}
+The first operator favors the first target contrast; the second suppresses it and favors the
+second.  A contact map built only from $M_{ij}$ assigns the two edges exactly the same value.
+
+This is not an exotic collision.  Sign reversal, rotation of singular vectors, and redistribution
+among singular values all create further operators with the same norm.  Scalarization is suitable
+for asking where strong pair structure is located.  It cannot answer which substitutions are
+compatible, compensatory, or antagonistic.  Those are operator-level questions.

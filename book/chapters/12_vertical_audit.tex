@@ -1,0 +1,82 @@
+\section{One residue pair, end to end}
+
+The opening chapter introduced five lines that can be drawn between the same positions $(i,j)$.
+The following worked audit carries one hypothetical pair through the complete framework.  Its
+deliberately synthetic outcome exposes the logic of interpretation without making an empirical
+claim about a particular protein.
+
+Assume that one protein family provides a clade-partitioned MSA, a query structure, a pretrained
+protein language model, and linked double-mutant measurements in two sequence backgrounds.  The
+pair $(i,j)$ is selected before any of these endpoints are compared.
+
+\subsection{Declare the comparison before fitting it}
+
+Training clades define smoothed anchor marginals $p_i,p_j$.  They are then held fixed.  A Potts
+model is fitted on the training MSA, and its block is projected into the anchor fibers.  The pLM is
+audited on held-out natural and designed backgrounds by changing the source residue at $j$ while
+measuring the target distribution at $i$.  Every response table is transported to the same fibers
+before its mean, residual, norm, or singular directions are computed.
+
+This order matters.  If each method supplied its own reference, a difference in block norm could
+come from the reference rather than the relation.  If blocks were scalarized first, agreement of
+strength could conceal disagreement about which amino-acid substitutions compensate.
+
+\subsection{A hypothetical outcome ledger}
+
+Suppose the audit produces four observations.  The Potts block and the mean pLM block have similar
+dominant singular directions.  Their scalar norms both rank $(i,j)$ highly, and the query structure
+places the sites in contact.  The pLM nevertheless has a substantial dynamic residual associated
+with backgrounds that vary a third site $k$, and its two directed mean responses retain a measurable
+reciprocity defect.  Finally, the double-mutant table agrees with the predicted compensatory
+direction in one background but changes when $k$ is altered.
+
+\begin{center}
+\small
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.28\linewidth}
+                >{\raggedright\arraybackslash}p{0.29\linewidth}
+                >{\raggedright\arraybackslash}p{0.31\linewidth}@{}}
+\toprule
+Observation & Licensed conclusion & Conclusion still unavailable \\
+\midrule
+Potts and pLM mean blocks align in categorical direction & the pLM contains a reusable family-like response component & equality of training laws or microscopic energies \\
+Both scalar shadows rank the pair highly and the sites contact & the two estimators share a contact-predictive positional signal & equality of the full operators or a direct physical pair force \\
+The pLM residual changes with site $k$ & one static edge is insufficient under the audited backgrounds & one identified three-body physical mechanism \\
+Directed means fail reciprocity & the response is not integrable into one additive pair energy under the tested reference & absence of useful directed computation \\
+Double-mutant shape changes with $k$ & background-dependent biological nonadditivity survives intervention & universal validity outside the tested assay and backgrounds \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+No single verdict summarizes this ledger.  The pair is simultaneously a structural contact, a
+stable statistical relation to first approximation, a context-dependent model response, and a
+background-dependent experimental interaction.  The failed reciprocity test blocks one stronger
+claim: these directed responses cannot be compressed into a single additive pair energy without
+discarding information.
+
+\subsection{Where the spectral analysis enters}
+
+Only after the operator graph has been assembled across many pairs is $(i,j)$ placed in a larger
+network.  A scalar norm may contribute to a contact-weighted Laplacian; a signed contraction may
+enter a signed Laplacian; the full categorical orientation may enter a connection Laplacian.
+Heat kernels or wavelets can then ask whether the pair belongs to a localized or domain-scale
+pattern.  Those transforms inherit the reciprocity defect and the categorical resolution retained
+during scalarization.
+
+The vertical audit therefore closes the path opened in Chapter~1:
+\begin{equation}
+\boxed{
+\begin{gathered}
+\text{shared endpoints}
+\longrightarrow
+\text{typed observations}
+\longrightarrow
+\text{common operator coordinates}\\
+\longrightarrow
+\text{declared compression}
+\longrightarrow
+\text{matched structural and mutational evidence}.
+\end{gathered}}
+\label{eq:vertical-audit-path}
+\end{equation}
+The framework places the five original edges in common coordinates, making their exact level of
+agreement and the first failed upgrade in interpretation visible in one report.
