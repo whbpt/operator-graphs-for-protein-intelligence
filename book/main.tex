@@ -1,0 +1,74 @@
+\documentclass[11pt,openany]{book}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,array,booktabs,mathrsfs,mathtools,microtype,multicol}
+\usepackage[hidelinks]{hyperref}
+\setlength{\emergencystretch}{1em}
+
+% Keep recto-opening part blanks free of inherited running headers.
+\makeatletter
+\renewcommand{\cleardoublepage}{%
+  \clearpage
+  \if@twoside
+    \ifodd\c@page\else
+      \hbox{}\thispagestyle{empty}\newpage
+      \if@twocolumn\hbox{}\newpage\fi
+    \fi
+  \fi}
+\makeatother
+
+\newcommand{\E}{\mathbb E}
+\newcommand{\R}{\mathbb R}
+\newcommand{\diag}{\operatorname{diag}}
+\newcommand{\Span}{\operatorname{span}}
+
+\newtheorem{theorem}{Theorem}[chapter]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\BookPart}[1]{\part{#1}}
+\newcommand{\BookChapter}[1]{\chapter{#1}}
+\newcommand{\BookBackMatter}{\backmatter}
+\newcommand{\BookBibliographyColumnsBegin}{}
+\newcommand{\BookBibliographyColumnsEnd}{}
+\newcommand{\BookBibliographySize}{\small}
+\newcommand{\BookUnit}{Chapter}
+\newcommand{\BookInsert}[1]{\input{#1}}
+\newcommand{\BookOnlyChapter}[1]{\chapter{#1}}
+\newcommand{\BookSpectralSection}[1]{\section{#1}}
+\newcommand{\BookSubsection}[1]{\subsection{#1}}
+\newcommand{\BookSpectralPointer}{Chapter~10}
+\newcommand{\BookSection}[1]{\section{#1}}
+\def\BOOKMODE{1}
+
+\title{Operator Graphs for Protein Intelligence\\
+\large A Mathematical Language for Energy, Probability, and Computation}
+\author{Haobo Wang\\
+\small Levinthal Biotech, Hangzhou, China}
+\date{July 2026}
+
+\begin{document}
+
+\frontmatter
+\maketitle
+
+\thispagestyle{empty}
+\vspace*{\fill}
+\noindent
+Draft monograph, July 2026.\\
+Copyright \copyright\ 2026 Haobo Wang. All rights reserved.
+\vspace*{\fill}
+\clearpage
+
+\input{preface}
+\input{notation}
+\tableofcontents
+
+\mainmatter
+\input{../paper/protein_operator_graph_framework.tex}
+
+\end{document}
