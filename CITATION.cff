@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+message: "If you use this monograph, please cite the version you consulted."
+title: "Operator Graphs for Protein Intelligence: A Mathematical Language for Energy, Probability, and Computation"
+authors:
+  - family-names: Wang
+    given-names: Haobo
+version: 0.9.0
+date-released: 2026-07-28
+repository-code: "https://github.com/whbpt/operator-graphs-for-protein-intelligence"
+url: "https://github.com/whbpt/operator-graphs-for-protein-intelligence/blob/main/output/pdf/operator_graphs_for_protein_intelligence.pdf"
