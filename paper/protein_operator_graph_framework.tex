@@ -1,0 +1,2839 @@
+\ifdefined\BOOKMODE
+\else
+\documentclass[10pt]{article}
+
+\usepackage[margin=0.84in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,array,booktabs,mathrsfs,mathtools,microtype,multicol}
+\usepackage[hidelinks]{hyperref}
+\setlength{\emergencystretch}{1em}
+
+\newcommand{\E}{\mathbb E}
+\newcommand{\R}{\mathbb R}
+\newcommand{\diag}{\operatorname{diag}}
+\newcommand{\Span}{\operatorname{span}}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\BookPart}[1]{}
+\newcommand{\BookChapter}[1]{\section{#1}}
+\newcommand{\BookBackMatter}{}
+\newcommand{\BookBibliographyColumnsBegin}{\begin{multicols}{2}}
+\newcommand{\BookBibliographyColumnsEnd}{\end{multicols}}
+\newcommand{\BookBibliographySize}{\scriptsize}
+\newcommand{\BookUnit}{Section}
+\newcommand{\BookInsert}[1]{}
+\newcommand{\BookOnlyChapter}[1]{}
+\newcommand{\BookSpectralSection}[1]{\subsection{#1}}
+\newcommand{\BookSubsection}[1]{\subsubsection{#1}}
+\newcommand{\BookSpectralPointer}{\BookUnit~8}
+\newcommand{\BookSection}[1]{\subsection{#1}}
+
+\title{From Potts Energies to Protein Transformers:\\
+A Reference-Centered Operator Framework for Sequence Interactions}
+\author{Haobo Wang\\
+\small Levinthal Biotech, Hangzhou, China}
+\date{July 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Protein sequence models use the same words---coupling, memory, attention, message, and
+interaction---for objects with different sample spaces and probabilistic meanings.  We introduce a
+typed framework that compares these objects without identifying a computational route with a
+statistical or physical interaction.  Each residue position carries a centered feature fiber, and
+each directed edge carries a context-measurable operator between fibers.  The complete audit object
+also records support, interaction order, state dynamics, normalization, estimation, nuisance
+assumptions, and validation endpoint.  In the categorical case, weighted double projection selects
+the unique reference-centered bivariate representative of a Potts pair-table parameter class.  We
+derive the transformation law between reference choices and show that exact marginal-preserving
+matrix scaling factors through the same quotient.
+
+Potts models and protein language models provide the principal worked example.  A projected
+substitution audit exactly recovers an additive Potts coupling.  Applied to a nonlinear sequence
+model, it gives a background-dependent effective operator whose mean is the best static
+approximation and whose orthogonal fluctuation measures dynamic context dependence.  Under a fixed
+product reference, functional ANOVA identifies this fluctuation exactly with higher-order
+components containing both audited endpoints.  Reciprocity supplies the additional compatibility
+condition for directed additive responses to define a joint Potts energy.  We then distinguish this
+response object from attention routes, latent memories, scalar contact shadows, MSA estimators, and
+biological epistasis.  For row-stochastic routes, a stationary-measure adjoint further separates
+reversible transport from directed circulation; an undirected Laplacian is then an explicit lossy
+shadow rather than the native Transformer graph.  Scalar, signed, and connection Laplacians further
+separate positional smoothness from transported categorical coherence.  The result is a mathematical coordinate
+system for translating among
+statistical physics, probability, and neural computation while keeping identification, execution,
+estimation, and validation as separate claims.  In this view, graph structure is a relational
+inductive bias: it specifies how typed entities may exchange shared computations, but does not by
+itself identify what the resulting edges mean scientifically.
+\end{abstract}
+\fi
+
+\BookPart{Language and Foundations}
+\ifdefined\BOOKMODE
+\BookChapter{One Edge, Several Meanings}
+\BookInsert{chapters/01_one_edge_several_meanings}
+\else
+\BookChapter{Introduction}
+
+Protein sequence models use the word ``interaction'' for several mathematically different
+objects.  Direct-coupling analysis assigns a $q\times q$ Potts table to a pair of residue
+positions.  A graph neural network assigns a message map.  Transformer attention assigns a
+normalized scalar route, while a protein language model can be probed by the change in its output
+under a categorical substitution.  All four objects are indexed by positions $(i,j)$ and may
+predict contacts, but they do not share a sample space, invariance class, or probabilistic meaning.
+Pair indexing alone is therefore not a definition of interaction.
+
+The ambiguity is visible in the shared use of softmax.  A Potts conditional normalizes over the
+$q$ residue identities at one site, attention normalizes over source positions, and modern
+Hopfield retrieval normalizes over stored memories.  These operations use the same numerical
+kernel but define distributions on different variables.  Likewise, a Potts Hamiltonian scores a
+complete sequence, a Hopfield Lyapunov function controls a retrieval state, and an attention score
+usually controls only a computational route.  A useful unification must preserve these types; it
+cannot declare every matrix an energy or every route a statistical coupling.
+
+There is a second, categorical ambiguity.  A raw table $T_{ij}(a,b)$ can contain a constant, a
+function of $a$ alone, a function of $b$ alone, and a genuinely bivariate term.  These pieces are
+interchangeable under the additive parameter redundancy conventionally called a Potts gauge.  In a
+contextual model, the table may
+also change when an endpoint category is changed.  Centering a moving table removes its visible row
+and column terms, but does not prove that the result is one fixed conditional interaction.
+
+We resolve these ambiguities by taking a \emph{reference-centered operator-valued graph} as the
+common mathematical carrier.  Residue positions form the base graph.  Position $i$ carries a
+reference-centered categorical fiber $\mathcal H_i^0$, and an edge $j\to i$ carries a map from
+categorical contrasts at $j$ to contrasts at $i$.  The framework does not assert one universal
+energy or architecture.  Instead, it locates each model in a set of typed audit coordinates:
+\begin{center}
+\fbox{\begin{minipage}{0.92\linewidth}
+\small
+\begin{tabular}{@{}>{\bfseries}p{0.19\linewidth}p{0.70\linewidth}@{}}
+Node variables & What states or features live at each node, and relative to which reference
+measure are they centered?\\
+Graph and edges & Which directed pairs are present, and what class of map may each edge carry?\\
+Available context & Which variables may an edge map observe or depend on?\\
+Interaction order & Is the represented dependence pairwise, or does it jointly involve more
+than two variables?\\
+Dynamics & What state is updated, and by what one-pass or iterative rule?\\
+Normalization & What quantity is normalized, conserved, or guaranteed to decrease?\\
+Inference & How is the object estimated, which nuisance variation is modeled or
+removed, and against what independent endpoint is it validated?
+\end{tabular}
+\end{minipage}}
+\end{center}
+These coordinates are deliberately separate.  A sparse graph may carry full-rank categorical blocks; a dense graph may
+share only a low-dimensional message family; a perfectly gauged table may lack conditional meaning
+if its generator observes the active endpoints; and the same edge operator may be used in a
+one-pass predictor or an iterated energy-descent dynamics.
+
+This choice is also an inductive-bias claim.  An architecture restricts the functions that are
+easy to represent and learn before any particular data set is observed.  Convolution assumes
+locality and translation-related parameter sharing; recurrence assumes a repeatedly applied
+transition along an ordered axis; graph computation assumes identifiable entities, relations, and
+relation rules that can be reused after the entities are relabeled or recombined.  The last
+assumption is the relational inductive bias emphasized by Battaglia et al. as a route toward
+combinatorial generalization \cite{battaglia2018relational}.  It is stronger than supplying pair
+features to an otherwise unstructured predictor: the representation identifies nodes and edges,
+the computation shares update maps across them, and the aggregation respects the irrelevant
+ordering of incident edges.  It does not guarantee that a learned relation is causal, physical, or
+even distributionally direct.  Those stronger meanings require the additional audit coordinates
+introduced here.
+
+The relation between Potts models and protein Transformers is the principal worked example of this
+general framework, not a second definition of the framework.  A Potts coupling induces a
+background-independent categorical response shared by a protein family.  A protein language model
+instead generates an effective response for each sequence background $C$.  Once both are placed in
+the same reference geometry, the latter admits the decomposition
+\begin{equation}
+\boxed{
+G_{i\leftarrow j}(C)
+=\overline G_{i\leftarrow j}+\delta G_{i\leftarrow j}(C).}
+\label{eq:central-thesis}
+\end{equation}
+The additive Potts limit has zero dynamic residual.  A nonlinear pLM generally has a nonzero
+residual; under a fixed product reference it equals higher-order functional mass, while correlated
+backgrounds can add nonorthogonal cross terms.  Moreover, a directed response defines a joint
+Potts energy only when the two directions satisfy a reciprocity condition.  Thus the comparison is
+made in common operator coordinates without asserting equal parameters, equal training laws, or a
+universal physical Hamiltonian.
+
+This perspective builds on two direct precedents.  Dauparas et al. placed PSSMs,
+pseudolikelihood Potts models, multivariate Gaussian models, and autoencoders in a unified
+self-reconstruction framework, exposing the roles of losses, diagonal constraints, and
+regularization \cite{dauparas2019}.  Zhang et al. showed that categorical response tensors
+extracted from protein language models contain contact-predictive statistics related to interacting
+sequence motifs \cite{zhang2024motifs}.  Our aim is an identifiability refinement of these views:
+we specify which part of a pair table is an interaction, which model properties survive translation,
+and which additional assumptions are required for conditional, probabilistic, physical, or
+biological interpretation.
+
+The framework also connects several adjacent lines of work without merging their claims.  Inverse
+statistical physics estimates family-level Potts fields from homologous sequences
+\cite{morcos2011,ekeberg2013,cocco2018}; Hopfield and RBM models express distributed patterns or
+latent motifs \cite{hopfield1982,tubiana2019}; and attention or message passing implements
+input-dependent computation \cite{gilmer2017,vaswani2017,ramsauer2021}.  Their common algebraic
+primitives do not by themselves establish a common probability law.  Our comparison therefore
+occurs after each model has been mapped into declared audit coordinates.
+
+Recent attention-specific results make directionality a testable coordinate rather than only a
+graph metaphor.  Bidirectional and autoregressive objectives have been associated respectively
+with more symmetric and more directional query--key kernels \cite{saponati2025}; symmetric
+dot-product parameterizations can accelerate BERT-style training \cite{courtois2024}; and
+Sinkhorn or expected-sliced transport can replace row-stochastic attention by a doubly stochastic
+route \cite{sander2022,shahbazi2025}.  Markov-chain and interacting-particle analyses further connect self-attention to
+context-conditioned transitions, winner-token behavior, and clustering
+\cite{ildiz2024,geshkovski2023}.  These results concern different mathematical objects.  The
+framework below distinguishes symmetry of the query--key parameter kernel, symmetry of token
+logits, reversibility of the normalized route, and reciprocity of the output response.  None can be
+substituted for another without an additional argument.
+
+The book develops the framework in four stages.  First, we define a typed interaction system and its
+Potts parameter-gauge quotient, including an exact reference-transport law.  Second, we establish the
+Potts--pLM response bridge, its static--dynamic orthogonal decomposition, its product-reference
+higher-order identity, and the reciprocity condition for a joint pair energy.  Third, we connect
+the linear gauge to exact transport-polytope geometry, distinguish full edge operators from
+lossy scalar shadows, separate reversible routing from stationary circulation, and define scalar,
+signed, and connection spectra on the appropriate spaces.
+Fourth, we specify model-extraction, estimation, architectural
+measurability, and falsification audits that state what additional evidence is required at each
+semantic level.  Functional ANOVA, Gaussian covariance selection, matrix scaling, and Bayes risk
+are classical ingredients; their role here is explicit and delimited.
+
+The scope is a framework rather than a universal equivalence theorem.  We do not claim that every
+response operator is a physical contact, that every attention head stores a Potts table, or that a
+family MSA is unnecessary for family-specific inference.  The goal is a mathematical coordinate
+system in which these claims can be stated, related, and falsified without changing meaning between
+statistical physics and machine learning.
+
+\BookUnit~2 establishes the translation rules.  \BookUnit~3 defines the master operator-valued graph.
+\BookUnit s~4--7 develop static and dynamic responses, higher-order and probability geometry, and
+model correspondences.  \BookUnit s~8 and 9 separate statistical estimation from architectural
+realizability.  \BookUnit~10 assigns falsification tests and biological endpoints, followed by the
+discussion and conclusion.
+
+\fi
+\ifdefined\BOOKMODE
+\BookChapter{When Equations Change Their Meaning}
+\BookInsert{chapters/02_when_equations_change_meaning}
+\else
+\BookChapter{Translation Across Physics, Probability, and Computation}
+
+The same equation can carry different semantics, and the same word can denote different
+equations.  We treat cross-disciplinary translation as a typed map.  Every proposed equivalence
+must declare
+\begin{equation}
+\boxed{
+\begin{gathered}
+\text{object and sample space},\quad
+\text{normalization axis},\quad
+\text{conditioning information},\\
+\text{gauge or invariance class},\quad
+\text{state dynamics},\quad
+\text{independent validation claim}.
+\end{gathered}}
+\label{eq:translation-protocol}
+\end{equation}
+Algebraic identity of two update formulas is weaker than equality of their probability laws,
+physical energies, or biological interpretations.
+
+\BookSection{A typed translation dictionary}
+
+\begin{center}
+\small
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.17\linewidth}
+                >{\raggedright\arraybackslash}p{0.22\linewidth}
+                >{\raggedright\arraybackslash}p{0.22\linewidth}
+                >{\raggedright\arraybackslash}p{0.27\linewidth}}
+\toprule
+Physics language & Probability/operator language & Computation language & Condition for alignment \\
+\midrule
+Configuration & realization $x$ of categorical variables & token sequence or model input & exact once alphabet and state space are fixed \\
+Energy coordinate & negative log unnormalized density up to a reference & score or negative logit & not yet a physical Hamiltonian \\
+Hamiltonian & compatible joint energy with one partition function & globally normalized energy model & requires joint compatibility and stated symmetry assumptions \\
+Local field & one-body potential in a fixed gauge & bias or site logit & only after one-body and pair components are separated \\
+Coupling & non-additive pair or higher-order component & edge operator, message, or parameter block & computational dependence needs a lower-order and context audit \\
+Free energy & log marginal over latent states & log-sum-exp computation & the summed variable and global law must be declared \\
+Collective mode or memory & latent factor, eigenpattern, or low-rank direction & hidden unit, key, value, or stored pattern & aligned at representation level; direct edges require an endpoint audit \\
+Sparse interaction graph & zeros in an identified conditional potential & pruned route or skipped computation & statistical and executed zeros are different claims \\
+Gauge freedom & parameter equivalence preserving an observable & reparameterization or centering & the preserved law or function must be stated \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+This dictionary is deliberately asymmetric.  A physical term usually carries more assumptions
+than its algebraic machine-learning analogue.  Every positive conditional distribution admits a
+negative-log coordinate, but this alone supplies neither a compatible joint Hamiltonian nor
+equilibrium, locality, physical units, or causality.  A hidden feature may act as a memory without
+being a thermodynamic metastable state.
+
+\BookSection{Four meanings of interaction}
+
+The word ``interaction'' is the principal translation hazard.  We distinguish:
+\begin{enumerate}
+\setlength{\itemsep}{1pt}
+\item a \emph{computational interaction}: changing one input can alter another node through a
+route, message, attention coefficient, or nonzero network response;
+\item a \emph{statistical interaction}: a joint or conditional function contains a non-additive
+component after a declared lower-order projection;
+\item a \emph{physical interaction}: a term belongs to a justified Hamiltonian or effective
+energy under declared coarse graining and symmetry assumptions;
+\item a \emph{biological interaction}: an intervention establishes a reproducible effect on
+structure, fitness, epistasis, or another biological endpoint.
+\end{enumerate}
+In general none of these statements implies the next.  Transformer attention establishes a
+computational route.  A gauge-fixed Potts block establishes a statistical pair component under its
+model.  Calling either a physical or biological interaction requires additional evidence.
+
+The same discipline applies to ``direct.''  A nonzero Gaussian precision entry means conditional
+dependence under a Gaussian law; a nonzero Potts table is a pair potential in a fitted joint model;
+a direct attention edge is one-step execution; and a direct physical contact is a structurally or
+experimentally defined relation.
+
+\BookSection{Four meanings of graph}
+
+The word ``graph'' inherits the same ambiguity.  At least four objects must be separated:
+\begin{enumerate}
+\setlength{\itemsep}{1pt}
+\item a \emph{computational route graph}, whose edge $j\to i$ says that an implementation can send
+a message from source $j$ to target $i$ in one update;
+\item a \emph{statistical support graph}, whose edge says that a declared joint or conditional
+model contains a nonzero direct pair component after lower-order terms have been removed;
+\item an \emph{operator-valued interaction graph}, whose edge carries the full categorical map
+$G_{ij}(a,b)$ rather than only an existence flag or scalar strength;
+\item a \emph{physical or biological graph}, whose edges are defined by a stated structural,
+energetic, kinetic, or intervention criterion.
+\end{enumerate}
+The first graph specifies executable communication, the second specifies model factorization, the
+third specifies how substitutions act, and the fourth specifies an empirical relation.  Agreement
+between them is a hypothesis to test, not a consequence of sharing the same vertex set.
+
+A graph combines support, topology, and the objects carried on its edges.  Its support declares
+which effects are treated as direct and which must be mediated by paths; its topology controls degree,
+components, cycles, bottlenecks, frustration, and spectral modes.  These collective properties do
+not belong to any isolated edge.  Conversely, topology alone is incomplete for categorical
+systems: two graphs with identical support and scalar edge norms can carry different singular
+directions and make different mutational predictions.  The scalar position graph is consequently
+a shadow of the operator-valued graph, not a sufficient physical description.
+
+\BookSection{Softmax is an operation, not a semantics}
+
+Several models use
+\begin{equation}
+\operatorname{softmax}_{u}(s)_u
+=\frac{e^{s_u}}{\sum_v e^{s_v}},
+\label{eq:generic-softmax}
+\end{equation}
+but the index $u$ names different sample spaces.  A Gibbs law may normalize over complete
+configurations; a Potts conditional over residue identities at one site; attention over source
+positions; and a modern Hopfield update over stored memories.  Reusing the numerical kernel does
+not align the corresponding random variables, energies, or graph semantics.
+
+Nevertheless, once the normalized variable has been named, softmax has an exact local
+thermodynamic geometry.  For a categorical state $z\in\mathcal Z$, scores $r_z$, and temperature
+$\tau>0$, define
+\begin{equation}
+p_z=\frac{e^{r_z/\tau}}{\sum_{z'}e^{r_{z'}/\tau}},
+\qquad E_z=-r_z.
+\label{eq:local-gibbs-softmax}
+\end{equation}
+Then $p$ is the Gibbs distribution of the declared finite-state variable and
+\begin{equation}
+-\tau\log\sum_z e^{-E_z/\tau}
+=\min_{q\in\Delta(\mathcal Z)}
+\left\{\sum_z q_zE_z-\tau H(q)\right\}.
+\label{eq:softmax-free-energy}
+\end{equation}
+Thus $\tau$ controls an exact energy--entropy competition: the zero-temperature limit selects
+energy minima, while increasing $\tau$ spreads mass over alternatives.  Adding a common constant
+to every $r_z$ changes neither $p$ nor any observable energy difference, so the associated energy
+coordinate has an additive gauge.  These statements are mathematical identities.  Calling
+$\tau$ a physical temperature or $E_z$ a microscopic energy additionally requires calibration,
+units, an equilibrium ensemble, and a mechanism that realizes the chosen sample space.
+
+This distinction becomes especially important when the categorical variable is an edge state.
+Independent edge-state softmaxes define the factorized graph distribution
+\begin{equation}
+Q(G\mid x)=\prod_{e\in E_c}q_e(z_e\mid x).
+\label{eq:factorized-graph-law}
+\end{equation}
+This is a collection of local Gibbs coordinates, or a mean-field graph posterior, but not in
+general a coupled Gibbs ensemble over graphs.  A global graph law instead has the form
+\begin{equation}
+P(G\mid x)
+=\frac{\exp[-\mathcal H_{\mathrm{graph}}(G;x)/\tau]}
+{\sum_{G'}\exp[-\mathcal H_{\mathrm{graph}}(G';x)/\tau]},
+\label{eq:global-graph-gibbs-law}
+\end{equation}
+where $\mathcal H_{\mathrm{graph}}$ may couple edges through degree budgets, reciprocity, loop
+terms, connectivity, geometry, or higher-order chemical constraints.  Equation
+\ref{eq:factorized-graph-law} is exact for Eq.~\ref{eq:global-graph-gibbs-law} only when the graph
+energy separates over edges and the admissible graph set itself imposes no coupling.
+
+Static and input-dependent graphs also occupy different statistical roles.  A family-level graph
+held fixed while sequences are sampled may be treated as a quenched interaction structure.  A
+layer- and sequence-dependent route is an adaptive state of the computation and is only
+analogous to an annealed graph.  An equilibrium graph measure additionally requires a coupled
+ensemble and a justified energy.  The scientifically heavy claim is the emergence of a
+reproducible collective law---for example a support-recovery transition, scaling
+collapse, calibrated sparsity frontier, or operator-level agreement under intervention.
+
+An informal claim such as ``attention learns interaction energy'' therefore expands into an audit:
+Which variable is normalized?  Is the score part of a compatible joint law?  Which lower-order
+components have been removed?  Does the edge remain fixed under the endpoint intervention used to
+define interaction?  What observation would distinguish the proposed physical meaning from a
+useful predictive route?  Only claims surviving these questions are translated across fields.
+
+\BookSection{A ladder of claims}
+
+The framework separates four increasingly strong predicates:
+\begin{equation}
+\boxed{
+\begin{gathered}
+\text{projected bivariate component}
+\xRightarrow[\text{fixed context}]{\text{endpoint exclusion}}
+\text{conditional response}\\
+\xRightarrow[\text{one joint law}]{\text{compatibility}}
+\text{distributional interaction}
+\xRightarrow[\text{matched endpoint}]{\text{independent intervention}}
+\text{biological interaction}.
+\end{gathered}}
+\label{eq:claim-ladder}
+\end{equation}
+Each arrow is labeled by an additional requirement.  When an upgrade fails, the weaker statement
+retains its scope: an attention route can remain computationally
+useful without defining a joint interaction law, and a fitted statistical coupling can remain
+predictive without establishing biological cause.
+
+\fi
+\BookPart{Operator Geometry of Sequence Interactions}
+\BookChapter{Reference-Centered Operator-Valued Graphs}
+\BookInsert{chapters/03_opening}
+
+The common object must record more than a matrix attached to each pair.  In particular, changing
+the context available to an edge or the state updated by that edge changes the model even when the
+displayed matrix is unchanged.
+
+\begin{definition}[Typed interaction system]
+A typed interaction system is a tuple
+\begin{equation}
+\mathfrak G=
+\left(V,\{(\Omega_i,p_i,\mathcal H_i^0)\}_{i\in V},\mathcal C,
+E,h,\mathcal K,\mathcal O,\mathcal D,\mathcal N,\mathcal E_{\mathrm{st}},
+\mathcal V_{\!\mathrm{ld}}\right).
+\label{eq:typed-system}
+\end{equation}
+Here $V$ is the node set; $(\Omega_i,p_i)$ is the reference probability space at node $i$;
+$\mathcal H_i^0\subseteq L_0^2(p_i)$ is the chosen centered feature fiber; $\mathcal C$ is the
+context sigma-algebra; $E(C)\subseteq V\times V$ is measurable support; $h(C)\in\bigoplus_i
+\mathcal H_i^0$ is the one-body field; and
+$\mathcal K_{i\leftarrow j}(C):\mathcal H_j^0\to\mathcal H_i^0$ is the edge map.  The coordinate
+$\mathcal O$ records any higher-order maps, $\mathcal D$ the represented state and update rule,
+$\mathcal N$ the normalization or Lyapunov functional, $\mathcal E_{\mathrm{st}}$ the estimator and
+nuisance model, and $\mathcal V_{\!\mathrm{ld}}$ the independent validation endpoint.
+\end{definition}
+
+A model audit is a typed extraction map from model parameters, data, and interventions to
+$\mathfrak G$.  Two models may agree in $h$ and $\mathcal K$ while differing in $\mathcal D$,
+$\mathcal N$, or $\mathcal E_{\mathrm{st}}$; their agreement is coordinate-wise.  A PSSM, for
+example, has a nonzero field $h$ and zero off-diagonal edge operator.  A
+Gaussian model can use centered linear features in $L_0^2(p_i)$, whereas the protein models below
+use the full centered categorical fiber.
+
+\BookSection{Relational computation and the Graph Network interface}
+
+The Graph Network (GN) formalism isolates a reusable relational computation without prescribing
+the scientific semantics of its edges \cite{battaglia2018relational}.  For a graph
+$G=(\mathbf u,V,E)$ with directed edge records $(e_k,r_k,s_k)$, one GN block performs
+\begin{align}
+e'_k&=\phi^e(e_k,v_{r_k},v_{s_k},\mathbf u),
+\label{eq:gn-edge-update}\\
+\bar e'_i&=\rho^{e\to v}\!\left(\{e'_k:r_k=i\}\right),\qquad
+v'_i=\phi^v(v_i,\bar e'_i,\mathbf u),
+\label{eq:gn-node-update}\\
+\bar e'&=\rho^{e\to u}(E'),\qquad
+\bar v'=\rho^{v\to u}(V'),\qquad
+\mathbf u'=\phi^u(\mathbf u,\bar e',\bar v').
+\label{eq:gn-global-update}
+\end{align}
+The learnable maps $\phi$ specify relation, node, and global updates.  The reducers $\rho$ are
+invariant to an arbitrary enumeration of their input sets, making the complete block equivariant
+to node relabeling when the graph and features are relabeled together.  Parameter sharing permits
+the same local rule to act on new graph sizes and new combinations of entities.  This is the
+architectural basis for combinatorial generalization, not a theorem that such generalization will
+occur outside the training distribution.
+
+The typed system in Eq.~\ref{eq:typed-system} refines this interface.  Its support $E(C)$ records
+the admissible senders and receivers; $\mathcal K_{i\leftarrow j}(C)$ types the edge update as a
+map between declared fibers; and $\mathcal D$ records the aggregation and node-state update.  The
+remaining coordinates answer questions that a generic GN block intentionally leaves open:
+whether an edge is a route or an identified pair component, whether the updates arise from one
+joint probability law, which parameter redundancies preserve observables, how the edge object is
+estimated, and what endpoint validates it.  Message-passing networks, Potts fields, and
+Transformers can therefore share a relational computation diagram while occupying different
+probabilistic and inferential coordinates.  The unification is an interface with typed
+translations, not an assertion of semantic identity.
+
+\BookSection{Node fibers and reference geometry}
+
+The word \emph{fiber} carries little mystery here.  At every residue position, take all numerical
+functions of residue identity and remove the constant function.  The remaining $(q-1)$ directions
+encode comparisons such as ``charged rather than hydrophobic'' or any other centered categorical
+contrast.  Calling these local spaces fibers keeps two indices separate: position identifies the
+node, while a vector inside the fiber identifies a pattern across residue categories.
+
+Let positions be indexed by $[L]=\{1,\ldots,L\}$ and categorical states by
+$[q]=\{1,\ldots,q\}$.  Fix a full-support reference distribution
+$p_i\in\Delta_{q-1}$ at each position and write $D_i=\diag(p_i)$.  The node fiber at position $i$
+is
+\begin{equation}
+\mathcal H_i=L^2(p_i),
+\qquad
+\langle f,g\rangle_{p_i}=f^{\mathsf T}D_i g,
+\end{equation}
+with centered subspace
+\begin{equation}
+\mathcal H_i^0=\{f:p_i^{\mathsf T}f=0\}.
+\label{eq:centered-fiber}
+\end{equation}
+The total categorical tangent space is the Hilbert direct sum
+\begin{equation}
+\mathcal H^0=\bigoplus_{i=1}^L\mathcal H_i^0.
+\label{eq:direct-sum}
+\end{equation}
+The position index is the graph base, while amino-acid contrasts form the fiber over each node.
+This distinction prevents a position graph from being confused with a flat matrix of categorical
+coordinates.
+
+Define the weighted zero-mean projector
+\begin{equation}
+P_i=I-\mathbf 1p_i^{\mathsf T}.
+\label{eq:projector}
+\end{equation}
+It satisfies $P_i^2=P_i$ and $P_i^{\mathsf T}D_i=D_iP_i$.  In whitened coordinates its Euclidean
+form is
+\begin{equation}
+Q_i=D_i^{1/2}P_iD_i^{-1/2}
+=I-\sqrt{p_i}\sqrt{p_i}^{\,\mathsf T}.
+\label{eq:whitened-projector}
+\end{equation}
+Thus the removed constant direction depends on the declared categorical reference.  A uniform
+reference, a family marginal, and a model marginal define different geometries and should not be
+interchanged silently.  Operationally, $P_i$ takes any residue score vector and subtracts its
+$p_i$-weighted mean.  It computes a centered contrast.  Interaction estimation, biological choice
+of reference, and physical calibration enter at later stages.
+
+\BookSection{The canonical bivariate component}
+
+For any fixed pair table $T_{ij}\in\R^{q\times q}$, define
+\begin{equation}
+\boxed{G_{ij}=P_iT_{ij}P_j^{\mathsf T}.}
+\label{eq:canonical-gauge}
+\end{equation}
+
+Read this operation row by row and column by column: the left projection removes target-only
+variation, the right projection removes source-only variation, and the surviving block changes
+only when both endpoints vary.  The theorem below establishes that this remainder is unique in the
+chosen reference geometry.  Uniqueness is a statement about the decomposition of the table, not
+about how the table was generated.
+
+\begin{theorem}[Canonical categorical decomposition]
+\label{thm:pair-anova}
+Equip pair tables with
+\begin{equation}
+\langle A,B\rangle_{p_i,p_j}
+=\sum_{a,b}p_i(a)p_j(b)A(a,b)B(a,b).
+\end{equation}
+Every table has a unique orthogonal decomposition
+\begin{equation}
+T_{ij}(a,b)=c+u(a)+v(b)+G_{ij}(a,b),
+\label{eq:pair-decomposition}
+\end{equation}
+where $p_i^{\mathsf T}u=0$, $p_j^{\mathsf T}v=0$, and
+\begin{equation}
+p_i^{\mathsf T}G_{ij}=0,
+\qquad
+G_{ij}p_j=0.
+\label{eq:zero-marginals}
+\end{equation}
+The bivariate component is exactly Eq.~\ref{eq:canonical-gauge}.
+\end{theorem}
+
+\begin{proof}
+The orthogonal decomposition
+$L^2(p_i)=\Span\{\mathbf1\}\oplus\mathcal H_i^0$ and its analogue at $j$ induce four
+orthogonal tensor-product subspaces: constant, $i$-only, $j$-only, and centered bivariate.
+Applying $P_i$ on the left and $P_j^{\mathsf T}$ on the right selects the last subspace.
+Existence and uniqueness follow from orthogonal projection.
+\end{proof}
+
+\paragraph{Terminology and the binary Ising case.}
+Here \emph{gauge} refers only to the additive non-identifiability of a redundant Potts pair-table
+parameterization.  We call $G_{ij}$ \emph{reference-centered}, rather than ``gauged,'' to avoid
+confusion with the spin-reversal gauge of spin glasses or with a $\mathbb Z_2$ lattice gauge
+theory; neither of those symmetries is used here.  For two states with uniform reference, encode
+the categories by $s_i,s_j\in\{-1,+1\}$.  Every table has the unique expansion
+\begin{equation}
+T(s_i,s_j)=c+h_i s_i+h_j s_j+J_{ij}s_is_j,
+\qquad
+J_{ij}=\frac{T_{++}+T_{--}-T_{+-}-T_{-+}}{4}.
+\label{eq:binary-ising-decomposition}
+\end{equation}
+Double projection removes $c,h_i,$ and $h_j$ and leaves
+$G_{ij}(s_i,s_j)=J_{ij}s_is_j$.  Thus the $q=2$ categorical construction extracts the single
+Ising coupling coordinate from a redundant binary table.  The ``gauge'' here remains the additive
+Potts parameter redundancy, distinct from an Ising gauge field.
+
+\BookInsert{chapters/03_three_state_example}
+
+This is a functional-ANOVA statement relative to $p_ip_j^{\mathsf T}$ \cite{hoeffding1948}.  It
+identifies a mathematical component, not a physical mechanism.  In particular, nonzero
+$G_{ij}$ identifies a mathematical component; direct contact, causal epistasis, and phylogenetic
+independence are separate empirical properties.
+
+The underlying interaction is a gauge class rather than one selected representative.  Define the
+additive subspace
+\begin{equation}
+\mathcal A_{ij}
+=\{T:T(a,b)=c+u(a)+v(b)\}
+\end{equation}
+and the quotient $\mathcal Q_{ij}=\R^{q\times q}/\mathcal A_{ij}$.  Every full-support pair of
+references selects one representative of the same $(q-1)^2$-dimensional class.
+
+\begin{proposition}[Gauge quotient and reference transport]
+\label{prop:reference-transport}
+For fixed full-support references $(p_i,p_j)$, two tables have the same projected block if and only
+if they define the same element of $\mathcal Q_{ij}$.  For second full-support references
+$(r_i,r_j)$, write $P_i^{[r]}=I-\mathbf1r_i^{\mathsf T}$ and similarly at $j$.  The canonical
+representatives obey
+\begin{equation}
+\boxed{
+G_{ij}^{[r]}=P_i^{[r]}G_{ij}^{[p]}P_j^{[r]\mathsf T}.}
+\label{eq:reference-transport}
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+Theorem~\ref{thm:pair-anova} identifies the kernel of
+$T\mapsto P_iTP_j^{\mathsf T}$ with $\mathcal A_{ij}$, proving the quotient statement.  The
+projectors for two references satisfy
+$P_i^{[r]}P_i^{[p]}=P_i^{[r]}$ and
+$P_j^{[p]\mathsf T}P_j^{[r]\mathsf T}=P_j^{[r]\mathsf T}$.  Applying these identities to
+$G_{ij}^{[p]}=P_i^{[p]}T_{ij}P_j^{[p]\mathsf T}$ gives
+$P_i^{[r]}T_{ij}P_j^{[r]\mathsf T}=G_{ij}^{[r]}$.
+\end{proof}
+
+Thus the gauge class is reference independent, while its centered representative, Hilbert norm,
+and singular geometry are reference dependent.  Comparisons across families or contexts must
+either use one fixed reference or transport every representative to a declared anchor by
+Eq.~\ref{eq:reference-transport}.
+
+\BookSection{From a table to an edge operator}
+
+A centered block becomes an edge only after its input and output are typed.  The next equation feeds
+a centered substitution pattern at $j$ into the block and returns a centered response pattern at
+$i$.  This is what the operator computes.  Physical action and reciprocity are subsequent empirical
+and compatibility questions.
+
+A gauged block induces the directed map
+\begin{equation}
+(\mathcal K_{i\leftarrow j}f)(a)
+=\sum_b p_j(b)G_{i\leftarrow j}(a,b)f(b)
+=\bigl(G_{i\leftarrow j}D_jf\bigr)(a).
+\label{eq:edge-operator}
+\end{equation}
+
+\ifdefined\BOOKMODE
+\begin{figure}[htbp]
+\centering
+\fbox{\begin{minipage}{0.90\linewidth}
+\centering
+source identity at $j$
+$\longrightarrow$
+source contrast $f\in\mathcal H_j^0$
+$\xrightarrow{\ \mathcal K_{i\leftarrow j}\ }$
+target contrast in $\mathcal H_i^0$
+$\longrightarrow$
+change in target preference.
+\end{minipage}}
+\caption{An edge is a typed map between local contrast spaces.  Its scalar existence flag leaves
+the source-substitution and target-response directions unresolved.}
+\label{fig:fiber-edge-map}
+\end{figure}
+\fi
+
+\begin{proposition}[Gauged tables are fiber maps]
+\label{prop:fiber-map}
+Equation~\ref{eq:edge-operator} defines a linear map
+$\mathcal K_{i\leftarrow j}:\mathcal H_j^0\to\mathcal H_i^0$ that annihilates the constant source
+mode.  In whitened coordinates its matrix is
+\begin{equation}
+\widetilde G_{i\leftarrow j}
+=D_i^{1/2}G_{i\leftarrow j}D_j^{1/2},
+\end{equation}
+and
+\begin{equation}
+\|\mathcal K_{i\leftarrow j}\|_{\mathrm{HS}}
+=\|\widetilde G_{i\leftarrow j}\|_F.
+\label{eq:hs-norm}
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+The left condition in Eq.~\ref{eq:zero-marginals} centers the output, while
+$G_{i\leftarrow j}p_j=0$ gives $\mathcal K_{i\leftarrow j}\mathbf1=0$.  Conjugation by the
+isometries $f\mapsto D_i^{1/2}f$ and $f\mapsto D_j^{1/2}f$ gives the whitened matrix and preserves
+the Hilbert--Schmidt norm.
+\end{proof}
+
+For routing coefficients $z_{ij}$, the operator-valued graph is the block operator
+\begin{equation}
+(\mathbb K_zf)_i
+=\sum_{j\ne i}z_{ij}\mathcal K_{i\leftarrow j}f_j.
+\label{eq:block-operator}
+\end{equation}
+Its support, edge rank, and directionality are explicit.  If
+$z_{ij}=z_{ji}$ and $G_{j\leftarrow i}=G_{i\leftarrow j}^{\mathsf T}$ under compatible
+references, $\mathbb K_z$ is self-adjoint.  Predictive sequence models need not satisfy this
+reciprocity and may therefore yield genuinely directed block operators.
+
+\BookInsert{chapters/03_coda}
+\BookChapter{Static and Dynamic Sequence Interactions}
+\BookInsert{chapters/04_opening}
+
+\BookSection{Potts models as static response fields}
+
+A pairwise Potts model has energy
+\begin{equation}
+E_{\mathrm P}(x)
+=-\sum_i h_i(x_i)-\frac12\sum_{i\ne j}J_{ij}(x_i,x_j),
+\label{eq:potts-energy}
+\end{equation}
+and single-site conditional
+\begin{equation}
+P_{\mathrm P}(X_i=a\mid x_{-i})
+=\operatorname{softmax}_{a\in[q]}
+\left[h_i(a)+\sum_{j\ne i}J_{ij}(a,x_j)\right].
+\label{eq:potts-conditional}
+\end{equation}
+The tables $J_{ij}$ are fixed after fitting and are shared by all sequences in the family.
+Their canonical edge blocks are
+\begin{equation}
+G_{ij}^{\mathrm P}=P_iJ_{ij}P_j^{\mathsf T}.
+\label{eq:potts-block}
+\end{equation}
+This is the sense in which a Potts interaction graph is static.  The conditional probabilities
+still change with $x_{-i}$, but the rule mapping a source category to a target logit contrast does
+not.  Static refers to the shared response law, not to constancy of the model output.
+
+\BookSection{Categorical response of a sequence model}
+
+Let $c=x_{[L]\setminus\{i,j\}}$ be a sequence background excluding the endpoints.  Evaluate a
+sequence model with target $i$ withheld and source $j$ set to category $b$, and denote its target
+logit by
+\begin{equation}
+T_{i\leftarrow j}^{c}(a,b)
+=\ell_i(a\mid X_j=b,C_{ij}=c).
+\label{eq:conditional-logit-table}
+\end{equation}
+The reference-centered categorical response is
+\begin{equation}
+G_{i\leftarrow j}(c)
+=P_iT_{i\leftarrow j}^{c}P_j^{\mathsf T}.
+\label{eq:dynamic-response}
+\end{equation}
+Equivalently, one may subtract any baseline column from $T^c$ before projection.  This gives the
+finite substitution table
+\begin{equation}
+R_{i\leftarrow j}^{c}(a,b)
+=\ell_i(a\mid b,c)-\ell_i(a\mid b_0,c),
+\label{eq:finite-response}
+\end{equation}
+with $P_iR^cP_j^{\mathsf T}=G_{i\leftarrow j}(c)$.  The construction is sometimes called a
+categorical Jacobian.  More precisely, it is a finite intervention, with an infinitesimal
+derivative as its local limit.
+
+\begin{proposition}[Exact recovery of an additive coupling]
+\label{prop:exact-recovery}
+Suppose the target logits are additive,
+\begin{equation}
+\ell_i(a\mid x_{-i})
+=h_i(a)+\sum_{k\ne i}J_{i\leftarrow k}(a,x_k).
+\label{eq:additive-logits}
+\end{equation}
+Then for every background $c$,
+\begin{equation}
+G_{i\leftarrow j}(c)
+=P_iJ_{i\leftarrow j}P_j^{\mathsf T}.
+\label{eq:exact-recovery}
+\end{equation}
+Thus the gauged response is background independent and exactly recovers the canonical pair
+coupling.
+\end{proposition}
+
+\begin{proof}
+In Eq.~\ref{eq:conditional-logit-table}, the field $h_i(a)$ and all source terms with $k\ne j$
+depend on $a$ and $c$ but not on $b$.  They are annihilated by right projection.  The remaining
+table is $J_{i\leftarrow j}(a,b)$, and left projection removes its target-only gauge component.
+\end{proof}
+
+For a nonlinear or higher-order conditional, the same response has the schematic expansion
+\begin{equation}
+G_{i\leftarrow j}(c)
+=G_{ij}^{(2)}
++\sum_{k\notin\{i,j\}}G_{i,j,k}^{(3)}(c_k)
++\sum_{k<l}G_{i,j,k,l}^{(4)}(c_k,c_l)+\cdots.
+\label{eq:response-order-mixture}
+\end{equation}
+It is therefore a well-defined \emph{effective} edge at background $c$, assembled from all
+statistical and computational paths through which changing
+$x_j$ changes the target preference at $i$.
+
+\BookSection{The static--dynamic decomposition}
+
+Fix anchor references $p_i,p_j$ and let $C$ be distributed according to a declared family, model,
+or evaluation distribution $\mu_{ij}$.  The gauged blocks form one finite-dimensional Hilbert
+space with norm
+\begin{equation}
+\|G\|_{p_i,p_j}^2
+=\sum_{a,b}p_i(a)p_j(b)G(a,b)^2.
+\label{eq:weighted-block-norm}
+\end{equation}
+Assume $\E_C\|G_{i\leftarrow j}(C)\|_{p_i,p_j}^2<\infty$ and define
+\begin{equation}
+\overline G_{i\leftarrow j}=\E_CG_{i\leftarrow j}(C),
+\qquad
+\delta G_{i\leftarrow j}(C)
+=G_{i\leftarrow j}(C)-\overline G_{i\leftarrow j}.
+\label{eq:static-dynamic-split}
+\end{equation}
+
+\begin{theorem}[Best static approximation and dynamic variance]
+\label{thm:static-dynamic}
+The mean block $\overline G_{i\leftarrow j}$ is gauged and is the unique minimizer
+\begin{equation}
+\overline G_{i\leftarrow j}
+=\arg\min_{A:\,p_i^{\mathsf T}A=0,\,Ap_j=0}
+\E_C\|G_{i\leftarrow j}(C)-A\|_{p_i,p_j}^2.
+\label{eq:best-static}
+\end{equation}
+Moreover,
+\begin{equation}
+\E_C\|G_{i\leftarrow j}(C)\|_{p_i,p_j}^2
+=\|\overline G_{i\leftarrow j}\|_{p_i,p_j}^2
++\E_C\|\delta G_{i\leftarrow j}(C)\|_{p_i,p_j}^2.
+\label{eq:dynamic-pythagoras}
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+The gauged subspace is linear, so expectation preserves both zero-marginal constraints.  Expanding
+$G(C)-A=\delta G(C)+(\overline G-A)$, the cross term vanishes because
+$\E_C\delta G(C)=0$.  The resulting Pythagorean identity is minimized uniquely at
+$A=\overline G$ and gives Eq.~\ref{eq:dynamic-pythagoras} when $A=0$.
+\end{proof}
+
+The orthogonality in Theorem~\ref{thm:static-dynamic} is mean--residual orthogonality in
+$L^2(\mu_{ij})$.  It holds for any declared background law $\mu_{ij}$, including a correlated
+empirical MSA distribution, because the residual is centered under that same law.  Independence
+enters only when the residual is further attributed to mutually orthogonal interaction orders, as
+in Corollary~\ref{cor:dynamic-higher-order} below.  Thus correlation changes the order-by-order
+interpretation of dynamic variance, while the static--dynamic Pythagorean identity remains exact.
+
+\ifdefined\BOOKMODE
+\begin{figure}[htbp]
+\centering
+\small
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.41\linewidth}
+                >{\raggedright\arraybackslash}p{0.41\linewidth}@{}}
+\toprule
+Static component $\overline G_{i\leftarrow j}$ & Dynamic component $\delta G_{i\leftarrow j}(C)$ \\
+\midrule
+Best single operator under the declared background law & Background-specific departure from that operator \\
+Persists after averaging over $C$ & Has mean zero over the same $C$ \\
+Comparable with a family-level static field & Measures the failure of one static edge to describe the response \\
+Physical interpretation requires calibration & Origin may combine several mechanisms \\
+\bottomrule
+\end{tabular}
+\caption{The static--dynamic split separates a reusable mean relation from context dependence;
+biological importance is an independent validation coordinate.}
+\label{fig:static-dynamic-map}
+\end{figure}
+\fi
+
+\BookInsert{chapters/04_two_background_example}
+
+This theorem supplies an operational definition of static and dynamic interaction.  Define
+\begin{equation}
+\rho_{i\leftarrow j}^{\mathrm{dyn}}
+=\frac{\E_C\|\delta G_{i\leftarrow j}(C)\|_{p_i,p_j}^2}
+{\E_C\|G_{i\leftarrow j}(C)\|_{p_i,p_j}^2},
+\qquad 0\leq\rho_{i\leftarrow j}^{\mathrm{dyn}}\leq1,
+\label{eq:dynamic-fraction}
+\end{equation}
+whenever the denominator is nonzero.  An additive Potts conditional has
+$\rho_{i\leftarrow j}^{\mathrm{dyn}}=0$.  A positive value measures background dependence of the effective
+response.  Higher-order epistasis, remote homologous patterns, and internal circuits are candidate
+sources to be separated by further interventions.
+
+The distribution $\mu_{ij}$ is part of the claim.  Averaging over one protein family, all natural
+proteins, or model-generated sequences produces different static components.  A pLM can therefore
+have learned an amortized dynamic rule, while an MSA estimates a separate family-specific
+statistical model against which the response mean can be tested.  Equality between an MSA-fitted
+Potts block and the pLM mean is an empirical transfer hypothesis in their common coordinates.  The
+family distribution supplies the background law under which that hypothesis is evaluated.
+
+\BookSection{Conditional meaning requires endpoint exclusion}
+
+Equation~\ref{eq:dynamic-response} is a strict conditional component only if the table-generating
+context remains fixed while the endpoint states are varied.  Let
+$\mathcal C_{ij}=\sigma\{X_k:k\notin\{i,j\}\}$ and allow the reference, raw table, and any route
+decision to depend on this cavity.
+
+\begin{proposition}[Conditional gauge]
+\label{prop:conditional-gauge}
+Suppose $T_{i\leftarrow j}(C)$, $p_i(C)$, and $p_j(C)$ are
+$\mathcal C_{ij}$-measurable and the conditional references have full support.  Then, almost
+surely in $C$,
+\begin{equation}
+G_{i\leftarrow j}(C)
+=P_i(C)T_{i\leftarrow j}(C)P_j(C)^{\mathsf T}
+\end{equation}
+is the unique bivariate contrast relative to
+$p_i(\cdot\mid C)p_j(\cdot\mid C)$.
+\end{proposition}
+
+\begin{proof}
+Condition on $\mathcal C_{ij}$.  The table and reference measures are then fixed while
+$(X_i,X_j)$ vary, so Theorem~\ref{thm:pair-anova} applies on each conditional fiber.
+\end{proof}
+
+If a hidden representation used to emit the table has already observed $x_i$ or $x_j$, projection
+still gives a locally centered table, but not a global conditional decomposition.  This caveat is
+especially important when interpreting ordinary attention heads: masking the target and explicitly
+enumerating source substitutions defines a cleaner response audit than double centering an
+attention-derived table computed from the unmodified endpoints.
+
+When the conditional references in Proposition~\ref{prop:conditional-gauge} depend on $C$, the
+blocks inhabit moving fibers.  Transport them into common anchor references
+$(\bar p_i,\bar p_j)$ before applying Eq.~\ref{eq:static-dynamic-split}:
+\begin{equation}
+G_{i\leftarrow j}^{\mathrm{anc}}(C)
+=P_i^{[\bar p]}G_{i\leftarrow j}^{[p(C)]}(C)P_j^{[\bar p]\mathsf T};
+\label{eq:context-anchor-transport}
+\end{equation}
+then apply the static--dynamic decomposition to $G^{\mathrm{anc}}$.  This convention separates a
+change of coordinates from genuine background dependence of the gauge class.
+
+\BookSection{When directed responses define a joint pair energy}
+
+A masked or autoregressive predictor naturally produces directed blocks
+$G_{i\leftarrow j}$, whereas a pairwise Hamiltonian uses one reciprocal table for the unordered
+pair $\{i,j\}$.  This distinction is another independent coordinate of the framework.
+
+\begin{proposition}[Reciprocity criterion for additive conditionals]
+\label{prop:reciprocity}
+Consider full-support additive categorical conditionals in one common reference-centered parameterization.  Their
+pairwise interaction branch is compatible with a joint Potts energy if and only if
+\begin{equation}
+G_{i\leftarrow j}=G_{j\leftarrow i}^{\mathsf T}
+\qquad\text{for every }i\ne j.
+\label{eq:reciprocity}
+\end{equation}
+When this holds, the common block defines the gauged coupling of the joint energy; one-body fields
+are then fixed by the corresponding conditional biases up to a global additive constant.
+\end{proposition}
+
+\begin{proof}
+Necessity follows because one joint pair table contributes $J_{ij}(a,b)$ to the conditional at
+$i$ and $J_{ij}(a,b)$, with transposed endpoint order, to the conditional at $j$.  Gauge projection
+therefore gives Eq.~\ref{eq:reciprocity}.  Conversely, reciprocal gauged blocks can be inserted as
+the pair tables of Eq.~\ref{eq:potts-energy}; their single-site conditionals recover the specified
+pair branches, while endpoint-only differences are absorbed into the site fields.
+\end{proof}
+
+For arbitrary directed responses define the reciprocal and nonintegrable parts
+\begin{align}
+G_{ij}^{\mathrm{rec}}
+&=\frac12\left(G_{i\leftarrow j}+G_{j\leftarrow i}^{\mathsf T}\right),\\
+G_{ij}^{\mathrm{irr}}
+&=\frac12\left(G_{i\leftarrow j}-G_{j\leftarrow i}^{\mathsf T}\right).
+\label{eq:reciprocal-irreversible}
+\end{align}
+Only the first is directly compatible with an undirected pair energy.  The second measures failure
+of pairwise joint integrability in the chosen response coordinates.  A thermodynamic
+irreversibility interpretation additionally requires a dynamical model.
+
+\BookInsert{chapters/04_coda}
+\BookChapter{Interaction Order, Rank, and Scalar Compression}
+\BookInsert{chapters/05_opening}
+
+\BookSection{From operator-valued graphs to hypergraphs}
+
+A graph retains target--source maps
+$\mathcal K_{i\leftarrow j}:\mathcal H_j^0\to\mathcal H_i^0$.  A general conditional model also
+contains hyperedge maps
+\begin{equation}
+\mathcal K_{i\leftarrow A}:
+\bigotimes_{j\in A}\mathcal H_j^0\longrightarrow\mathcal H_i^0,
+\qquad |A|\geq2.
+\label{eq:hyperedge-map}
+\end{equation}
+For a fixed background outside $\{i\}\cup N$, let $E_u$ average over $x_u$ under a positive
+product reference and let $P_u=I-E_u$.  For $B\subseteq\{i\}\cup N$, define
+\begin{equation}
+\Pi_B=
+\left(\prod_{u\in B}P_u\right)
+\left(\prod_{v\notin B}E_v\right).
+\label{eq:hierarchical-projector}
+\end{equation}
+
+\begin{theorem}[Interaction hierarchy and pair-truncation error]
+\label{thm:pair-truncation}
+For $T\in L^2(\bigotimes_{u\in\{i\}\cup N}p_u)$, the operators $\{\Pi_B\}$ are mutually
+orthogonal projections that sum to the identity, and $T=\sum_B\Pi_BT$ uniquely.  Let
+\begin{equation}
+\mathcal I_i=\sum_{\emptyset\ne A\subseteq N}T_{i,A},
+\qquad
+T_{i,A}=\Pi_{\{i\}\cup A}T.
+\end{equation}
+For the pairwise truncation $\mathcal I_i^{(1)}=\sum_{j\in N}T_{i,\{j\}}$,
+\begin{equation}
+\|\mathcal I_i-\mathcal I_i^{(1)}\|^2
+=\sum_{A\subseteq N:\,|A|\geq2}\|T_{i,A}\|^2.
+\label{eq:pair-truncation}
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+The coordinate-wise averaging operators are commuting self-adjoint idempotents, and
+$P_u=I-E_u$ is the orthogonal complement of $E_u$.  Expanding
+$\prod_u(E_u+P_u)=I$ gives the decomposition.  Distinct components contain a factor
+$E_uP_u=0$ and are orthogonal.  Equation~\ref{eq:pair-truncation} is Pythagoras applied to the
+omitted terms.
+\end{proof}
+
+\begin{corollary}[Dynamic variance equals higher-order response mass]
+\label{cor:dynamic-higher-order}
+Under the product reference of Theorem~\ref{thm:pair-truncation}, let
+$G_{i\leftarrow j}(C)$ be obtained by projecting a fixed target score on coordinates $i$ and $j$
+while all remaining coordinates $C$ are held fixed.  Then
+\begin{align}
+\overline G_{i\leftarrow j}&=T_{\{i,j\}},\\
+\E_C\|\delta G_{i\leftarrow j}(C)\|_{p_i,p_j}^2
+&=\sum_{B\supsetneq\{i,j\}}\|T_B\|^2.
+\label{eq:dynamic-higher-order}
+\end{align}
+Thus dynamic response variance is exactly the total functional-ANOVA mass of components containing
+both endpoints and at least one additional coordinate.
+\end{corollary}
+
+\begin{proof}
+Applying $P_iP_j$ retains exactly the ANOVA components containing both endpoints.  Averaging over
+$C$ then retains the pair component and removes those involving another coordinate, leaving
+$T_{\{i,j\}}$.  The remaining components are mutually orthogonal, so their squared norms sum.
+\end{proof}
+
+The theorem gives Eq.~\ref{eq:response-order-mixture} a precise interpretation.  A dynamic edge
+response is a section through the higher-order expansion with all other coordinates fixed.  Its
+background variance is therefore an exact higher-order mass under the product reference.  Under a
+correlated empirical background distribution the components can lose orthogonality and acquire
+cross terms; the product reference or a declared conditional geometry is part of the theorem.
+Even in the orthogonal case, resolving individual hyperedges requires a designed
+multi-substitution experiment beyond their total variance.
+
+\begin{remark}[Mean orthogonality versus order orthogonality]
+Theorem~\ref{thm:static-dynamic} and Corollary~\ref{cor:dynamic-higher-order} use two different
+orthogonalities.  The first centers one random operator around its mean and requires no coordinate
+independence.  The second decomposes that operator by subsets of sequence coordinates and uses a
+product reference.  If the same order-indexed components are evaluated under a correlated law
+$\mu$, then in general
+\begin{equation}
+\begin{aligned}
+\E_{\mu}\left\|\sum_{B\supsetneq\{i,j\}}T_B(C_B)\right\|^2
+&=\sum_{B\supsetneq\{i,j\}}\E_{\mu}\|T_B(C_B)\|^2\\
+&\quad+\sum_{\substack{B,D\supsetneq\{i,j\}\\B\ne D}}
+\E_{\mu}\langle T_B(C_B),T_D(C_D)\rangle,
+\end{aligned}
+\label{eq:correlated-anova-cross-terms}
+\end{equation}
+and the final sum records cross terms induced by the correlated reference geometry.  Dynamic
+variance remains measurable, but it is no longer identifiable with a simple sum of order-specific
+ANOVA masses.
+\end{remark}
+
+\begin{proposition}[Nonlinear composition can create higher order]
+\label{prop:nonlinear-nonclosure}
+Separately centered pair messages can generate higher-order components after nonlinear
+aggregation.
+\end{proposition}
+
+\begin{proof}
+For independent Rademacher sources $x_j,x_k\in\{-1,1\}$ under the uniform product reference and a
+nonzero target contrast $P_i u$,
+\begin{equation}
+(P_i u)(a)(x_j+x_k)^2
+=2(P_i u)(a)+2(P_i u)(a)x_jx_k.
+\end{equation}
+After assigning the first term to the target-only component, the second is a nonzero
+target--source--source interaction.
+\end{proof}
+
+Consequently, pairwise first-layer messages can produce a globally higher-order deep network.  Its
+final response must be decomposed at the output, or its higher-order residual measured by
+multi-background and multi-substitution audits.
+
+\BookSection{Support, categorical rank, and order are independent}
+
+For a nonzero whitened block, write
+\begin{equation}
+\widetilde G_{ij}
+=\sum_{r=1}^{q-1}\sigma_{ijr}u_{ijr}v_{ijr}^{\mathsf T}.
+\label{eq:block-svd}
+\end{equation}
+Graph support counts which position pairs are represented.  Categorical rank describes the number
+of substitution-contrast directions retained on one edge.  Interaction order distinguishes edges
+from hyperedges.  These are independent coordinates: a sparse graph may have
+full-rank categorical blocks, while a dense graph may share only a low-dimensional message family.
+
+For a relative tolerance $\epsilon$, an error-controlled edge rank is
+\begin{equation}
+r_{ij}(\epsilon)=\min\left\{r:
+\frac{\sum_{s>r}\sigma_{ijs}^2}{\sum_s\sigma_{ijs}^2}\leq\epsilon\right\}.
+\label{eq:approx-rank}
+\end{equation}
+Low rank is therefore a measurable compression hypothesis independent of graph sparsity.
+
+\BookSection{The scalar position graph is a shadow}
+
+The common scalar compression is
+\begin{equation}
+M_{ij}=\|G_{ij}\|_{p_i,p_j}
+=\|D_i^{1/2}G_{ij}D_j^{1/2}\|_F.
+\label{eq:scalar-shadow}
+\end{equation}
+
+\begin{proposition}[Loss and order of scalar compression]
+\label{prop:scalar-loss}
+The map $G_{ij}\mapsto M_{ij}$ discards sign, singular directions, and categorical action.  In
+addition, projection must precede the norm: for any nonzero $v\in\R^q$, the one-body table
+$T=\mathbf1v^{\mathsf T}$ satisfies
+\begin{equation}
+P_iTP_j^{\mathsf T}=0,
+\qquad
+\|T\|_F=\sqrt q\,\|v\|_2.
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+Norms are invariant under sign and orthogonal changes of singular vectors, so the compression is
+many-to-one.  The final statement follows from $P_i\mathbf1=0$ and direct evaluation of the
+Frobenius norm.
+\end{proof}
+
+\BookInsert{chapters/05_same_shadow_example}
+
+This proposition explains why unprojected coupling norms can contain a large conservation- or
+entropy-correlated mode \cite{wang2024}.  Removing such a mode may improve contact ranking; an
+independent null model determines whether the removed component merits a nuisance interpretation.
+
+For dynamic responses, Eq.~\ref{eq:dynamic-pythagoras} first yields two directed scalar graphs,
+\begin{equation}
+M_{i\leftarrow j}^{\mathrm{static}}
+=\|\overline G_{i\leftarrow j}\|_{p_i,p_j},
+\qquad
+M_{i\leftarrow j}^{\mathrm{dynamic}}
+=\left(\E_C\|\delta G_{i\leftarrow j}(C)\|_{p_i,p_j}^2\right)^{1/2}.
+\label{eq:two-shadows}
+\end{equation}
+The first ranks persistent family-level response; the second ranks background sensitivity.  Their
+different biological predictions call for separate reporting.  Any
+undirected contact shadow additionally requires a declared symmetrization of the two directions;
+reciprocity should be tested before that symmetrization is interpreted as an energy coupling.
+\BookSpectralPointer{} shows that scalar, signed, and connection Laplacians built from these shadows or blocks
+retain different amounts of the original categorical geometry.
+
+\BookInsert{chapters/05_coda}
+\BookChapter{Probability-Exact Edge Geometry}
+\BookInsert{chapters/06_opening}
+
+\BookSection{From tangent coordinates to finite pair laws}
+
+The linear gauge identifies a function-space component.  Exact preservation of prescribed
+one-site marginals after exponentiation and normalization additionally requires the transportation
+polytope
+\begin{equation}
+\mathcal U(p_i,p_j)
+=\{Q\geq0:Q\mathbf1=p_i,\ Q^{\mathsf T}\mathbf1=p_j\}.
+\label{eq:transport-polytope}
+\end{equation}
+It has dimension $(q-1)^2$, matching the dimension of the categorical tangent-product space.
+Independence is $Q_{ij}^0=p_ip_j^{\mathsf T}$.  The standardized residual
+\begin{equation}
+R_{ij}
+=D_i^{-1/2}(Q_{ij}-p_ip_j^{\mathsf T})D_j^{-1/2}
+\label{eq:standardized-residual}
+\end{equation}
+has zero constant modes and rank at most $q-1$.  It is the correspondence-analysis coordinate of
+pair association.
+
+\BookSection{Matrix scaling on the gauge quotient}
+
+Given a finite score table $S_{ij}$, let $K_{ij}=\exp S_{ij}$ elementwise.  For strictly positive
+$K_{ij},p_i,p_j$, matrix scaling supplies positive vectors $u_{ij},v_{ij}$ such that
+\begin{equation}
+Q_{ij}=\diag(u_{ij})K_{ij}\diag(v_{ij})
+\label{eq:sinkhorn-coupling}
+\end{equation}
+has the prescribed marginals \cite{sinkhorn1964,darroch1972,csiszar1975,cuturi2013}.  The coupling
+is unique, while $(u,v)$ are unique up to reciprocal scaling.
+
+\begin{proposition}[Exact gauge invariance of matrix scaling]
+\label{prop:sinkhorn-gauge}
+Let $\mathscr S_{p_i,p_j}(S)$ denote the coupling obtained by scaling $\exp S$ to marginals
+$(p_i,p_j)$.  For arbitrary vectors $a,b$ and scalar $c$,
+\begin{equation}
+\mathscr S_{p_i,p_j}
+\left(S+a\mathbf1^{\mathsf T}+\mathbf1b^{\mathsf T}+c\mathbf1\mathbf1^{\mathsf T}\right)
+=\mathscr S_{p_i,p_j}(S).
+\label{eq:sinkhorn-gauge}
+\end{equation}
+Consequently, the exact nonlinear map $S\mapsto Q$ factors through the same quotient
+$\mathcal Q_{ij}$ as the linear Potts parameter-gauge quotient.
+\end{proposition}
+
+\begin{proof}
+Exponentiating the added row, column, and constant terms only left- and right-scales $K$ by
+positive diagonal matrices and a positive scalar.  These factors are absorbed into the Sinkhorn
+vectors.  Uniqueness of the coupling with the prescribed marginals gives
+Eq.~\ref{eq:sinkhorn-gauge}.
+\end{proof}
+
+Along
+$K_\epsilon=\exp(\epsilon S_{ij})$ around independence,
+\begin{equation}
+\left.\frac{dQ_{ij}(\epsilon)}{d\epsilon}\right|_{\epsilon=0}
+=D_i(P_iS_{ij}P_j^{\mathsf T})D_j.
+\label{eq:sinkhorn-linearization}
+\end{equation}
+Thus the reference-centered representative is both the tangent-space linearization of exact
+marginal-preserving pair geometry and a linear coordinate on the same gauge quotient through which
+the exact Sinkhorn map factors.
+
+\BookInsert{chapters/06_two_state_scaling_example}
+
+\BookSection{Local pair laws and global compatibility}
+
+The exact conditional $q_{i\mid j}(a\mid b)=Q_{ij}(a,b)/p_j(b)$ is normalized for each $b$, and
+averaging over $b\sim p_j$ returns $p_i$.  Its mutual information
+\begin{equation}
+I_{ij}=\operatorname{KL}(Q_{ij}\|p_ip_j^{\mathsf T})
+\end{equation}
+is an exact nonnegative scalar association.  Near independence,
+\begin{equation}
+I_{ij}=\frac12\|R_{ij}\|_F^2+O(\|R_{ij}\|_F^3),
+\label{eq:mi-local-geometry}
+\end{equation}
+with a remainder controlled only when the smallest marginal probability stays away from zero.
+Rare and unsupported categories therefore require an explicit smoothing convention.
+
+This construction separates three levels:
+\begin{enumerate}
+\setlength{\itemsep}{1pt}
+\item $P_iS_{ij}P_j^{\mathsf T}$ is a marginal-orthogonal logit contrast;
+\item $Q_{ij}\in\mathcal U(p_i,p_j)$ is one exact pair law with prescribed marginals;
+\item a collection of pair laws is globally probabilistic only if it lies in the marginal polytope
+of one compatible sequence distribution.
+\end{enumerate}
+The third property is a global compatibility constraint beyond a sparse pair layer or pairwise
+Sinkhorn scaling.  Marginal log-linear, discrete dependence, and minimum-information models provide global alternatives but
+introduce a separate estimation problem \cite{bergsma2002,geenens2020,sei2024}.
+
+\BookInsert{chapters/06_coda}
+\BookPart{Models, Estimation, and Spectra}
+\BookChapter{Model Correspondences in Operator Coordinates}
+\BookInsert{chapters/07_opening}
+
+The framework compares sequence models coordinate by coordinate.  A model $M$ enters through the
+typed extraction
+\begin{equation}
+\operatorname{Audit}(M)
+=\left(h_M,\mathcal K_M,E_M,\mathcal C_M,\mathcal O_M,
+\mathcal D_M,\mathcal N_M,\mathcal E_{\mathrm{st},M},\mathcal V_{\!\mathrm{ld},M}\right),
+\label{eq:model-audit-map}
+\end{equation}
+This full record replaces comparison by one displayed matrix.
+
+\ifdefined\BOOKMODE
+The portraits below follow these coordinates model by model and retain the first claim that remains
+unlicensed after each correspondence.
+\BookInsert{chapters/07_model_portraits}
+\else
+The table records all structural coordinates in compressed form; the final column states the
+estimator and the first claim that remains unlicensed.
+\begin{center}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.12\linewidth}
+                >{\raggedright\arraybackslash}p{0.19\linewidth}
+                >{\raggedright\arraybackslash}p{0.17\linewidth}
+                >{\raggedright\arraybackslash}p{0.20\linewidth}
+                >{\raggedright\arraybackslash}p{0.22\linewidth}}
+\toprule
+Model & Field, support, and edge map & Context and order & State and normalization & Estimator and claim boundary \\
+\midrule
+PSSM & node field $h$; $E=\emptyset$ & family-static; order one & categorical site normalization; no edge dynamics & weighted counts or site loss; no pair interaction \\
+Potts / DCA & full categorical blocks, usually fitted on complete support & family-static; order two & one Gibbs law or compatible conditionals & MSA likelihood or pseudolikelihood; nonzero is not automatically contact \\
+Hopfield--Potts & low-rank factorization of Potts blocks & family-static; order two & joint Potts energy & MSA fit with rank constraint; low rank neither fixes gauge nor mechanism \\
+Gaussian precision & linear-feature fiber and precision blocks & family-static; order two & one Gaussian law & covariance-based fit; categorical conclusions do not transfer unchanged \\
+RBM & visible--hidden factors & static parameters; generally all visible orders & Gibbs law and latent free energy & likelihood or contrastive methods; hidden motif is not a set of direct contacts \\
+Message-passing GNN & declared or input-dependent support with shared messages & computation becomes higher order with depth & one-pass or iterated state; no required global normalization & supervised or self-supervised loss; route is not an identified coupling \\
+Modern Hopfield & maps between state and stored-memory fibers & state-dependent retrieval & iterative update with Lyapunov function under stated assumptions & learned or prescribed memories; Lyapunov energy is not a Potts sequence energy \\
+Transformer / pLM & dense routes plus audited categorical output response & input-dependent; generally all orders & layered hidden state; positional softmax, usually no global sequence energy & corpus pretraining plus intervention audit; attention coefficients are not response tables \\
+Pallatom & residue and atom-slot nodes with persistent pair state & coordinate-conditioned, multiscale, and higher order & iterative all-atom denoising with coordinate--pair recycling & composite geometric supervision; atom14 slots and aligned loss are biases, not chemical ontology or exact equivariance \\
+\bottomrule
+\end{tabular}
+\end{center}
+\fi
+
+\BookSection{Static fields, Gaussian conditionals, and low-rank patterns}
+
+A PSSM retains only the one-body branch $h_i(a)$ and therefore occupies the field coordinate with
+zero off-diagonal edge operator.  A Potts model adds static full categorical edge blocks.  We first
+retain the model-specific coordinates before asking which of them can be collapsed into a shared
+reconstruction diagram.
+
+For a nondegenerate Gaussian vector with covariance $\Sigma$ and precision
+$\Omega=\Sigma^{-1}$,
+\begin{equation}
+\Omega_{ij}=0
+\quad\Longleftrightarrow\quad
+X_i\mathrel{\perp\!\!\!\perp}X_j
+\mid X_{[L]\setminus\{i,j\}}.
+\label{eq:gaussian-ci}
+\end{equation}
+This is a distributional theorem under a Gaussian law \cite{dempster1972}.  Leading-mode deletion
+is a separate spectral operation, while a Gaussian approximation to one-hot protein variables
+still requires reference-centered Potts coordinates for categorical comparison.
+
+A classical Hopfield--Potts restriction factorizes the static coupling as
+\begin{equation}
+J_{ij}(a,b)
+=\sum_{\mu=1}^{p}\lambda_\mu
+\xi_{i\mu}(a)\xi_{j\mu}(b).
+\label{eq:hopfield-potts}
+\end{equation}
+It is a low-rank parameterization of a pairwise Potts energy \cite{hopfield1982,cocco2013}.
+Attention belongs to a separate state-dependent routing construction.  Positive and negative pattern weights select different operator
+directions, and gauge projection is still required.  At the pairwise level one may test
+\begin{equation}
+\mathbb K^{(2)}
+=\mathbb K_{\mathrm{LR}}+\mathbb K_{\mathrm{sp}},
+\label{eq:lowrank-sparse}
+\end{equation}
+where the two terms represent distributed collective modes and localized typed constraints.  This
+decomposition is a model hypothesis: low-rank and sparse classes overlap, so recovery needs
+declared penalties, incoherence assumptions, synthetic ground truth, or independent interventions.
+
+\BookSection{Transformer computation and interaction graphs}
+
+A self-attention layer is a message-passing operation whose nodes are tokens.  Its candidate
+support is usually the complete directed graph (or the graph allowed by a mask), whereas its
+effective weighted route is generated anew from the current representations.  For head $h$,
+\begin{equation}
+\alpha_{ij}^{(h)}(x)
+=\operatorname{softmax}_{j}
+\left(\frac{Q_i^{(h)}(x)^{\mathsf T}K_j^{(h)}(x)}{\sqrt{d_h}}\right),
+\qquad
+y_i=\sum_{j,h}\alpha_{ij}^{(h)}B_hx_j.
+\label{eq:attention}
+\end{equation}
+In this computational sense a Transformer instantiates a special dynamic GN block: the same
+query--key and value rules are shared across token pairs, the positional aggregation is
+permutation-respecting before positional encodings or masks are supplied, and the effective edge
+weights depend on the current sequence and layer
+\cite{battaglia2018relational,gilmer2017,velickovic2018,vaswani2017}.  Training therefore learns a
+shared graph-generating rule $X\mapsto P_h(X)$.  The resulting route is input-specific, while the
+statistical operator in Eq.~\ref{eq:edge-operator} is obtained through a separate output audit.
+
+There are at least four non-equivalent symmetry questions inside Eq.~\ref{eq:attention}.  For a
+head with shared linear query--key maps and no additional position-dependent score transform, let
+$X$ collect the current token states and set
+\begin{equation}
+C_h=W_Q^{(h)}W_K^{(h)\mathsf T},\qquad
+S_h(X)=\frac{XC_hX^{\mathsf T}}{\sqrt{d_h}},\qquad
+P_h(X)=\operatorname{softmax}_{\mathrm{row}}S_h(X),
+\label{eq:attention-symmetry-levels}
+\end{equation}
+one may ask whether (i) $C_h$ is symmetric, (ii) the token logit matrix $S_h(X)$ is symmetric,
+(iii) the normalized route $P_h(X)$ is reversible, or (iv) the audited categorical response obeys
+Eq.~\ref{eq:reciprocity}.  Symmetry of $C_h$ implies symmetry of $S_h(X)$ before an asymmetric
+mask, relative-position bias, or position-dependent query--key transform is applied, but row
+normalization generally gives $P_{ij}\ne P_{ji}$.  Stationary flux, rather than entrywise symmetry,
+determines whether this asymmetry carries nonreciprocal circulation.  Indeed, if
+$K_{ij}=\exp S_{ij}=K_{ji}$, $z_i=\sum_jK_{ij}$, and
+\begin{equation}
+P_{ij}=\frac{K_{ij}}{z_i},\qquad
+\pi_i=\frac{z_i}{\sum_k z_k},
+\end{equation}
+then
+\begin{equation}
+\pi_iP_{ij}=\pi_jP_{ji}.
+\label{eq:softmax-detailed-balance}
+\end{equation}
+Thus a symmetric score followed by row-softmax is generally asymmetric in Euclidean coordinates
+but reversible in its stationary geometry.  An asymmetric query--key kernel or mask can break
+this property, although either can also produce accidental reversibility on a particular input.
+
+This distinction sharpens recent empirical results.  Saponati et al. analyze symmetry and column
+dominance primarily in $C_h$, reporting that bidirectional objectives favor symmetric structure
+whereas autoregressive objectives favor directionality; symmetric initialization improves several
+encoder-language training runs, while the reported vision gains are not significant and
+large-scale behavior remains open \cite{saponati2025}.  Courtois et al. similarly improve
+BERT-style efficiency with a symmetric dot-product parameterization \cite{courtois2024}.  Neither
+result addresses the normalized token route or the end-to-end substitution response directly.
+Doubly stochastic attention, in turn, balances incoming and outgoing mass while allowing
+asymmetric directed cycles.  Sinkformers implement
+this constraint by iterative matrix scaling, while ESPFormer uses parallel expected-sliced
+transport and reports improvements across several modalities \cite{sander2022,shahbazi2025}.
+Marginal balance and detailed balance remain two independently testable properties.
+
+At fixed attention coefficients, the linear value-path map is
+\begin{equation}
+\mathcal A_{i\leftarrow j}
+=\sum_{h=1}^H\alpha_{ij}^{(h)}B_h.
+\label{eq:frozen-attention-map}
+\end{equation}
+
+\begin{proposition}[Shared span of a frozen attention layer]
+\label{prop:attention-span}
+Every map in Eq.~\ref{eq:frozen-attention-map} lies in the shared subspace
+$\Span\{B_1,\ldots,B_H\}$.  Dense connectivity therefore distributes a shared $H$-dimensional
+operator family across its edges.
+\end{proposition}
+
+The complete input--output response also contains derivatives or finite differences through
+queries, keys, earlier layers, residual paths, and nonlinear blocks.  This is why the categorical
+output audit in Eq.~\ref{eq:dynamic-response} is the proper model-level object for comparison with
+a Potts block.  The attention map supplies the route graph.  Route and response graphs should
+therefore be reported separately: the first describes where a layer reads, while the second
+describes how a source substitution changes the model's categorical prediction.
+
+\BookSection{Softmax over different sample spaces}
+
+The Potts conditional in Eq.~\ref{eq:potts-conditional} normalizes over residue identities at one
+position.  Attention in Eq.~\ref{eq:attention} normalizes over source positions.  Modern Hopfield
+retrieval normalizes over stored memories,
+\begin{equation}
+q^{\mathrm{new}}
+=\Xi\operatorname{softmax}_{\mu}(\beta\Xi^{\mathsf T}q),
+\label{eq:modern-hopfield-update}
+\end{equation}
+and can be derived from the Lyapunov function
+\begin{equation}
+E_{\mathrm{MH}}(q)
+=\frac12\|q\|_2^2
+-\frac1\beta\log\sum_\mu e^{\beta\xi_\mu^{\mathsf T}q}+C
+\label{eq:modern-hopfield-energy}
+\end{equation}
+under the assumptions of the modern Hopfield construction \cite{ramsauer2021}.  One attention
+readout matches this update when keys and returned values are tied or compatibly mapped.  Untied
+values, changing memories, residual connections, and feed-forward layers generally define a
+different dynamics whose energy descent must be established separately.
+
+The bridge between latent-variable models and modern Hopfield retrieval becomes exact after the
+hidden sample space is specified.  Replace the independent Bernoulli hidden vector of an RBM by one
+categorical memory variable $Z\in[M]$ and define
+\begin{equation}
+E(q,Z=\mu)=\frac12\|q\|_2^2-\xi_\mu^{\mathsf T}q.
+\label{eq:categorical-memory-energy}
+\end{equation}
+Its posterior is
+\begin{equation}
+P(Z=\mu\mid q)
+=\operatorname{softmax}_{\mu}(\beta\Xi^{\mathsf T}q),
+\label{eq:categorical-memory-posterior}
+\end{equation}
+and marginalizing $Z$ gives Eq.~\ref{eq:modern-hopfield-energy} up to a constant.  The essential
+distinction is therefore
+\begin{equation}
+\boxed{
+\begin{aligned}
+\text{Bernoulli RBM:}&\quad
+\log\sum_{r\in\{0,1\}^M}e^{r^{\mathsf T}s}
+=\sum_\mu\log(1+e^{s_\mu}),\\
+\text{modern Hopfield:}&\quad
+\log\sum_{\mu=1}^M e^{\beta\xi_\mu^{\mathsf T}q}.
+\end{aligned}}
+\label{eq:hidden-sample-spaces}
+\end{equation}
+The first permits multiple motifs to be active independently; the second makes memories compete on
+one simplex.  Transformer attention applies the same categorical-memory posterior separately at
+each target, but its memories are generated by the current sequence rather than stored as fixed
+parameters.  Multi-head attention repeats retrieval in several learned memory spaces.
+
+The three energy-like quantities must therefore remain distinct:
+\begin{equation}
+\boxed{
+E_{\mathrm{Potts}}(x)
+\ne E_{\mathrm{Hopfield}}(q)
+\ne-\log\alpha_{ij}.}
+\label{eq:three-energies}
+\end{equation}
+They score a sequence configuration, a retrieval state, and one normalized routing coordinate,
+respectively.
+
+\BookSection{Latent factors and interaction order}
+
+For binary hidden variables $r_\mu$, an RBM energy can be written
+\begin{equation}
+E_{\mathrm{RBM}}(x,r)
+=-\sum_i g_i(x_i)-\sum_\mu c_\mu r_\mu
+-\sum_{i,\mu}W_{i\mu}(x_i)r_\mu.
+\end{equation}
+Marginalizing the hidden layer gives
+\begin{equation}
+\log\widetilde P_{\mathrm{RBM}}(x)
+=\sum_i g_i(x_i)
++\sum_\mu\log\left[1+\exp\left(c_\mu+\sum_iW_{i\mu}(x_i)\right)\right].
+\label{eq:rbm-marginal}
+\end{equation}
+The nonlinear softplus generates one-body, pairwise, and higher-order terms.  Its weak-coupling
+quadratic component is low rank across positions; a Potts approximation additionally requires a
+negligible higher-order remainder.  Protein RBMs can therefore represent extended
+motifs without identifying every pair touched by a hidden unit as a direct contact
+\cite{hinton2002,tubiana2019}.
+
+The useful unification is consequently typed: Potts couplings, low-rank Hopfield--Potts patterns,
+RBM-induced pair components, and pLM substitution responses can all be projected into the same
+edge-operator coordinates.  Equality in those coordinates is then an empirical hypothesis tested
+after the shared matrix multiplication or softmax has been typed.
+
+\BookInsert{chapters/07_unified_framework_case}
+
+\BookInsert{chapters/07_gcn_longitudinal}
+
+\BookInsert{chapters/07_coda}
+\BookOnlyChapter{Three AlphaFolds: The Evolution of Relational State}
+\BookInsert{chapters/08_three_alphafolds}
+\ifdefined\BOOKMODE
+\BookChapter{From Observations to Operator Graphs}
+\else
+\BookChapter{Statistical Estimation and Spectral Disentanglement}
+\fi
+\BookInsert{chapters/08_opening}
+
+\BookSection{MSA observations and interaction operators occupy different spaces}
+
+The one-hot encoding of an alignment with $N$ rows belongs to an observation space with three axes,
+\begin{equation}
+X\in
+\mathcal H_{\mathrm{seq}}
+\otimes\mathcal H_{\mathrm{pos}}
+\otimes\mathcal H_{\mathrm{cat}}.
+\label{eq:msa-three-axes}
+\end{equation}
+This tensor belongs to the observation space, while
+$\mathcal H^0=\bigoplus_i\mathcal H_i^0$ is the operator domain.  The sequence axis indexes
+correlated samples; position and category index the object estimated from those samples.  A
+phylogenetic mode across MSA rows, a graph eigenvector across residue positions, and the constant
+categorical mode removed by $P_i$ therefore live in three different spaces.
+
+Let $w_n\geq0$ with $\sum_nw_n=1$, and define the weighted site marginal
+\begin{equation}
+p_i(a)=\sum_{n=1}^Nw_n\mathbf1[X_i^{(n)}=a].
+\label{eq:weighted-msa-marginal}
+\end{equation}
+With smoothing for unsupported states, the centered whitened one-hot tensor is
+\begin{equation}
+Y_{nia}
+=\sqrt{w_n}\,
+\frac{\mathbf1[X_i^{(n)}=a]-p_i(a)}{\sqrt{p_i(a)}}.
+\label{eq:whitened-msa}
+\end{equation}
+Singular vectors of an unfolding of $Y$ along the sequence axis describe between-sequence
+variation that may reflect ancestry, subfamilies, taxonomic imbalance, or function.  Position
+interaction modes arise only after an interaction operator has been estimated.
+
+If $U_{\mathrm{phy}}$ has orthonormal columns in the square-root-weighted row coordinates of $Y$
+and contains sequence directions declared nuisance by an external phylogeny, replicate null, or
+preregistered rule, define
+\begin{equation}
+R_{\mathrm{phy}}=I-U_{\mathrm{phy}}U_{\mathrm{phy}}^{\mathsf T},
+\qquad
+Y_{\mathrm{res}}=R_{\mathrm{phy}}Y.
+\label{eq:phylogeny-projection}
+\end{equation}
+Projection is exact relative to the declared subspace.  External evidence licenses the phylogeny
+label; magnitude alone identifies leading principal components.
+
+\BookSection{Two estimators in one coordinate system}
+
+The weighted marginal in Eq.~\ref{eq:weighted-msa-marginal}, after declared smoothing, provides a
+family reference.  A Potts fit estimates one $\widehat J_{ij}$ and hence one static block
+$\widehat G_{i\leftarrow j}^{\mathrm P}=P_i\widehat J_{ij}P_j^{\mathsf T}$ per direction
+\cite{morcos2011,ekeberg2013,cocco2018}.  This estimate depends on the fitting objective,
+regularization, sequence weights, and finite MSA sample.  Gauge projection addresses parameter
+redundancy after those estimation choices have been made.
+
+A pretrained pLM takes a single query sequence at inference and directly yields the conditional
+logits needed for Eq.~\ref{eq:dynamic-response}.  It has amortized information across its training
+distribution and can therefore produce a dynamic response without an inference-time MSA.  An MSA
+remains useful for specifying the family references $p_i$, the family background
+distribution $\mu_{ij}$, the static mean $\overline G_{i\leftarrow j}$, and uncertainty under finite family
+sampling.  The two estimators answer different questions:
+\begin{equation}
+\begin{aligned}
+\text{MSA route:}&\quad
+\{x^{(n)}\}_{n=1}^N\longrightarrow\widehat G_{i\leftarrow j}^{\mathrm P},\\
+\text{pLM route:}&\quad
+x\longrightarrow G_{i\leftarrow j}^{\mathrm{pLM}}(x_{-ij}).
+\end{aligned}
+\label{eq:two-estimators}
+\end{equation}
+
+Their comparison contains several estimands.  Let $G_{i\leftarrow j}^{\mathrm{P},*}$ be the block
+of the population minimizer of the declared Potts fitting risk; let
+$G_{i\leftarrow j}^{F,(2)}$ be the pair component of the true family conditional log score under
+the same anchor reference; and let
+$\overline G_{i\leftarrow j}^{\mathrm{pLM}}=
+\E_{C\sim\mu_{ij}}G_{i\leftarrow j}^{\mathrm{pLM}}(C)$.  If
+$\widehat{\overline G}^{\mathrm{pLM}}$ is a sampled response mean, then
+\begin{align}
+\widehat G_{i\leftarrow j}^{\mathrm P}
+-\widehat{\overline G}_{i\leftarrow j}^{\mathrm{pLM}}
+={}&\underbrace{\widehat G_{i\leftarrow j}^{\mathrm P}
+-G_{i\leftarrow j}^{\mathrm{P},*}}_{\text{Potts estimation}}
++\underbrace{G_{i\leftarrow j}^{\mathrm{P},*}
+-G_{i\leftarrow j}^{F,(2)}}_{\text{pairwise objective or misspecification}}\nonumber\\
+&+\underbrace{G_{i\leftarrow j}^{F,(2)}
+-\overline G_{i\leftarrow j}^{\mathrm{pLM}}}_{\text{pLM transfer and response gap}}
++\underbrace{\overline G_{i\leftarrow j}^{\mathrm{pLM}}
+-\widehat{\overline G}_{i\leftarrow j}^{\mathrm{pLM}}}_{\text{response sampling}}.
+\label{eq:estimand-decomposition}
+\end{align}
+Common reference-centered coordinates make all four terms comparable; their magnitudes remain
+empirical.  In
+particular, agreement between a pseudolikelihood Potts optimum and a pLM response mean is a
+testable transfer statement of the framework.
+
+\BookInsert{chapters/09_estimand_ledger}
+
+Finite-sample reporting should include the smoothing convention, regularization path, and
+uncertainty of full blocks as well as scalar scores.  The descriptive quantity
+$N_{\mathrm{eff}}=(\sum_nw_n^2)^{-1}$ records weight concentration.  Independent-sample
+uncertainty under phylogeny instead requires clade-aware or tree-based resampling rather than an
+ordinary row bootstrap when estimating confidence intervals for
+Eq.~\ref{eq:estimand-decomposition} and $\rho_{i\leftarrow j}^{\mathrm{dyn}}$.
+
+Protein language models trained on single sequences and MSA Transformer instantiate different
+amortization regimes \cite{rives2021,rao2021}.  Both can be audited in the same categorical
+coordinates.  Row attention acts on the sequence axis; residue edges act on the position axis.
+
+\BookSection{Null-relative evidence}
+
+Correlated sampling can bias covariance, inverse-coupling, and sector estimates
+\cite{obermayer2014,dietler2022}.  Let $O^{\mathrm{real}}$ be an estimated operator statistic and
+let $Q_{\mathrm{null}}$ preserve declared nuisance structure, such as one-site composition or a
+phylogenetic tree, while removing the dependence under test.  The null-relative contrast is
+\begin{equation}
+\Delta O
+=O^{\mathrm{real}}
+-\E_{\widetilde X\sim Q_{\mathrm{null}}}O(\widetilde X).
+\label{eq:null-contrast}
+\end{equation}
+Both terms must be produced by the same extraction pipeline and transported to the same reference
+fibers before subtraction.  The contrast updates the evidence for an estimated interaction while
+leaving the node fiber and Potts parameter-gauge class fixed.  Likewise, APC and leading-mode
+deletion are useful position-level corrections only when the removed direction is supported as
+nuisance by a declared null or downstream validation \cite{wang2024}.
+
+The sequence, position, and categorical axes must be kept separate.  Phylogenetic residualization
+on MSA rows and eigenvector deletion on the final scalar graph produce different results because
+pair counting, inversion, projection, and norms have a noncommuting order.
+
+For a covariance-like null operator $\Sigma_0$ that is positive definite after regularization, relative
+spectral enrichment can be defined by
+\begin{equation}
+\Sigma_{\mathrm{real}}u_k=\lambda_k \Sigma_0u_k.
+\label{eq:generalized-null-spectrum}
+\end{equation}
+Large generalized eigenvalues identify directions enriched relative to the null scale.  Contact
+and mechanism interpretations enter through downstream validation.
+
+\BookInsert{chapters/09_new_coordinates_old_engines}
+
+\BookInsert{chapters/08_coda}
+\BookOnlyChapter{Spectra After the Graph Has Been Declared}
+\BookInsert{chapters/09_opening}
+\BookSpectralSection{Reference-projected spectral transforms}
+
+Let $O:\mathcal H_R\to\mathcal H_L$ be an observed operator, $O_0$ a null expectation, and
+$R_L,R_R$ residualizers away from declared nuisance subspaces in the left and right geometries.  A
+general corrected operator has the form
+\begin{equation}
+\boxed{
+\mathcal D_{R,\Phi}(O)=R_L\Phi(O-O_0)R_R.}
+\label{eq:general-disentangler}
+\end{equation}
+Here $\Phi$ must be typed for the operator space.  For a rectangular
+$A=U\Sigma V^{\mathsf T}$, a singular-value transform is
+$\Phi_f^{\mathrm{sv}}(A)=Uf(\Sigma)V^{\mathsf T}$.  For a square self-adjoint
+$A=U\Lambda U^{\mathsf T}$, spectral functional calculus instead gives
+$\Phi_f^{\mathrm{eig}}(A)=Uf(\Lambda)U^{\mathsf T}$ and preserves eigenvalue signs when $f$ does.
+Equation~\ref{eq:general-disentangler} is an audit template, not an identification theorem.  The
+meaning of $\Phi$ depends on a separate model: covariance inversion, graph diffusion, shrinkage,
+and deletion of an empirical mode make different assumptions.
+
+\begin{center}
+\small
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.18\linewidth}
+                >{\raggedright\arraybackslash}p{0.23\linewidth}
+                >{\raggedright\arraybackslash}p{0.21\linewidth}
+                >{\raggedright\arraybackslash}p{0.28\linewidth}@{}}
+\toprule
+Operation & Space and observed object & Transform & Identified object \\
+\midrule
+Potts table redundancy & pair table $T_{ij}(a,b)$ & $P_iT_{ij}P_j^{\mathsf T}$ & reference-centered bivariate contrast \\
+Sequence residualization & weighted MSA rows & $R_{\mathrm{phy}}Y$ & residual after a declared sequence nuisance model \\
+Position nuisance removal & scalar graph $M$ & $R_Z(M-M_0)R_Z^*$ & residual orthogonal to declared position covariates \\
+Gaussian inversion & covariance $\Sigma$ & $\Sigma^{-1}$ & conditional graph under a Gaussian law \\
+Graph diffusion & Laplacian $L_G$ & $e^{-tL_G}$ & smoothing relative to a specified graph \\
+Mode deletion & symmetric statistic $M$ & selected $f(\lambda_k)=0$ & residual after a declared spectral choice \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+For independently specified position nuisance coordinates $Z\in\R^{L\times r}$ and a positive
+position weight $W$, let
+\begin{equation}
+\Pi_Z=Z(Z^{\mathsf T}WZ)^{-1}Z^{\mathsf T}W,
+\qquad R_Z=I-\Pi_Z.
+\end{equation}
+Assume $Z$ has full column rank and let $R_Z^*$ denote the adjoint in the $W$-weighted position
+geometry; then $R_Z^*=R_Z$.
+The corrected scalar position operator is
+\begin{equation}
+M_\perp=R_Z(M-M_0)R_Z^*.
+\label{eq:position-nuisance}
+\end{equation}
+This removes exactly the declared linear nuisance space.  APC and leading-mode deletion are
+special rank-one approximations; improvement in contact precision validates their utility for that
+task, not a universal entropy or phylogeny label.
+
+\BookInsert{chapters/10_inverse_covariance_case}
+
+\BookSpectralSection{Graph Laplacians and multiscale operator spectra}
+
+\BookSubsection{Directed routes and stationary geometry}
+
+Graph spectral analysis begins only after the edge object and its compression have been declared.
+This first branch concerns a route matrix whose rows already sum to one.  It asks where routing mass
+settles after repeated application and whether the stationary flow between every pair is balanced.
+This branch analyzes an iterated computational route.  Categorical substitution effects and
+thermodynamic equilibrium belong to other constructions.
+For a nonnegative row-stochastic attention route $P$, the native object is directed.  Assume first
+that $P$ is irreducible, let $\pi^{\mathsf T}P=\pi^{\mathsf T}$ be its positive stationary law,
+and write $\Pi_\pi=\diag(\pi)$.  Here $P_{ij}$ uses the query-to-source convention $i\to j$;
+the value message in Eq.~\ref{eq:attention} travels along the oppositely oriented edge $j\to i$.
+The convention must remain fixed when cycles are interpreted.  The adjoint in the stationary inner
+product is
+\begin{equation}
+P^*_{\pi}=\Pi_\pi^{-1}P^{\mathsf T}\Pi_\pi,
+\qquad
+P^{\mathrm{rec}}=\frac12(P+P^*_{\pi}),
+\qquad
+P^{\mathrm{circ}}=\frac12(P-P^*_{\pi}).
+\label{eq:routing-reciprocal-circulation}
+\end{equation}
+Both $P$ and $P^*_{\pi}$ are row-stochastic.  The first term is reversible, while the second has
+zero row sum and records stationary directed circulation.  A dimensionless detailed-balance defect
+is
+\begin{equation}
+\delta_{\mathrm{db}}(P)
+=\frac{\|\Pi_\pi P-P^{\mathsf T}\Pi_\pi\|_F}
+{\|\Pi_\pi P\|_F}.
+\label{eq:detailed-balance-defect}
+\end{equation}
+It vanishes exactly when $P=P^*_{\pi}$.  Equation~\ref{eq:softmax-detailed-balance} shows why the
+criterion uses stationary flux: unequal stationary masses can make a reversible route entrywise
+asymmetric.  Doubly stochastic normalization fixes $\pi$ to the uniform law while still allowing
+asymmetric directed cycles, so bistochasticity and reversibility remain different constraints
+\cite{sander2022,shahbazi2025}.
+
+When both directional fluxes are positive, the same departure can be summarized by the entropy
+production functional
+\begin{equation}
+\operatorname{EP}(P)
+=\frac12\sum_{i,j}
+(\pi_iP_{ij}-\pi_jP_{ji})
+\log\frac{\pi_iP_{ij}}{\pi_jP_{ji}}\geq0.
+\label{eq:routing-entropy-production}
+\end{equation}
+One-way support, as in a causal mask, requires a separate support diagnostic or an explicit
+smoothing convention; otherwise Eq.~\ref{eq:routing-entropy-production} can diverge.  Reducible
+routes likewise require restriction to recurrent classes or a declared regularization.  These are
+properties of a computational Markov route.  A thermodynamic entropy-production interpretation
+additionally requires an independently identified physical stochastic dynamics
+\cite{schnakenberg1976}.  Context-conditioned Markov-chain and interacting-particle analyses
+motivate studying route dynamics; output response and biological causation remain separate audits
+\cite{ildiz2024,geshkovski2023}.
+
+The directed random-walk Laplacian
+\begin{equation}
+L_{\mathrm{rw}}=I-P
+\label{eq:directed-random-walk-laplacian}
+\end{equation}
+is generally non-self-adjoint and can have nonorthogonal modes.  The reversible component admits
+the symmetric representative
+\begin{equation}
+L_{\mathrm{rec}}
+=I-\Pi_\pi^{1/2}P^{\mathrm{rec}}\Pi_\pi^{-1/2},
+\label{eq:reversible-laplacian}
+\end{equation}
+which is the additive reversibilization used in a directed-graph Laplacian \cite{chung2005},
+whereas $P^{\mathrm{circ}}$ must be retained separately.  Left/right singular subspaces,
+stationary fluxes, and nonnormality in the $\pi$-geometry retain directed transport omitted by an
+ordinary eigenbasis.  For a frozen attention-only rollout across layers, the
+route is the ordered product $P^{(L)}(x)\cdots P^{(1)}(x)$; the input-dependent factors form a
+noncommuting product in general.  A spectrum of the
+mean route, a mean of layer spectra, and a spectrum of the product are therefore different
+statistics.
+
+The practical output of this branch is therefore a three-part report: stationary mass $\pi$,
+reversible routing $P^{\mathrm{rec}}$, and residual circulation $P^{\mathrm{circ}}$.  A single
+symmetric spectrum sees only the second part.  A causal residue-to-residue response is tested by a
+separate intervention on model outputs.
+
+\BookSubsection{Scalar, signed, and connection Laplacians}
+
+The next branch starts from interaction estimates.  Its Laplacian depends on what the signal
+carried by a node is allowed to remember.  A scalar Laplacian retains only strength, a signed Laplacian also retains one declared
+polarity, and a connection Laplacian retains a transported categorical direction.  Moving down this
+list preserves more structure but also requires more modeling choices.
+
+An arbitrary signed or block-valued response has a native operator geometry; a Markov law arises
+only after an additional nonnegative normalization.  Its directionality should be audited through the block reciprocity split
+in Eq.~\ref{eq:reciprocal-irreversible} and through typed left/right singular geometry before any
+nonnegative scalar normalization is imposed.  Only if the scientific question deliberately
+discards edge direction should one transport all directed blocks to common anchor fibers and
+define a nonnegative symmetric static shadow, for example
+\begin{equation}
+A_{ij}^{\mathrm{stat}}
+=\frac12\left(M_{i\leftarrow j}^{\mathrm{static}}
++M_{j\leftarrow i}^{\mathrm{static}}\right),
+\qquad A_{ii}^{\mathrm{stat}}=0.
+\label{eq:static-adjacency}
+\end{equation}
+Assuming positive degrees, let
+$D_{\mathrm{deg}}=\diag(A^{\mathrm{stat}}\mathbf1)$ and
+\begin{equation}
+L_{\mathrm{sym}}^{\mathrm{stat}}
+=I-D_{\mathrm{deg}}^{-1/2}A^{\mathrm{stat}}D_{\mathrm{deg}}^{-1/2}.
+\label{eq:scalar-laplacian}
+\end{equation}
+Its quadratic form is
+\begin{equation}
+u^{\mathsf T}L_{\mathrm{sym}}^{\mathrm{stat}}u
+=\frac12\sum_{i,j}A_{ij}^{\mathrm{stat}}
+\left(\frac{u_i}{\sqrt{d_i}}-\frac{u_j}{\sqrt{d_j}}\right)^2.
+\label{eq:scalar-dirichlet}
+\end{equation}
+Low eigenvectors are therefore position fields that vary slowly across strong static edges, and the
+zero mode is $D_{\mathrm{deg}}^{1/2}\mathbf1$ \cite{shuman2013}.  This Laplacian is invariant under
+any replacement of the full blocks that preserves their norms.  It can identify positional domains
+or bottlenecks.  Signs, singular directions, substitution-specific coherence, and directed
+circulation have already been removed by this compression.
+
+A signed positional score requires a different construction.  If a declared categorical
+contraction produces a symmetric $S_{ij}\in\R$, define
+\begin{equation}
+D_{|S|}=\diag\left(\sum_j|S_{ij}|\right),
+\qquad L_{\pm}=D_{|S|}-S.
+\label{eq:signed-laplacian}
+\end{equation}
+Then
+\begin{equation}
+u^{\mathsf T}L_{\pm}u
+=\frac12\sum_{i,j}|S_{ij}|
+\left(u_i-\operatorname{sign}(S_{ij})u_j\right)^2\geq0.
+\label{eq:signed-dirichlet}
+\end{equation}
+Positive edges favor aligned position signals and negative edges favor opposing signals
+\cite{kunegis2010}.  The sign must come from a declared projection of the categorical operator or
+from a signed routing variable.  A block norm has discarded that information.  A negative spectral
+edge encodes opposition in the declared contraction; probability and biological antagonism have
+their own meanings.
+
+To retain categorical contrast orientation on an undirected support, work in the anchor-whitened fibers
+$\widetilde{\mathcal H}_i^0=Q_i\R^q$ and choose for each undirected edge
+an orthogonal transport $U_{i\leftarrow j}:\widetilde{\mathcal H}_j^0\to
+\widetilde{\mathcal H}_i^0$ satisfying
+$U_{j\leftarrow i}=U_{i\leftarrow j}^{\mathsf T}$.  The polar factor of
+$\widetilde G_{i\leftarrow j}$ restricted to the centered fiber supplies one such orientation when
+that restriction is nonsingular; a rank-deficient fiber map requires a declared completion or
+restriction to its supported singular subspace.  For symmetric nonnegative
+weights $a_{ij}=a_{ji}$, the connection energy is
+\begin{equation}
+\mathcal E_{\mathrm{conn}}(f)
+=\frac12\sum_{i<j}a_{ij}
+\left\|f_i-U_{i\leftarrow j}f_j\right\|_2^2
+=\langle f,\mathbb L_{\mathrm{conn}}f\rangle.
+\label{eq:connection-laplacian}
+\end{equation}
+The resulting connection Laplacian is positive semidefinite \cite{singer2012}.  Its low modes are
+categorical contrast fields that remain coherent after edge-specific transport.  The scalar
+Laplacian asks where a mode is smooth; the connection Laplacian additionally asks how a residue
+contrast must rotate between positions.  Singular blocks admit several transport completions, so
+the chosen completion is an audited modeling coordinate.
+
+Thus the connection construction computes smoothness only after neighboring categorical vectors
+have been aligned by the chosen transports.  It can reveal a coherent substitution pattern that a
+norm graph erases.  Uniqueness, allosteric interpretation, and correspondence to microscopic motion
+remain validation questions.
+
+If $L=V\Lambda V^{\mathsf T}$ denotes either a scalar or connection Laplacian, the graph Fourier
+coefficients of a compatible signal $y$ are $\widehat y_k=v_k^{\mathsf T}y$, and a spectral filter
+is
+\begin{equation}
+g(L)y=Vg(\Lambda)V^{\mathsf T}y.
+\label{eq:graph-fourier-filter}
+\end{equation}
+The heat kernel $e^{-tL}$ probes progressively coarser interaction neighborhoods as $t$ increases;
+band-pass filters can separate domain-scale modes from localized edge variation.  Low frequency
+means smoothness relative to the inferred graph; conservation, phylogeny, allostery, and function
+enter through calibrated correspondences.
+
+\ifdefined\BOOKMODE
+\begin{figure}[htbp]
+\centering
+\fbox{\begin{minipage}{0.92\linewidth}
+\centering
+typed edge operators
+$\longrightarrow$
+declared scalarization or transport
+$\longrightarrow$
+L
+$\xrightarrow{\ g(L)\ }$
+multiscale coefficients,\\[4pt]
+\small
+$g(\lambda)=e^{-t\lambda}$: heat smoothing
+\qquad
+$g(\lambda)=\psi(s\lambda)$: wavelets
+\qquad
+$g(\lambda)=\lambda^k$: polynomial propagation.
+\end{minipage}}
+\caption{Spectral processing is downstream of edge identification.  Different choices of $g$ act
+on the same declared operator geometry but answer different multiscale questions.}
+\label{fig:spectral-processing-pipeline}
+\end{figure}
+\fi
+
+\BookInsert{chapters/10_graph_wavelets}
+
+\BookSubsection{Context averaging and null-relative spectra}
+
+Static and dynamic shadows define different Laplacians.  Construct
+$A_{ij}^{\mathrm{dyn}}$ from $M_{i\leftarrow j}^{\mathrm{dynamic}}$ by the same declared
+symmetrization as Eq.~\ref{eq:static-adjacency}, and compare the resulting spectra as subspaces.  If
+$V_r^{\mathrm{stat}}$ and $V_r^{\mathrm{dyn}}$ contain a chosen $r$-dimensional spectral band,
+one basis-invariant distance is
+\begin{equation}
+d_r^{\mathrm{spec}}
+=\frac{1}{\sqrt{2r}}
+\left\|V_r^{\mathrm{stat}}V_r^{\mathrm{stat}\mathsf T}
+-V_r^{\mathrm{dyn}}V_r^{\mathrm{dyn}\mathsf T}\right\|_F.
+\label{eq:spectral-subspace-distance}
+\end{equation}
+Individual eigenvectors are unstable inside a nearly degenerate band, whereas the spectral
+projector remains well defined.  For context-specific graphs, spectral averaging is nonlinear:
+in general
+\begin{equation}
+L_{\mathrm{sym}}\!\left(\E_CA(C)\right)
+\ne\E_CL_{\mathrm{sym}}(A(C)),
+\qquad
+\lambda_k\!\left(\E_CL(C)\right)\ne\E_C\lambda_k(L(C)).
+\label{eq:spectral-noncommutation}
+\end{equation}
+\BookInsert{chapters/10_mean_spectrum_example}
+The mean graph, mean Laplacian, mean spectrum, and distribution of spectral projectors answer
+different questions.  Because this construction begins after symmetrization, it compares
+undirected shadows only; context-dependent detailed-balance defect, circulation, and directed
+singular subspaces must be compared before that projection.
+
+Finally, a null-relative Laplacian spectrum must account for zero modes.  For unnormalized
+Laplacians one may restrict to $\mathbf1^\perp$; for normalized graphs with unequal degree modes or
+unequal null spaces, use an explicitly declared ridge $\epsilon>0$.  Generalized modes then
+extremize
+\begin{equation}
+\gamma(u)
+=\frac{u^{\mathsf T}L_{\mathrm{real}}u}
+{u^{\mathsf T}L_0u+\epsilon\|u\|_2^2}.
+\label{eq:null-laplacian-rayleigh}
+\end{equation}
+Small and large values identify directions that are respectively smoother or rougher in the real
+graph than under the null geometry.  Significance should be calibrated from replicate null graphs
+for eigenvalues, gaps, localization, and spectral projectors.  The position Laplacian, signed
+Laplacian, connection Laplacian, categorical projector $P_i$, and Potts pair-table redundancy
+therefore occupy distinct coordinates of the framework.
+
+\BookInsert{chapters/09_coda}
+\BookPart{Realizability, Evidence, and Interpretation}
+\BookChapter{Architectural Consequences and Realizability}
+\BookInsert{chapters/10_opening}
+
+The operator coordinates distinguish a semantic interaction object from an implementation that
+computes it.  Support selection, routing normalization, persistent state, endpoint measurability,
+and update dynamics are independent architectural decisions.  Endpoint measurability, support
+invariance, and state--energy compatibility below are semantic requirements.  Signed routing,
+affine deletion, persistent pair tracks, and optional-MSA supervision are constructive examples,
+not required components of the master object.
+
+\BookSection{Routing geometry and persistent relational state}
+
+Standard attention chooses a nonnegative row-stochastic route
+\begin{equation}
+\alpha_{ij}=\frac{e^{z_{ij}}}{\sum_k e^{z_{ik}}},
+\qquad y_i=\sum_j\alpha_{ij}V_j.
+\label{eq:simplex-routing}
+\end{equation}
+For fixed values, $y_i$ lies in $\operatorname{conv}\{V_j\}$.  A more general interaction operator
+may use signed coefficients with bounded total variation.  If
+$\sum_j|a_{ij}|\leq1$, then
+\begin{equation}
+y_i=\sum_ja_{ij}V_j
+\in\operatorname{conv}(\{0\}\cup\{V_j,-V_j\}_j),
+\label{eq:absolute-convex-routing}
+\end{equation}
+which permits source-specific contrasts and cancellation.  As one illustrative design, a
+continuous signed sparse map is
+\begin{equation}
+w_{ij}=\operatorname{sign}(z_{ij})(|z_{ij}|-\lambda)_+,
+\qquad
+a_{ij}=\frac{w_{ij}}{\epsilon+\sum_k|w_{ik}|}.
+\label{eq:signed-threshold-routing}
+\end{equation}
+It has exact zeros and bounded total variation, but superiority to softmax, sparsemax, entmax, or
+other signed attention rules is an empirical question \cite{martins2016,peters2019,ye2024}.
+
+Routing geometry is separate from edge-value capacity.  A node-only message-passing layer retains
+$O(Ld)$ persistent states even if it evaluates dense transient connectivity.  A dense pair track
+retains $O(L^2d_p)$ relational state, as in structure models with explicit pair representations
+\cite{jumper2021}.  A degree-$k$ operator graph retains $O(Lkd_p)$ edge state once support is
+known.  Categorical rank and interaction order are independent capacity coordinates.
+
+State dynamics is another coordinate.  The same $\mathbb K_z$ may define a one-pass readout,
+an iterated map, or part of a descent dynamics.  A Hopfield claim combines a specified state space,
+fixed memories, update schedule, and Lyapunov decrease in addition to graph support.
+
+\BookInsert{chapters/11_pallatom_structural_alignment}
+
+\ifdefined\BOOKMODE
+\else
+\BookSection{Pallatom as a multiscale relational system}
+
+Pallatom provides a concrete protein-specific example in which the graph bias extends beyond
+transient attention \cite{qu2025pallatom}.  It embeds a length-$L$ protein into a fixed coordinate
+array
+\begin{equation}
+\Psi_{14}(x,a)=r\in\R^{L\times14\times3},
+\label{eq:pallatom-atom14}
+\end{equation}
+where native heavy atoms occupy residue-specific slots and unused slots are represented by virtual
+points at $C_\alpha$.  This representation declares residues to be stable compositional units and
+turns variable side-chain cardinality into fixed-dimensional Euclidean diffusion.  It is a strong
+and useful inductive bias, not a claim that virtual atoms are physical objects or that molecular
+topology is intrinsically fixed-cardinality.
+
+The architecture is a typed, multiscale relational system.  Atom-level states use local attention
+for fine geometry, residue-token states communicate globally, and a persistent pair track carries
+residue--residue information.  Residue features are broadcast to atoms, atom features are
+aggregated back to residues, and partially denoised coordinates are converted into pair features
+and recycled through subsequent decoder units.  Triangle operations make an edge $(i,j)$ depend on
+composed paths $(i,k,j)$.  In the coordinates of Eq.~\ref{eq:typed-system}, the model therefore has
+multiple node fibers, transient atom and token routes, an $O(L^2d_p)$ persistent edge state, and
+iterated coordinate dynamics:
+\begin{equation}
+\text{local atomic geometry}
+\longleftrightarrow
+\text{residue state}
+\longleftrightarrow
+\text{global pair organization}.
+\label{eq:pallatom-multiscale-bias}
+\end{equation}
+Long-range atom--atom effects are consequently mediated through a residue-level bottleneck rather
+than represented as unrestricted physical edges.
+
+The probabilistic and symmetry claims require the remaining audit coordinates.  Pallatom denoises
+all-atom coordinates and decodes residue identities from context-mixed atomic embeddings, so the
+implemented factorization is more precisely summarized as a coordinate model with a supervised
+geometry-conditioned sequence readout than as a symmetric treatment of sequence and structure.
+Its objective combines coordinate score matching, sequence cross-entropy, residue- and atom-level
+distograms, smooth-LDDT, and intermediate losses.  Moreover, the architecture does not guarantee
+exact $SE(3)$ equivariance by construction; coordinate centering, rigid-motion augmentation, and
+aligned coordinate loss encourage frame-independent behavior during training.  Pallatom thus
+illustrates the framework's central distinction: a well-aligned representation, relational
+architecture, and objective can give a powerful computational graph without making its virtual
+slots physical entities, its pair state an identified energy, or its learned symmetry exact.
+\fi
+
+\BookSection{Endpoint-removable context}
+
+\begin{definition}[Endpoint-removable context]
+For a deleted set $A\subseteq[L]$, a context map $C_{-A}:[q]^L\to\mathcal S$ is
+endpoint-removable if $x_{-A}=x'_{-A}$ implies $C_{-A}(x)=C_{-A}(x')$.
+\end{definition}
+
+Endpoint-removable context must be constructed before information propagates from the deleted
+positions; post hoc subtraction leaves their traces in retained states.  The following construction
+establishes realizability for associative token-local recurrences as one concrete design.
+
+\begin{theorem}[Associative affine deletion]
+\label{thm:affine-deletion}
+Let token $k$ define the affine transition
+$F_k(h)=A_k(x_k)h+b_k(x_k)$ and augmented matrix
+\begin{equation}
+M_k(x_k)=
+\begin{bmatrix}A_k(x_k)&b_k(x_k)\\0&1\end{bmatrix}.
+\end{equation}
+For a deleted set $A$, replace $M_k$ by the identity when $k\in A$.  Then
+\begin{equation}
+M_{-A}=M_L^{(A)}M_{L-1}^{(A)}\cdots M_1^{(A)}
+\label{eq:affine-deletion}
+\end{equation}
+is endpoint-removable and preserves the order of every retained transition.
+\end{theorem}
+
+\begin{proof}
+Every deleted factor is the identity and is independent of the deleted category.  All remaining
+token-local factors occur in their original order, while associativity permits arbitrary
+parenthesization.
+\end{proof}
+
+The theorem applies exactly to the affine recurrence core.  Surrounding convolutions,
+normalizations, and context-dependent parameter generators require their own deletion laws.  A segment-product data structure can
+evaluate a cavity with $|A|=m$ by composing at most $m+1$ retained intervals.
+
+\BookSection{Strict targetwise conditional operators}
+
+For a target $i$ and selected source set $N_i$, the shared strict context is the
+whole-neighborhood cavity
+\begin{equation}
+\mathcal C_i^E
+=\sigma\{X_k:k\notin\{i\}\cup N_i\}.
+\label{eq:whole-neighborhood-cavity}
+\end{equation}
+Every reference, route decision, coefficient, and pair table directed into $i$ must be measurable
+with respect to this same cavity.  Only the final categorical lookup may observe a selected source
+state $x_j$.
+
+\begin{definition}[Strict targetwise support]
+A directed router is strict for target $i$ if $N_i(x)=N$ implies $N_i(x')=N$ whenever $x'$ differs
+from $x$ only on $\{i\}\cup N$.  For a randomized router the condition is pathwise after fixing a
+seed independent of the sequence.
+\end{definition}
+
+Conditioned on $c_i^E$, define
+\begin{align}
+\widehat G_{i\leftarrow j}(c_i^E)
+&=P_i(c_i^E)S_{i\leftarrow j}(c_i^E)P_j(c_i^E)^{\mathsf T},\\
+\ell_i(a)
+&=b_i(a;c_i^E)
++\sum_{j\in N_i}a_{i\leftarrow j}(c_i^E)
+\widehat G_{i\leftarrow j}(a,x_j;c_i^E).
+\label{eq:strict-conditional-operator}
+\end{align}
+
+\begin{proposition}[Conditional pairwise operator]
+\label{prop:strict-operator}
+If $N_i$ is strict and every object in Eq.~\ref{eq:strict-conditional-operator} is measurable with
+respect to $\mathcal C_i^E$, then the interaction branch is exactly pairwise in the active endpoint
+variables under the declared product reference.  Its only access to a selected source category is
+the final lookup $\widehat G_{i\leftarrow j}(a,x_j;c_i^E)$.
+\end{proposition}
+
+\begin{proof}
+Condition on the cavity and the realized support.  All tables, references, and coefficients are
+fixed while $(x_i,x_{N_i})$ vary.  Theorem~\ref{thm:pair-anova} centers each target--source term,
+and additivity over $j$ excludes components involving two active sources.  Theorem
+\ref{thm:pair-truncation} identifies the branch as the pairwise truncation.
+\end{proof}
+
+Projection with an ordinary full-context table remains a useful local gauge.  The stricter global
+functional semantics comes from the shared cavity construction above.
+
+\BookSection{Dynamic support is directed and targetwise}
+
+Let a deterministic router $E:[q]^L\to\mathcal G_L$ output an undirected graph.  Call it globally
+endpoint-invariant if changing the categories of any active vertices leaves the entire realized
+graph unchanged.
+
+\begin{theorem}[Spanning-support no-go]
+\label{thm:global-support-no-go}
+If a globally endpoint-invariant router has one input for which its output graph has no isolated
+vertices, then the router is constant on $[q]^L$.  Hence no nonconstant such router can output a
+graph of minimum degree at least one for every input.
+\end{theorem}
+
+\begin{proof}
+For a realized graph with no isolated vertices, every sequence position is active.  The complement
+of the active set is empty, so every other input agrees outside the active set.  Global endpoint
+invariance therefore forces the same graph for every input.
+\end{proof}
+
+Targetwise routing remains adaptive under the theorem.  $N_i(x)$ stays fixed when its own target
+and realized sources vary, while other residues may still alter routes for targets to which they
+are unselected.  The resulting predictive object is a directed cavity operator; an undirected
+contact graph requires a separate identification step.
+
+\BookSection{Single-sequence recoverability and optional-MSA supervision}
+
+Let $T_{ij}\in\{0,1\}$ be a training-only support label,
+$Y_{ij}=X_{[L]\setminus\{i,j\}}$, and
+$Z_{ij}(X)=\mathbf1\{j\in N_i(X)\}$ for a strict router.  Strictness implies that $Z_{ij}$ is a
+function of $Y_{ij}$ alone.  Indeed, invariance to $x_i$ is immediate.  If $j$ is selected,
+invariance to $x_j$ follows from the definition.  If $j$ is not selected but changing $x_j$ made it
+selected, applying strictness at the modified input while reverting $x_j$ would force the modified
+support at the original input, a contradiction.  Define
+\begin{equation}
+e_{ij}^{\mathrm{cav}}
+=\E\min\{\eta_{ij}(Y_{ij}),1-\eta_{ij}(Y_{ij})\},
+\qquad
+\eta_{ij}(y)=\Pr(T_{ij}=1\mid Y_{ij}=y).
+\label{eq:cavity-bayes-floor}
+\end{equation}
+
+\begin{proposition}[Cavity Bayes floor]
+\label{prop:cavity-bayes-floor}
+Every strict deterministic or independently randomized router satisfies
+\begin{equation}
+\Pr(Z_{ij}\ne T_{ij})\geq e_{ij}^{\mathrm{cav}}.
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+Conditional on $Y_{ij}=y$, endpoint invariance restricts the prediction to a label that observes
+neither endpoint.  The minimum conditional zero-one risk is the smaller posterior mass.
+Independent randomization has the same or larger linear conditional risk.  Taking expectation
+proves the claim.
+\end{proof}
+
+\BookInsert{chapters/11_cavity_tradeoff_example}
+
+As an illustrative training design, an optional MSA teacher can estimate family-level edge
+importance while the inference-time cavity floor remains fixed.  Let $E_c$ be a declared candidate set,
+$q_{ij}^{\theta}\in[0,1]$ a student support confidence, and $\widehat G_{ij}^{\theta}$ its
+reference-centered block.  Teacher and student must use the same detached categorical reference:
+\begin{equation}
+G_{ij}^{T}=P_i^{[\bar p]}T_{ij}^{\mathrm{int}}P_j^{[\bar p]\mathsf T},
+\qquad
+T_{ij}^{\mathrm{int}}
+=T_{ij}^{\mathrm{real}}-\E_{\widetilde X\sim Q_{\mathrm{null}}}T_{ij}^{\widetilde X}.
+\label{eq:optional-msa-teacher}
+\end{equation}
+A schematic objective is
+\begin{align}
+\mathcal L={}&\mathcal L_{\mathrm{task}}
++\lambda_m\sum_i\operatorname{KL}(p_i^{\mathrm{MSA}}\|p_i^\theta)\nonumber\\
+&+\lambda_G\sum_{(i,j)\in E_c}
+\|q_{ij}^\theta\widehat G_{ij}^\theta-G_{ij}^{T}\|_{\bar p_i,\bar p_j}^2
++\lambda_0\sum_{(i,j)\in E_c}q_{ij}^\theta.
+\label{eq:training-objective}
+\end{align}
+MSA availability changes supervision, not the single-sequence inference contract.  This objective
+is one architecture consistent with the framework, not a convergence or consistency theorem.
+
+\BookInsert{chapters/10_coda}
+\BookChapter{Falsification and Biological Interpretation}
+\BookInsert{chapters/11_opening}
+
+\BookSection{A falsifiable static--dynamic program}
+
+\ifdefined\BOOKMODE
+\BookInsert{chapters/12_falsification_cases}
+\else
+The framework is tested in three stages.  Each stage declares an estimator, a null, an uncertainty
+procedure, and an observation that would reject the proposed upgrade in the claim ladder.
+
+\begin{enumerate}
+\setlength{\itemsep}{4pt}
+\item \emph{Mathematical calibration.}  Name the sample space and normalization axis of every
+softmax, and verify the categorical zero-marginal constraints before and after reference transport.
+On synthetic additive Potts data, the substitution audit must recover the canonical block for every
+background.  Controlled higher-order models must satisfy the pair-truncation identity under the
+declared product reference.  Report reciprocal and nonintegrable response, Sinkhorn marginal error,
+and the difference between tangent norms and exact mutual information.  Verify the scalar, signed,
+and connection Dirichlet identities in Eqs.~\ref{eq:scalar-dirichlet},
+\ref{eq:signed-dirichlet}, and \ref{eq:connection-laplacian}.  Failure of any exact identity under
+its stated assumptions rejects the implementation of the framework.
+
+\item \emph{Family-level estimator comparison.}  For each family, compare the MSA-fitted Potts
+block with the pLM response mean in one anchor reference and report the four terms in
+Eq.~\ref{eq:estimand-decomposition}, with clade-aware uncertainty.  Estimate
+$\rho_{i\leftarrow j}^{\mathrm{dyn}}$ on natural, mutational, and family-held-out backgrounds; repeat under
+independent-site, composition-matched, and phylogeny-aware nulls.  Report full-block alignment,
+singular directions, reciprocity, static--dynamic spectral-projector distance, and null-calibrated
+eigenvalue, gap, and localization statistics rather than only scalar contact correlation.  Attention
+routes must be audited separately for stationary mass, one-way support,
+$\delta_{\mathrm{db}}$, circulation, and directed singular subspaces.  Compare the original route
+with its stationary reversibilization $P^{\mathrm{rec}}$, a doubly stochastic control, and matched
+head ablations while holding value and output maps fixed; changes in masked-token loss, contact
+prediction, and the categorical response test whether nonreciprocal routing is functionally used.
+Motif replacement, coherent local-window controls, and homolog exclusion then test whether the
+output response is tied to a proposed computational mechanism \cite{zhang2024motifs}.
+
+\item \emph{Architectural and biological intervention.}  Report support size, categorical rank,
+higher-order residual, and persistent state memory separately.  Endpoint interventions must leave
+context, support, references, coefficients, and raw pair tables invariant for every strict claim.
+Compare strict cavity, local-gauge, dense-attention, and pair-track baselines; report routing
+calibration, captured teacher mass, set recall, and the gap to the cavity Bayes floor.  A Hopfield
+claim additionally requires Lyapunov decrease and fixed-point tests.  Finally, compare static,
+dynamic, and higher-order operators with matched structural, double-mutant, and multi-background
+experimental endpoints.
+\end{enumerate}
+
+These tests distinguish an operator framework from an architectural proposal.  The theory can
+fail informatively: a pLM mean may not agree with family Potts fields; dynamic variance may be
+dominated by off-manifold substitutions; reciprocity may fail; or pairwise components may leave a
+large higher-order residual.  Contact prediction from a response tensor supports reusable
+evolutionary statistics, but not by itself a discrete internal motif library, a physical energy,
+or a causal biological interaction.
+\fi
+
+\BookInsert{chapters/12_vertical_audit}
+
+\BookSection{Biological validation is typed}
+
+The scalar graph and the full operator make different predictions.  If
+$F_{ij}(a,b)$ is a measured log-fitness or quantitative phenotype for a double-mutant panel around
+reference residues $(a_0,b_0)$, define experimental epistasis
+\begin{equation}
+\epsilon_{ij}(a,b)
+=F_{ij}(a,b)-F_{ij}(a,b_0)-F_{ij}(a_0,b)+F_{ij}(a_0,b_0).
+\label{eq:experimental-epistasis}
+\end{equation}
+The operator-level comparison is between $G_{ij}(a,b)$ and the corresponding projected epistasis
+table in a common reference, rather than only between $M_{ij}$ and a binary contact label
+\cite{hopf2017,olson2014}.
+Model logits, evolutionary energies, and measured fitness generally occupy different units and may
+be related nonlinearly.  Their comparison therefore uses a scale or link function fitted on a
+training subset and evaluated on held-out mutations, rather than direct numerical equality.
+
+\begin{center}
+\small
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.22\linewidth}
+                >{\raggedright\arraybackslash}p{0.27\linewidth}
+                >{\raggedright\arraybackslash}p{0.38\linewidth}}
+\toprule
+Inferred quantity & Primary hypothesis & Independent endpoint \\
+\midrule
+Declared symmetrization of $M_{i\leftarrow j}^{\mathrm{static}}$ & persistent positional association or contact candidate & held-out structure and distance-stratified contact precision \\
+Full $\overline G_{i\leftarrow j}(a,b)$ & substitution-specific compensation & linked, gauge-aligned double-mutant matrix \\
+$M_{i\leftarrow j}^{\mathrm{dynamic}}$ or $\rho_{i\leftarrow j}^{\mathrm{dyn}}$ & background-dependent response & the same mutations across multiple sequence backgrounds \\
+$P^{\mathrm{circ}}$ or $\delta_{\mathrm{db}}(P)$ & nonreciprocal computational routing & masked-loss and response change under stationary reversibilization \\
+Low scalar or connection eigenspace & coherent positional domain or transported substitution sector & held-out domain boundaries and multi-position mutational coherence \\
+Higher-order residual & non-pairwise epistasis & designed triple-mutant or combinatorial assay \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Evolutionary constraints can arise from folding, stability, binding, catalysis, regulation, and
+phylogenetic sampling.  A structurally distal operator may therefore encode reproducible function
+or compensation.  Contact prediction supports positional association; causal epistasis requires
+matched perturbational evidence \cite{starr2016,starr2017}.  The validation endpoint must match the
+mathematical object.
+
+\BookInsert{chapters/11_coda}
+\ifdefined\BOOKMODE
+\BookChapter{What Kind of Object Is a Protein Interaction?}
+\BookInsert{chapters/12_epilogue}
+\else
+\BookChapter{Discussion}
+
+The unifying object is the typed interaction system in Eq.~\ref{eq:typed-system}, with the block
+operator $\mathbb K_z$ as its
+pairwise carrier.  Statistical models, latent-variable models, message-passing networks, and
+spectral estimators become comparable after their fibers, fields, support, edge map, context,
+order, state dynamics, normalization, and estimation law have been declared.  Models that
+coincide in one coordinate may differ in all the others.
+
+The Potts--pLM bridge illustrates this distinction.  Potts learns one family-shared additive rule
+from related sequences.  A Transformer learns shared parameters that map a new sequence background
+to a conditional computation.  Its parameters are fixed after training, but the response graph is
+input dependent.  Proposition~\ref{prop:exact-recovery} identifies the additive limit,
+Theorem~\ref{thm:static-dynamic} separates persistent and contextual response, and
+Corollary~\ref{cor:dynamic-higher-order} identifies the dynamic variance with higher-order
+functional mass under a product reference.  Proposition~\ref{prop:reciprocity} supplies the
+additional condition required before directed responses can be integrated into a joint Potts
+energy.
+
+The RBM--Hopfield--attention comparison occupies different coordinates.  A Bernoulli RBM permits
+multiple latent motifs and induces interactions of all orders after marginalization.  A classical
+Hopfield--Potts factorization is a low-rank static pair energy.  Modern Hopfield retrieval is a
+categorical competition among memories with a Lyapunov function under stated conditions.  One
+attention readout can share its algebra, while a Transformer stack changes keys, values, memories,
+and state across layers.  The common log-sum-exp primitive establishes a local algebraic
+correspondence; the complete probabilistic and dynamical systems remain distinct.
+
+The framework also separates function geometry from probability geometry and graph spectral
+geometry.  Weighted projection identifies the bivariate tangent component.  Matrix scaling maps a
+score to one exact marginal-preserving pair law, while global compatibility of all such pairs is a
+stronger marginal-polytope problem.  A scalar norm produces a position Laplacian, a signed
+contraction produces a signed Laplacian, and declared transport between categorical fibers produces
+a connection Laplacian.  Their low modes encode three different notions of coherence.  Spectral
+filtering acts downstream of interaction identification, so its resolution is bounded by the
+information retained when the graph was built.  APC, inverse covariance, heat kernels, and
+leading-mode operations are therefore useful transformations of declared objects, each with a
+specific statistical meaning.
+
+MSA and pLM inference are complementary estimators of a common operator coordinate.  A pLM supplies
+an amortized response without an inference-time MSA.  An MSA supplies a
+family-specific empirical distribution, reference geometry, recurring substitutions, and finite-
+sample uncertainty.  Agreement between an MSA-derived static field and the pLM response mean is a
+testable transfer claim.  Sequence weighting and phylogenetic residualization alter the estimator
+while the definition of categorical interaction stays fixed.
+
+Architectural consequences follow after semantics are fixed.  At the computational level, a
+Transformer is a dynamic GNN; at the interaction level, the identified operator comes from an
+audited categorical response.  Dense transient routes, persistent pair tracks, sparse signed
+routing, and endpoint-removable cavities make different memory and measurability tradeoffs.  The
+support no-go and cavity Bayes floor quantify the limits that strict conditional meaning places on
+content-dependent routing and single-sequence recoverability.  Optional MSA supervision changes
+the training signal while those inference-time information constraints remain.
+
+Six limitations remain structural.  First, reference transport preserves the gauge class but not
+the numerical norm, so the anchor measure remains part of every static average and ranking.
+Second, the exact identification of dynamic variance with higher-order mass requires a product
+reference; correlated family backgrounds introduce nonorthogonal cross terms.  Third, a Laplacian
+spectrum depends on scalarization, sign convention, transport, normalization, and null graph;
+inside a nearly degenerate band only the eigenspace is stable.  Fourth, a row-stochastic route has
+no unique undirected spectrum until a stationary law, support convention, and symmetrization are
+declared; causal masks can make the route reducible or one-way.  Fifth, the Potts population
+optimum, true family pair component, and pLM response mean remain distinct estimands as shown in
+Eq.~\ref{eq:estimand-decomposition}.  Sixth, symmetry or reversibility of an attention route does
+not establish reciprocity of the end-to-end response, much less biological cause.  Contacts,
+allosteric networks, phylogeny, and experimental epistasis remain conclusions of matched nulls and
+interventions.
+
+Most individual mathematical ingredients---functional ANOVA, matrix scaling, Gaussian covariance
+selection, spectral geometry, and Bayes risk---are classical.  The contribution is their typed
+assembly around one interaction system, the reference-transport and exact gauge-factorization
+links, and the explicit boundaries between Potts parameter redundancy, dynamic response, latent
+memory,
+state dynamics, statistical estimation, and biological meaning.
+
+\BookChapter{Conclusion}
+
+Protein sequence models can be placed in one mathematical framework without being declared the
+same model.  The common carrier consists of fields and a block operator on the direct sum of
+reference-centered feature fibers.  Weighted projection selects a canonical representative of a
+Potts parameter-gauge class, reference transport compares representatives, and Sinkhorn scaling
+supplies an
+exact pair law on the same quotient.  Support and routing determine where an operator is executed;
+context determines whether it has conditional meaning; functional ANOVA determines its
+interaction order; an update rule determines whether it is a readout or a dynamical system; and
+MSA or pLM inference determines how it is estimated.  Scalar, signed, and connection Laplacians
+then provide distinct multiscale spectra on the position graph or the full categorical bundle;
+they are downstream transforms of the identified operator, not alternative definitions of it.
+
+Within this framework, Potts couplings are static reciprocal edge operators and pLM substitution
+responses are generally context-dependent effective operators.  Hopfield patterns and RBM motifs
+are different latent factorizations.  Transformer attention is dynamic graph computation, while
+only a frozen single-layer value path is restricted to the span of its head maps; the complete
+categorical response must be audited at the output.  Probability-exact pair laws, scalar position
+shadows, spectral nuisance removal, and biological validation are successive transformations and
+claims, not synonyms for the interaction itself.  Stationary-measure reversibility further
+separates row-normalization asymmetry from genuine directed circulation: a symmetric logit kernel
+can yield an entrywise asymmetric but reversible route, whereas a doubly stochastic route can
+still be nonreciprocal.  The framework therefore converts informal
+unification into mathematical coordinates, transport rules, compatibility conditions, estimand
+gaps, and falsifiable experiments.
+
+\fi
+\BookBackMatter
+\BookBibliographySize
+\BookBibliographyColumnsBegin
+\raggedcolumns
+\begin{thebibliography}{99}
+\setlength{\itemsep}{-0.2pt}
+\setlength{\parskip}{0pt}
+
+\bibitem{hoeffding1948}
+W.~Hoeffding.
+\newblock A class of statistics with asymptotically normal distribution.
+\newblock \emph{Annals of Mathematical Statistics}, 19:293--325, 1948.
+
+\bibitem{dempster1972}
+A.~P. Dempster.
+\newblock Covariance selection.
+\newblock \emph{Biometrics}, 28:157--175, 1972.
+
+\bibitem{wang2022inverse}
+H.~Wang.
+\newblock Inverse covariance matrix tricks.
+\newblock \emph{Zhihu Column}, March 14, 2022. In Chinese.
+
+\bibitem{jones2012}
+D.~T. Jones, D.~W. Buchan, D.~Cozzetto, and M.~Pontil.
+\newblock PSICOV: Precise structural contact prediction using sparse inverse covariance
+estimation on large multiple sequence alignments.
+\newblock \emph{Bioinformatics}, 28:184--190, 2012.
+
+\bibitem{li2019respre}
+Y.~Li, J.~Hu, C.~Zhang, D.-J. Yu, and Y.~Zhang.
+\newblock ResPRE: High-accuracy protein contact prediction by coupling precision matrix with deep
+residual neural networks.
+\newblock \emph{Bioinformatics}, 35:4647--4655, 2019.
+
+\bibitem{feizi2013}
+S.~Feizi, D.~Marbach, M.~M\'edard, and M.~Kellis.
+\newblock Network deconvolution as a general method to distinguish direct dependencies in
+networks.
+\newblock \emph{Nature Biotechnology}, 31:726--733, 2013.
+
+\bibitem{sun2015}
+H.-P. Sun, Y.~Huang, X.-F. Wang, Y.~Zhang, and H.-B. Shen.
+\newblock Improving accuracy of protein contact prediction using balanced network deconvolution.
+\newblock \emph{Proteins}, 83:485--496, 2015.
+
+\bibitem{qin2018}
+C.~Qin and L.~J. Colwell.
+\newblock Power law tails in phylogenetic systems.
+\newblock \emph{PNAS}, 115:690--695, 2018.
+
+\bibitem{bergsma2002}
+W.~P. Bergsma and T.~Rudas.
+\newblock Marginal models for categorical data.
+\newblock \emph{Annals of Statistics}, 30:140--159, 2002.
+
+\bibitem{geenens2020}
+G.~Geenens.
+\newblock Copula modeling for discrete random vectors.
+\newblock \emph{Dependence Modeling}, 8:417--440, 2020.
+
+\bibitem{sei2024}
+T.~Sei and K.~Yano.
+\newblock Minimum information dependence modeling.
+\newblock \emph{Bernoulli}, 30:3174--3203, 2024.
+
+\bibitem{morcos2011}
+F.~Morcos et al.
+\newblock Direct-coupling analysis of residue coevolution captures native contacts across many
+protein families.
+\newblock \emph{PNAS}, 108:E1293--E1301, 2011.
+
+\bibitem{ekeberg2013}
+M.~Ekeberg et al.
+\newblock Improved contact prediction in proteins: Using pseudolikelihoods to infer Potts models.
+\newblock \emph{Physical Review E}, 87:012707, 2013.
+
+\bibitem{cocco2018}
+S.~Cocco, C.~Feinauer, M.~Figliuzzi, R.~Monasson, and M.~Weigt.
+\newblock Inverse statistical physics of protein sequences: A key issues review.
+\newblock \emph{Reports on Progress in Physics}, 81:032601, 2018.
+
+\bibitem{cocco2013}
+S.~Cocco, R.~Monasson, and M.~Weigt.
+\newblock From principal component to direct coupling analysis of coevolution in proteins:
+Low-eigenvalue modes are needed for structure prediction.
+\newblock \emph{PLoS Computational Biology}, 9:e1003176, 2013.
+
+\bibitem{wang2024}
+H.~Wang, S.~Feng, K.~Tsuboyama, S.~Liu, G.~J. Rocklin, and S.~Ovchinnikov.
+\newblock Disentanglement of evolutionary constraints in statistical models of proteins.
+\newblock \emph{PRX Life}, 2:023005, 2024.
+
+\bibitem{obermayer2014}
+B.~Obermayer and E.~Levine.
+\newblock Inverse Ising inference with correlated samples.
+\newblock \emph{New Journal of Physics}, 16:123017, 2014.
+
+\bibitem{dietler2022}
+L.~Dietler, U.~Lupo, and A.~F. Bitbol.
+\newblock Impact of phylogeny on the inference of functional sectors from protein sequence data.
+\newblock \emph{Molecular Biology and Evolution}, 39:msac159, 2022.
+
+\bibitem{hopf2017}
+T.~A. Hopf et al.
+\newblock Mutation effects predicted from sequence co-variation.
+\newblock \emph{Nature Biotechnology}, 35:128--135, 2017.
+
+\bibitem{olson2014}
+C.~A. Olson, N.~C. Wu, and R.~Sun.
+\newblock A comprehensive biophysical description of pairwise epistasis throughout an entire
+protein domain.
+\newblock \emph{Current Biology}, 24:2643--2651, 2014.
+
+\bibitem{starr2016}
+T.~N. Starr and J.~W. Thornton.
+\newblock Epistasis in protein evolution.
+\newblock \emph{Protein Science}, 25:1204--1218, 2016.
+
+\bibitem{starr2017}
+T.~N. Starr, L.~K. Picton, and J.~W. Thornton.
+\newblock Alternative evolutionary histories in the sequence space of an ancient protein.
+\newblock \emph{Nature}, 549:409--413, 2017.
+
+\bibitem{dauparas2019}
+J.~Dauparas, H.~Wang, A.~Swartz, P.~Koo, M.~Nitzan, and S.~Ovchinnikov.
+\newblock Unified framework for modeling multivariate distributions in biological sequences.
+\newblock \emph{ICML Workshop on Computational Biology}, arXiv:1906.02598, 2019.
+
+\bibitem{battaglia2018relational}
+P.~W. Battaglia et al.
+\newblock Relational inductive biases, deep learning, and graph networks.
+\newblock arXiv:1806.01261, 2018.
+
+\bibitem{bruna2014}
+J.~Bruna, W.~Zaremba, A.~Szlam, and Y.~LeCun.
+\newblock Spectral networks and locally connected networks on graphs.
+\newblock \emph{International Conference on Learning Representations}, 2014.
+
+\bibitem{defferrard2016}
+M.~Defferrard, X.~Bresson, and P.~Vandergheynst.
+\newblock Convolutional neural networks on graphs with fast localized spectral filtering.
+\newblock \emph{Advances in Neural Information Processing Systems}, 29, 2016.
+
+\bibitem{kipf2017}
+T.~N. Kipf and M.~Welling.
+\newblock Semi-supervised classification with graph convolutional networks.
+\newblock \emph{International Conference on Learning Representations}, 2017.
+
+\bibitem{hamilton2017}
+W.~L. Hamilton, R.~Ying, and J.~Leskovec.
+\newblock Inductive representation learning on large graphs.
+\newblock \emph{Advances in Neural Information Processing Systems}, 30, 2017.
+
+\bibitem{xu2019gin}
+K.~Xu, W.~Hu, J.~Leskovec, and S.~Jegelka.
+\newblock How powerful are graph neural networks?
+\newblock \emph{International Conference on Learning Representations}, 2019.
+
+\bibitem{klicpera2019}
+J.~Klicpera, A.~Bojchevski, and S.~G\"unnemann.
+\newblock Predict then propagate: Graph neural networks meet personalized PageRank.
+\newblock \emph{International Conference on Learning Representations}, 2019.
+
+\bibitem{chen2020gcnii}
+M.~Chen, Z.~Wei, Z.~Huang, B.~Ding, and Y.~Li.
+\newblock Simple and deep graph convolutional networks.
+\newblock \emph{Proceedings of ICML}, PMLR 119:1725--1735, 2020.
+
+\bibitem{satorras2021}
+V.~G. Satorras, E.~Hoogeboom, and M.~Welling.
+\newblock E(n) equivariant graph neural networks.
+\newblock \emph{Proceedings of ICML}, PMLR 139:9323--9332, 2021.
+
+\bibitem{qu2025pallatom}
+W.~Qu, J.~Guan, R.~Ma, K.~Zhai, W.~Wu, and H.~Wang.
+\newblock P(all-atom) is unlocking new path for protein design.
+\newblock \emph{Proceedings of the 42nd International Conference on Machine Learning},
+PMLR 267:50786--50816, 2025.
+
+\bibitem{jiang2025evolvepro}
+K.~Jiang et al.
+\newblock Rapid in silico directed evolution by a protein language model with EVOLVEpro.
+\newblock \emph{Science}, 387(6732), 2025.  doi:10.1126/science.adr6006.
+
+\bibitem{ito2025viral}
+J.~Ito et al.
+\newblock A protein language model for exploring viral fitness landscapes.
+\newblock \emph{Nature Communications}, 16, 2025.  doi:10.1038/s41467-025-59422-w.
+
+\bibitem{liu2024plmsearch}
+W.~Liu, Z.~Wang, R.~You, et al.
+\newblock PLMSearch: Protein language model powers accurate and fast sequence search for remote homology.
+\newblock \emph{Nature Communications}, 15, 2024.  doi:10.1038/s41467-024-46808-5.
+
+\bibitem{hinton2002}
+G.~E. Hinton.
+\newblock Training products of experts by minimizing contrastive divergence.
+\newblock \emph{Neural Computation}, 14:1771--1800, 2002.
+
+\bibitem{hopfield1982}
+J.~J. Hopfield.
+\newblock Neural networks and physical systems with emergent collective computational abilities.
+\newblock \emph{PNAS}, 79:2554--2558, 1982.
+
+\bibitem{tubiana2019}
+J.~Tubiana, S.~Cocco, and R.~Monasson.
+\newblock Learning protein constitutive motifs from sequence data.
+\newblock \emph{eLife}, 8:e39397, 2019.
+
+\bibitem{ramsauer2021}
+H.~Ramsauer et al.
+\newblock Hopfield networks is all you need.
+\newblock \emph{International Conference on Learning Representations}, 2021.
+
+\bibitem{gilmer2017}
+J.~Gilmer, S.~S. Schoenholz, P.~F. Riley, O.~Vinyals, and G.~E. Dahl.
+\newblock Neural message passing for quantum chemistry.
+\newblock \emph{International Conference on Machine Learning}, 2017.
+
+\bibitem{velickovic2018}
+P.~Veli\v{c}kovi\'c et al.
+\newblock Graph attention networks.
+\newblock \emph{International Conference on Learning Representations}, 2018.
+
+\bibitem{vaswani2017}
+A.~Vaswani et al.
+\newblock Attention is all you need.
+\newblock \emph{Advances in Neural Information Processing Systems}, 2017.
+
+\bibitem{courtois2024}
+M.~Courtois, M.~Ostendorff, L.~Hennig, and G.~Rehm.
+\newblock Symmetric dot-product attention for efficient training of BERT language models.
+\newblock \emph{Findings of the Association for Computational Linguistics: ACL},
+pages 8002--8011, 2024.
+
+\bibitem{saponati2025}
+M.~Saponati, P.~J. Sager, P.~Vilimelis Aceituno, T.~Stadelmann, and B.~F. Grewe.
+\newblock The underlying structures of self-attention: Symmetry, directionality, and emergent
+dynamics in Transformer training.
+\newblock \emph{Proceedings of ICML}, 2025.
+
+\bibitem{sander2022}
+M.~E. Sander, P.~Ablin, M.~Blondel, and G.~Peyr\'e.
+\newblock Sinkformers: Transformers with doubly stochastic attention.
+\newblock \emph{Proceedings of AISTATS}, PMLR 151:3515--3530, 2022.
+
+\bibitem{shahbazi2025}
+A.~Shahbazi, E.~Akbari, D.~Salehi, X.~Liu, N.~NaderiAlizadeh, and S.~Kolouri.
+\newblock ESPFormer: Doubly-stochastic attention with expected sliced transport plans.
+\newblock \emph{Proceedings of ICML}, 2025.
+
+\bibitem{ildiz2024}
+M.~E. Ildiz, Y.~Huang, Y.~Li, A.~S. Rawat, and S.~Oymak.
+\newblock From self-attention to Markov models: Unveiling the dynamics of generative Transformers.
+\newblock \emph{Proceedings of ICML}, PMLR 235:20955--20982, 2024.
+
+\bibitem{geshkovski2023}
+B.~Geshkovski, C.~Letrouit, Y.~Polyanskiy, and P.~Rigollet.
+\newblock The emergence of clusters in self-attention dynamics.
+\newblock \emph{Advances in Neural Information Processing Systems}, 36:57026--57037, 2023.
+
+\bibitem{schnakenberg1976}
+J.~Schnakenberg.
+\newblock Network theory of microscopic and macroscopic behavior of master equation systems.
+\newblock \emph{Reviews of Modern Physics}, 48:571--585, 1976.
+
+\bibitem{chung2005}
+F.~Chung.
+\newblock Laplacians and the Cheeger inequality for directed graphs.
+\newblock \emph{Annals of Combinatorics}, 9:1--19, 2005.
+
+\bibitem{rives2021}
+A.~Rives et al.
+\newblock Biological structure and function emerge from scaling unsupervised learning to 250
+million protein sequences.
+\newblock \emph{PNAS}, 118:e2016239118, 2021.
+
+\bibitem{zhang2024motifs}
+Z.~Zhang, H.~K. Wayment-Steele, G.~Brixi, H.~Wang, D.~Kern, and S.~Ovchinnikov.
+\newblock Protein language models learn evolutionary statistics of interacting sequence motifs.
+\newblock \emph{PNAS}, 121:e2406285121, 2024.
+
+\bibitem{rao2021}
+R.~Rao, J.~Liu, R.~Verkuil, J.~Meier, J.~F. Canny, P.~Abbeel, T.~Sercu, and A.~Rives.
+\newblock MSA Transformer.
+\newblock \emph{Proceedings of ICML}, PMLR 139:8844--8856, 2021.
+
+\bibitem{jumper2021}
+J.~Jumper et al.
+\newblock Highly accurate protein structure prediction with AlphaFold.
+\newblock \emph{Nature}, 596:583--589, 2021.
+
+\bibitem{senior2020}
+A.~W. Senior et al.
+\newblock Improved protein structure prediction using potentials from deep learning.
+\newblock \emph{Nature}, 577:706--710, 2020.
+
+\bibitem{evans2022}
+R.~Evans et al.
+\newblock Protein complex prediction with AlphaFold-Multimer.
+\newblock bioRxiv 2021.10.04.463034, revised 2022.
+
+\bibitem{abramson2024}
+J.~Abramson et al.
+\newblock Accurate structure prediction of biomolecular interactions with AlphaFold 3.
+\newblock \emph{Nature}, 630:493--500, 2024.
+
+\bibitem{anderson1982}
+B.~D.~O. Anderson.
+\newblock Reverse-time diffusion equation models.
+\newblock \emph{Stochastic Processes and their Applications}, 12:313--326, 1982.
+
+\bibitem{song2021}
+Y.~Song, J.~Sohl-Dickstein, D.~P. Kingma, A.~Kumar, S.~Ermon, and B.~Poole.
+\newblock Score-based generative modeling through stochastic differential equations.
+\newblock \emph{International Conference on Learning Representations}, 2021.
+
+\bibitem{martins2016}
+A.~F. T. Martins and R.~F. Astudillo.
+\newblock From softmax to sparsemax: A sparse model of attention and multi-label classification.
+\newblock \emph{Proceedings of ICML}, PMLR 48:1614--1623, 2016.
+
+\bibitem{peters2019}
+B.~Peters, V.~Niculae, and A.~F. T. Martins.
+\newblock Sparse sequence-to-sequence models.
+\newblock \emph{Proceedings of ACL}, pages 1504--1519, 2019.
+
+\bibitem{ye2024}
+T.~Ye, L.~Dong, Y.~Xia, Y.~Sun, Y.~Zhu, G.~Huang, and F.~Wei.
+\newblock Differential Transformer.
+\newblock arXiv:2410.05258, 2024.
+
+\bibitem{shuman2013}
+D.~I. Shuman, S.~K. Narang, P.~Frossard, A.~Ortega, and P.~Vandergheynst.
+\newblock The emerging field of signal processing on graphs: Extending high-dimensional data
+analysis to networks and other irregular domains.
+\newblock \emph{IEEE Signal Processing Magazine}, 30:83--98, 2013.
+
+\bibitem{hammond2011}
+D.~K. Hammond, P.~Vandergheynst, and R.~Gribonval.
+\newblock Wavelets on graphs via spectral graph theory.
+\newblock \emph{Applied and Computational Harmonic Analysis}, 30:129--150, 2011.
+
+\bibitem{kunegis2010}
+J.~Kunegis, S.~Schmidt, A.~Lommatzsch, J.~Lerner, E.~W. De Luca, and S.~Albayrak.
+\newblock Spectral analysis of signed graphs for clustering, prediction and visualization.
+\newblock \emph{Proceedings of the 2010 SIAM International Conference on Data Mining},
+pages 559--570, 2010.
+
+\bibitem{singer2012}
+A.~Singer and H.-T.~Wu.
+\newblock Vector diffusion maps and the connection Laplacian.
+\newblock \emph{Communications on Pure and Applied Mathematics}, 65:1067--1144, 2012.
+
+\bibitem{sinkhorn1964}
+R.~Sinkhorn.
+\newblock A relationship between arbitrary positive matrices and doubly stochastic matrices.
+\newblock \emph{Annals of Mathematical Statistics}, 35:876--879, 1964.
+
+\bibitem{darroch1972}
+J.~N. Darroch and D.~Ratcliff.
+\newblock Generalized iterative scaling for log-linear models.
+\newblock \emph{Annals of Mathematical Statistics}, 43:1470--1480, 1972.
+
+\bibitem{csiszar1975}
+I.~Csisz\'ar.
+\newblock $I$-divergence geometry of probability distributions and minimization problems.
+\newblock \emph{Annals of Probability}, 3:146--158, 1975.
+
+\bibitem{cuturi2013}
+M.~Cuturi.
+\newblock Sinkhorn distances: Lightspeed computation of optimal transport.
+\newblock \emph{Advances in Neural Information Processing Systems}, 2013.
+
+\end{thebibliography}
+\BookBibliographyColumnsEnd
+
+\ifdefined\BOOKMODE
+\else
+\end{document}
+\fi
