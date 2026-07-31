@@ -23,11 +23,31 @@ information at weak coupling can reveal a scaling error.
 The same synthetic system can then be perturbed one assumption at a time.  Add a pure third-order
 term while keeping the pair component fixed.  The mean pair response should remain the projected
 second-order component under the product reference, while dynamic variance increases by the exact
-higher-order mass.  Introduce phylogenetic sampling without changing the generative Hamiltonian.
+higher-order mass.  This test must assess localization, not merely nonzero variance: rank audited
+pairs or source--modulator tuples by their recovered order-specific mass and report AUC or enrichment
+against the known synthetic hyperedges, not against ordinary contact pairs: on a pairwise system,
+approximation error can scale with the static operator norm and spuriously enrich contacts.  If one
+pair belongs to several planted hyperedges, its truth is the full modulator set; test set recovery or
+whether the top recovered modulator belongs to that set rather than assigning one arbitrary label.
+Apply the nontriviality threshold in Eq.~\ref{eq:dynamic-fraction-threshold} before ranking
+$\rho^{\mathrm{dyn}}$.  Train the same deep architecture on a column-wise shuffled
+alignment that preserves one-site marginals while destroying the planted dependence.  A large
+$\rho^{\mathrm{dyn}}$ under this null is expected from generic nonlinear context sensitivity; failure
+to localize the planted hyperedges above the shuffled control rejects the claimed higher-order
+recovery even when dynamic variance is positive.
+
+Introduce phylogenetic sampling without changing the generative Hamiltonian.
 The underlying operator stays fixed, but its estimator becomes biased and its uncertainty ceases to
 follow an independent-row bootstrap.  Replace the product background by a correlated one.  The
 mean--residual Pythagorean identity remains exact under the new law, while the decomposition of
-dynamic variance into order-specific ANOVA masses acquires cross terms.
+dynamic variance into order-specific ANOVA masses acquires cross terms.  Report both
+$\rho^{\mathrm{dyn,prod}}$ and $\rho^{\mathrm{dyn,emp}}$ from
+Eq.~\ref{eq:product-empirical-dynamic-fractions}, together with
+$\Delta\rho^{\mathrm{geom}}$.  The product quantity tests the exact ANOVA identity but may probe
+off-manifold backgrounds; the empirical quantity stays closer to the sampled manifold but has no
+orthogonal order decomposition.  Also repeat the additive calibration under multiple full-support
+endpoint references: positive magnitudes may change, whereas the zero-dynamic verdict must obey
+Eq.~\ref{eq:zero-dynamic-reference-invariance}.
 
 Each modification targets a different coordinate.  Higher-order structure changes the estimand,
 phylogeny changes the sampling law, and background correlation changes the geometry of the
@@ -101,6 +121,8 @@ locally:
 \item failure in the additive synthetic limit rejects the implementation;
 \item recovery in the additive limit but failure under controlled third-order terms rejects the
 claimed higher-order audit;
+\item nonzero dynamic variance without planted-hyperedge localization above a dependence-destroying
+null demonstrates generic nonlinearity, not recovered higher-order structure;
 \item stable estimation with Potts--pLM disagreement rejects transfer, not the common coordinate;
 \item contact agreement with operator disagreement supports a scalar positional signal, not typed
 mechanism recovery;

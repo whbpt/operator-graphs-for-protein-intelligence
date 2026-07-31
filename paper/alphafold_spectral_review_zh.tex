@@ -1,0 +1,560 @@
+\documentclass[10pt]{article}
+\usepackage[a4paper,left=23mm,right=23mm,top=24mm,bottom=22mm]{geometry}
+\usepackage{fontspec,xeCJK,amsmath,amssymb,microtype,enumitem,fancyhdr,titlesec,xcolor}
+\usepackage[hidelinks]{hyperref}
+\setmainfont{Times New Roman}
+\setCJKmainfont{Songti SC}
+\setCJKsansfont{HarmonyOS Sans SC}
+\linespread{1.32}
+\setlength{\parindent}{2em}
+\setlength{\parskip}{0.38em}
+\setlength{\emergencystretch}{2em}
+\setlist{nosep,leftmargin=2.2em}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\color{gray}蛋白质模型如何组织生物信息}
+\fancyfoot[R]{\small\thepage}
+\renewcommand{\headrulewidth}{0.3pt}
+\titleformat{\section}{\CJKfamily{sf}\Large\bfseries}{ }{0pt}{}
+\titleformat{\subsection}{\CJKfamily{sf}\large\bfseries}{ }{0pt}{}
+\titlespacing*{\section}{0pt}{1.35em}{0.55em}
+\titlespacing*{\subsection}{0pt}{1.0em}{0.35em}
+\begin{document}
+\begin{titlepage}
+\vspace*{25mm}
+{\CJKfamily{sf}\color{gray}\large 蛋白质建模综述\par}
+\vspace{16mm}
+{\CJKfamily{sf}\bfseries\fontsize{24}{34}\selectfont
+蛋白质模型如何组织生物信息：\\[5mm]
+进化、结构、功能与设计的多轴框架\par}
+\vspace{13mm}
+{\CJKfamily{sf}\Large 多轴信息分解、模型比较与理论展望\par}
+\vfill
+\rule{28mm}{1.6pt}
+\end{titlepage}
+\setcounter{page}{1}
+
+
+\subsection*{摘要}
+
+\addcontentsline{toc}{subsection}{摘要}
+
+蛋白质模型通常按架构类别或基准性能分类，但这种分类难以回答一个更根本的问题：模型从哪里获得生物信息，如何表示和压缩这些信息，又在哪一步失去信息来源的可追溯性？目前主流系统大体沿两条统计路线工作。第一条是查询特异的进化推断：针对当前蛋白质检索同源序列，构建多序列比对（MSA），并估计该家族的经验分布。第二条是基于预训练模型的跨家族推断：蛋白质语言模型在大量家族的混合分布上预训练，把跨家族规律压缩进参数，并在单序列推断时调用这一全局先验。\par
+
+无论采用哪条路线，信息都会在序列轴、残基位置轴、类别状态轴、二维配对表示、三维坐标表示和功能表征之间流动。AlphaFold、MSA Transformer、RoseTTAFold、ESM、ESMFold 和 ESM3 的关键区别，不只在网络模块，而在于它们何时保留 MSA 行、何时把进化证据压缩到位置对、何时把氨基酸类别变成不可直接解释的隐藏通道，以及如何把几何、功能和化学条件重新注入模型。蛋白质设计则是同一联合分布的逆向或联合推断：模块化流程显式分解骨架生成、反向折叠和侧链构建，联合生成模型则让序列、结构与化学状态同时变化。\par
+
+本文提出一个多轴信息分解框架，区分计算表示的因子化与生物机制的解缠结。单独设置 MSA 轨、pair 轨、坐标轨、模态词表或输出头，只能说明计算对象被分开，不能证明系统发育、保守性、物理约束和功能机制已被识别为独立因素。更强的生物解释需要声明参考测度和类别规范，使用匹配的序列与模态空模型，实施反事实干预和负向设计，并由突变、结合、构象、动力学或前瞻实验提供外部终点。\par
+
+在此基础上，本文进一步提出两个待验证的理论方向。其一是把 MSA 相对语言模型先验所提供的新增证据分解为边缘、二阶和高阶更新；其二是检验局部定向条件场能否积分成同一个全局能量模型。前者回答“新证据改变了什么”，后者回答“这些局部变化能否构成一致的全局解释”。\par
+
+\section*{一、问题不只是从序列预测结构}
+
+\addcontentsline{toc}{section}{一、问题不只是从序列预测结构}
+
+蛋白质建模的核心并非单一映射 \(\text{sequence}\to\text{structure}\)。模型首先必须决定可使用哪些证据：当前家族的同源序列、模板结构、预训练语言模型中的跨家族规律、化学图、实验约束，或这些来源的组合。随后，系统还要决定这些证据存放在哪一种状态中，如何在状态之间传递，以及在哪个瓶颈处被压缩。\par
+
+相似的结构输出可能来自完全不同的统计实验。查询 MSA 是对当前蛋白质家族的一次新采样；语言模型则在预训练阶段从大量家族的混合分布中学习跨家族规律；结构网络还包含由 PDB 数据学习到的几何先验。三类证据经过注意力、外积、三角更新、循环迭代和扩散去噪后，会混入同一个隐藏表示。因此，一个 pair state 能准确预测接触，并不意味着它已经被识别为直接共进化；一个生成结构具有高自洽性，也不意味着模型掌握了真实自由能或化学机制。\par
+
+本文采用统一的信息地图：\par
+
+
+\begin{equation}
+\begin{aligned}
+&\left\{\text{当前家族样本、语言模型先验、模板、化学环境}\right\}
+\longrightarrow
+\left\{\text{序列、pair、坐标状态}\right\}\\
+&\hspace{25mm}\longrightarrow
+\left\{\text{结构、功能}\right\}
+\rightleftarrows
+\text{条件蛋白质设计}.
+\end{aligned}
+\end{equation}
+
+正向方向覆盖进化推断、结构预测和功能预测；逆向或联合方向覆盖反向折叠、骨架生成、序列-结构共设计和全原子生成。两种方向面对同一组问题：信息从哪里进入，哪个状态保存它，哪个操作压缩它，哪个损失赋予它生物意义，以及哪些因素始终不可区分。\par
+
+\section*{二、多轴信息分解框架}
+
+\addcontentsline{toc}{section}{二、多轴信息分解框架}
+
+\subsection*{2.1 MSA 的三个基本轴}
+
+\addcontentsline{toc}{subsection}{2.1 MSA 的三个基本轴}
+
+设一个 MSA 包含 \(N\) 条序列、\(L\) 个比对位置和 \(q\) 种类别状态，其独热表示可以看作三个空间的张量积：\par
+
+
+\begin{equation}
+\mathcal H_{\mathrm{seq}}\otimes
+\mathcal H_{\mathrm{pos}}\otimes
+\mathcal H_{\mathrm{cat}}.
+\end{equation}
+
+序列轴 \(\mathcal H_{\mathrm{seq}}\) 描述祖先关系、亚家族结构、物种采样偏差、序列重加权和有限深度噪声。位置轴 \(\mathcal H_{\mathrm{pos}}\) 承载残基位置之间的协方差、接触分数、注意力矩阵、pair state 和几何约束。类别轴 \(\mathcal H_{\mathrm{cat}}\) 承载氨基酸状态，并区分单个位点偏好与真正的多状态相互作用。\par
+
+这三个轴上的“主模态”不是同一个对象。MSA 行方向的主成分可能表示物种或亚家族；位置矩阵的最大特征向量可能只是非负矩阵的 Perron 模态；类别空间的常数方向则代表边缘分布。它们可以相关，但不能仅凭谱排序互相替代。特别是，删除位置矩阵的第一特征向量，并不能自动消除类别边缘效应或系统发育效应。\par
+
+\subsection*{2.2 当前家族证据与预训练的跨家族先验}
+
+\addcontentsline{toc}{subsection}{2.2 当前家族证据与预训练的跨家族先验}
+
+令 \(f\) 表示蛋白质家族，\(P_f(x)\) 表示该家族的进化序列分布。查询 MSA 提供当前家族的有限样本 \(X_f=\{x^{(1)},\ldots,x^{(N_f)}\}\)。蛋白质语言模型则在全局混合分布 \(P_{\mathrm{train}}(x)=\sum_f\pi_fP_f(x)\) 上训练，家族丰度、物种组成和数据库采样偏差都进入混合权重 \(\pi_f\)。\par
+
+因此，“不使用 MSA”并不等于“不使用进化信息”。ESM 或 ESMFold 在推断时没有当前查询家族的经验样本，但模型参数已经吸收了训练数据库中的进化规律。反过来，AlphaFold 即使使用 MSA，也不是纯粹的共进化估计器；它的参数同时携带跨家族结构先验。真正需要区分的是：哪些证据是在当前查询时新获得的，哪些规律已经在预训练阶段编码进模型权重。\par
+
+\subsection*{2.3 边缘与相互作用的类别几何}
+
+\addcontentsline{toc}{subsection}{2.3 边缘与相互作用的类别几何}
+
+设位置 \(i\) 的类别边缘分布为 \(p_i(a)\)。对固定的类别配对表 \(T_{ij}(a,b)\)，可以用加权零均值投影消除常数项和单端点函数：\par
+
+
+\begin{equation}
+G_{ij}=P_iT_{ij}P_j^{\mathsf T},
+\qquad
+P_i=I-\mathbf 1p_i^{\mathsf T}.
+\end{equation}
+
+投影后满足 \(p_i^{\mathsf T}G_{ij}=0\) 和 \(G_{ij}p_j=0\)。在参考测度 \(p_i\otimes p_j\) 下，这是标准的函数 ANOVA 二阶分量。相应的加权强度为：\par
+
+
+\begin{equation}
+m_{ij}=\left\|D_i^{1/2}G_{ij}D_j^{1/2}\right\|_F.
+\end{equation}
+
+这个投影给出明确的代数语义：\(G_{ij}\) 不再含有相对于指定边缘的常数项和单端点项。但它并不证明该位置对是物理接触，也不证明它是因果相互作用。如果生成 \(T_{ij}\) 的上下文网络已经观察了两个端点，那么双重中心化只能保证当前表格的局部规范，不能保证整个动态模型对端点变化保持不变。\par
+
+隐藏 pair vector \(z_{ij}\) 本身也不能直接套用上述规范。只有当解码器明确给出 \(T_{ij}(a,b)=D_\theta(z_{ij};a,b)\) 时，才能在类别空间讨论边缘与相互作用。对 \(z_{ij}\) 直接取范数或主成分，往往会混合保守性、残基身份、链类型、几何、置信度和相互作用。\par
+
+\subsection*{2.4 四个信息处理阶段}
+
+\addcontentsline{toc}{subsection}{2.4 四个信息处理阶段}
+
+进化结构模型可以分成四个连续阶段：\par
+
+1. 序列搜索：决定同源序列、模板和外部证据的覆盖范围。\par
+
+2. 进化表示：保留完整 MSA、压缩成 profile/coupling，或从语言模型参数中读取跨家族先验。\par
+
+3. 位置对几何：把序列或类别信息转成距离分布、注意力图、pair state 或三角关系。\par
+
+4. 三维实现：通过坐标网络、结构模块或扩散模型生成具体构象。\par
+
+不同模型最重要的差异，是序列轴在何时消失，以及消失前保留了多少行级、亚家族和类别信息。\par
+
+\subsection*{2.5 操作性解缠结}
+
+\addcontentsline{toc}{subsection}{2.5 操作性解缠结}
+
+设潜在生物因素包括进化约束、系统发育、局部化学、三维几何、功能和技术性噪声。表示 \(r=T_\theta(B)\) 具有多个特征向量，并不能说明这些因素已经分开。对某个因素的操作性解缠结至少要求：改变该因素时，指定读出发生可重复变化；改变其他因素时，该读出受到控制。\par
+
+现实中，大多数生物因素无法完全随机化，因此证据通常来自近似干预：独立位点 MSA、保留系统发育树的空模型、同源序列删减、模板与 MSA dropout、模态遮蔽、骨架固定的序列替换、功能保持的支架变化，以及独立实验终点。\par
+
+需要特别区分四种较弱的计算分解。轴分解把序列、位置、类别或坐标放到不同张量轴；轨道分解保留 MSA、pair 和 coordinate 等独立状态；目标分解使用不同输出头或损失；瓶颈投影则主动删除某个轴。它们使模型更容易控制和分析，却不能单独证明隐藏通道中的生物因素相互独立。\par
+
+\section*{三、路线一：查询特异的进化推断}
+
+\addcontentsline{toc}{section}{三、路线一：查询特异的进化推断}
+
+\subsection*{3.1 从协方差到学习到的配对势}
+
+\addcontentsline{toc}{subsection}{3.1 从协方差到学习到的配对势}
+
+早期共进化方法从 MSA 的单点频率和两点频率出发。原始互信息和协方差会同时受到保守性、系统发育、间接相关和有限样本误差影响。直接耦合分析通过拟合 Potts 型联合模型，试图区分直接与间接统计依赖；伪似然等方法提升了大规模估计的可行性。零和规范可以消除参数表示中的一体自由度，但统计耦合仍然不是物理因果力。\par
+
+这些方法确立了两个重要先例。第一，位置对必须携带带类别的相互作用表，而不只是一个标量接触分数。第二，任何谱修正或 APC 校正都必须用外部任务验证，不能仅凭最大模态的存在给它命名。\par
+
+\subsection*{3.2 AlphaFold 1：在神经主干之前压缩 MSA}
+
+\addcontentsline{toc}{subsection}{3.2 AlphaFold 1：在神经主干之前压缩 MSA}
+
+AlphaFold 1 使用序列 profile、共进化特征、残基属性和模板信息构造二维位置对特征，再由深度二维残差网络预测距离与角度分布。它的统计结构较清楚：MSA 行在进入主要神经网络前已经被压缩，后续模型只处理位置对表示。\par
+
+这种设计的优点是接口明确，距离分布具有直接几何读出，便于与约束优化结合。缺点是序列轴一旦压缩，模型就无法重新检查某个信号来自哪个亚家族、哪些序列行或哪一种系统发育模式。profile、耦合强度、有限深度噪声和模板证据会在二维特征中汇合。二维网络可以学习如何使用这些信号，却无法恢复已被丢弃的行级来源。\par
+
+\subsection*{3.3 AlphaFold 2：MSA 轨与 pair 轨的联合推断}
+
+\addcontentsline{toc}{subsection}{3.3 AlphaFold 2：MSA 轨与 pair 轨的联合推断}
+
+AlphaFold 2 的 Evoformer 同时维护 MSA 表示 \(m_{si}\) 与位置对表示 \(z_{ij}\)。MSA 行和列注意力在序列轴与位置轴上传递信息；outer-product mean 把 MSA 表示压入 pair 轨；pair bias 又反向影响 MSA 注意力；triangle multiplication 和 triangle attention 在三元位置关系上传递几何一致性。\par
+
+与 AlphaFold 1 相比，AlphaFold 2 延长了序列轴的生命周期。模型可以在多层网络中反复结合行级进化模式和位置对几何，而不是只接收一次性工程特征。这是强大的计算因子化，但仍不是生物解缠结。\(z_{ij}\) 同时吸收 MSA、模板、相对位置、循环更新和结构监督，其某个通道不能自动解释为共进化或接触。\par
+
+结构模块在三维坐标空间中引入刚体等变性，赋予几何表示清楚的对称性语义。相比之下，MSA 轨和 pair 轨的生物语义主要由训练目标与干预结果决定，而不是由轨道名称决定。\par
+
+\subsection*{3.4 AlphaFold 3：尽早压缩 MSA，转向全原子扩散}
+
+\addcontentsline{toc}{subsection}{3.4 AlphaFold 3：尽早压缩 MSA，转向全原子扩散}
+
+AlphaFold 3 仍使用 MSA 与模板，但 MSA 模块更短，序列轴较早被压缩进 token 和 pair 表示。Pairformer 随后在没有完整 MSA 轨的情况下更新单体和配对状态，扩散模块则在全原子坐标空间生成结构。\par
+
+这一变化说明模型把更多推断责任交给跨家族先验、化学类型和生成式几何模块。它能够统一蛋白质、核酸、小分子、离子和修饰成分，但 pair state 的信息来源也更加混合：家族进化、模板、链身份、化学键、界面、置信度和扩散条件都可能进入同一表示。\par
+
+全原子输出扩大了任务范围，却没有自动解决能量与机制识别。坐标样本满足局部几何和训练分布，不代表它们按真实 Boltzmann 权重采样，也不代表模型准确表示了质子化、电荷转移、溶剂重排或过渡态稳定。\par
+
+\subsection*{3.5 MSA Transformer：保留 MSA，但因子化通信轴}
+
+\addcontentsline{toc}{subsection}{3.5 MSA Transformer：保留 MSA，但因子化通信轴}
+
+MSA Transformer 直接处理二维 MSA，通过行注意力和列注意力分别沿残基位置与同源序列通信。共享或 tied row attention 能从多条同源序列中形成统一的位置对算子，因此注意力图具有显著的接触预测能力。\par
+
+然而，共享位置图同时聚合系统发育、冗余、缺口、保守性、亚家族差异和真实耦合。注意力是为遮蔽语言建模服务的路由算子，不是经过类别规范固定的 Potts 相互作用。其谱结构可以用于诊断，但必须与独立位点和系统发育匹配的 MSA 空模型比较。\par
+
+\subsection*{3.6 RoseTTAFold：序列、pair 与坐标三轨耦合}
+
+\addcontentsline{toc}{subsection}{3.6 RoseTTAFold：序列、pair 与坐标三轨耦合}
+
+RoseTTAFold 同时维护一维/序列、二维/pair 和三维/坐标轨，并在轨道之间反复交换信息。这种设计把几何反馈提前引入表示学习，使坐标不再只是网络末端的输出。\par
+
+三轨结构为分析信息流提供了清楚接口，但反复跨轨投影也会混合信息来源。pair 轨中的一个变化可能来自 MSA、模板或坐标反馈。SE(3) 等变性保证几何变换行为，却不能证明统计相关来自真实物理机制。\par
+
+\section*{四、路线二：语言模型中的跨家族进化推断}
+
+\addcontentsline{toc}{section}{四、路线二：语言模型中的跨家族进化推断}
+
+\subsection*{4.1 ESM：把跨家族规律压入模型参数}
+
+\addcontentsline{toc}{subsection}{4.1 ESM：把跨家族规律压入模型参数}
+
+ESM 类模型使用单序列遮蔽语言建模训练。虽然每次输入只有一条序列，训练语料却覆盖大量家族，因此模型参数学习了局部序列语法、残基共现、二级结构倾向、长程结构约束、功能 motif 和数据库组成。\par
+
+语言模型的条件分布 \(P_\theta(x_i\mid x_{-i})\) 是明确的类别预测对象，但注意力矩阵只作用于位置轴。某个注意力头可以与接触高度相关，却不能等同于一个类别相互作用表。将注意力对称化并做 APC 后提高接触精度，是任务验证结果，不是注意力边本身具有物理意义的证明。\par
+
+ESM 的优势是无需为每个查询构建 MSA，并能在浅家族或孤儿序列上调用跨家族先验。风险是全局训练分布可能平滑掉稀有但关键的家族约束；数据库中家族丰度和物种偏差也会进入模型参数，难以在推断时单独追溯。\par
+
+\subsection*{4.2 ESMFold：从语言模型状态到三维坐标}
+
+\addcontentsline{toc}{subsection}{4.2 ESMFold：从语言模型状态到三维坐标}
+
+ESMFold 从冻结或预训练的 ESM 表示出发，把单体状态和注意力派生的位置对特征送入 folding trunk，再通过结构模块生成坐标。它证明了单序列模型可以携带足以支持高质量结构预测的跨家族进化先验。\par
+
+但 ESMFold 的 pair state 已经是语言模型注意力、残基身份、相对位置、三角更新和几何监督的复合变换。最终几何并不是某张原始注意力图的直接谱映射。若要解释其中的类别相互作用，需要把隐藏 pair state 解码为氨基酸对上的作用表，再在声明的边缘参考下投影和验证。\par
+
+\subsection*{4.3 ESM3：多模态词表与共享潜在状态}
+
+\addcontentsline{toc}{subsection}{4.3 ESM3：多模态词表与共享潜在状态}
+
+ESM3 将序列、结构和功能表示为可遮蔽、可生成的离散模态。独立词表和输出头使不同模态可被提示和补全，结构 tokenizer 则把局部原子环境压缩为离散结构 token。\par
+
+这种设计实现了强大的目标分解和控制接口，但各模态 embedding 在共享潜在状态中相加或混合。分开的词表并不意味着潜变量独立。家族身份、预测结构、功能注释和数据增强管线仍可能形成捷径。若功能标签主要来自结构或序列同源性，模型可以在不识别机制的情况下完成跨模态生成。\par
+
+\section*{五、综合比较：计算因子化不等于生物解缠结}
+
+\addcontentsline{toc}{section}{五、综合比较：计算因子化不等于生物解缠结}
+
+\subsection*{5.1 序列轴在何处消失}
+
+\addcontentsline{toc}{subsection}{5.1 序列轴在何处消失}
+
+AlphaFold 1 在神经主干之前把 MSA 压缩为 profile 和 coupling；AlphaFold 2 在 Evoformer 全程保留 MSA 轨；AlphaFold 3 只用较短 MSA 模块，随后主要依赖 Pairformer 与扩散；MSA Transformer 始终保留 MSA 张量，但沿两个轴分别通信；RoseTTAFold 保留序列轨并与 pair、坐标轨耦合；ESM、ESMFold 和 ESM3 在推断时从不实例化当前家族的序列轴，而是从预训练参数中调用跨家族信息。\par
+
+这一比较揭示一个一般规律：性能可以随着信息整合而提高，同时可识别性下降。越靠后的表示往往整合越多证据，却越难恢复证据的来源和统计语义。\par
+
+\subsection*{5.2 位置对表示不是同一种对象}
+
+\addcontentsline{toc}{subsection}{5.2 位置对表示不是同一种对象}
+
+AlphaFold 1 的距离分布有直接几何读出。AlphaFold 2 和 3 的 hidden pair vectors 更灵活，但其通道没有单一生物语义。ESM 的注意力矩阵是上下文预测的路由算子。MSA Transformer 的共享行注意力是从同源序列池化得到的位置算子。RoseTTAFold 的 pair state 持续接收坐标反馈。ESM3 的结构 token 则是局部原子环境的离散编码。\par
+
+这些对象都带有两个位置索引，但其空间、参考测度、变换规则和训练目标不同，不能直接比较特征值或范数。尤其是 triangle update 是输入相关、通道相关且通常非正规化的非线性三元消息传递；用单个对称矩阵的特征谱描述它会丢失关键动力学。对这类模块，奇异值、局部 Jacobian 和干预响应通常比一张注意力矩阵的特征值更有信息。\par
+
+\subsection*{5.3 模型审计的统一问题}
+
+\addcontentsline{toc}{subsection}{5.3 模型审计的统一问题}
+
+对任何模型，应依次回答：推断时观察了哪些证据；序列、pair、坐标与功能信息分别存在哪里；不同状态如何通信；哪个瓶颈不可逆地删除了信息；哪个损失赋予表示生物意义；哪些相关因素仍不可区分。\par
+
+最强的精确分离通常发生在表示类型或对称性层面，例如 MSA 行与残基位置、pair state 与坐标、刚体变换不变性。系统发育、物理约束和功能的分离要弱得多，因为它们在自然数据中高度相关，并且通常被同一个预测目标共同优化。\par
+
+\subsection*{5.4 MSA 深度与结构先验的互补关系}
+
+\addcontentsline{toc}{subsection}{5.4 MSA 深度与结构先验的互补关系}
+
+深而多样的 MSA 能提供当前家族的稀有约束；跨家族训练得到的结构或语言模型先验则能在同源序列不足时补充信息。二者不是互斥路线。未来系统更合理的目标是根据后验变化自适应检索和压缩：只有当新增同源序列显著改变相对于语言模型先验的预测时，才保留相关行级或亚家族信息。\par
+
+困难在于校准。MSA 深度、序列冗余、家族稀有度和语言模型置信度不在同一尺度上。简单拼接可能让噪声 MSA 覆盖正确先验，也可能让强语言模型抹去稀有但决定性的家族耦合。一个可审计系统必须报告哪项预测因新增家族证据而改变。\par
+
+\section*{六、蛋白质设计：同一联合分布的逆向与联合推断}
+
+\addcontentsline{toc}{section}{六、蛋白质设计：同一联合分布的逆向与联合推断}
+
+\subsection*{6.1 模块化分解与联合生成}
+
+\addcontentsline{toc}{subsection}{6.1 模块化分解与联合生成}
+
+结构预测估计 \(P(\mathrm{structure},\mathrm{function}\mid\mathrm{sequence},\mathrm{evidence})\)，蛋白质设计则需要逆条件或联合模型。结构优先流程通常先生成骨架，再用反向折叠模型设计序列，最后进行侧链构建和结构复核。这种模块化方式暴露清楚的接口，便于替换组件和定位失败，但各模块来自不同训练分布，可能产生接口不一致。\par
+
+联合生成模型让序列、主链、侧链和化学条件同时变化，可以减少阶段之间的不一致，却把更多生物因素混入共享状态。模块化提高可诊断性，联合生成提高协调性；二者都不自动保证机制可识别。\par
+
+\subsection*{6.2 RFdiffusion 与 ProteinMPNN}
+
+\addcontentsline{toc}{subsection}{6.2 RFdiffusion 与 ProteinMPNN}
+
+RFdiffusion 在结构空间生成或修复蛋白质骨架，ProteinMPNN 在给定骨架条件下设计序列。两者组成典型的结构优先流水线：\(\mathrm{specification}\to\mathrm{backbone}\to\mathrm{sequence}\to\mathrm{validation}\)。\par
+
+这一分解的优点是条件清楚，骨架约束和序列设计可以分别评估。缺点是 ProteinMPNN 只保证序列适配输入骨架，不保证 RFdiffusion 骨架对应目标功能；后续 AlphaFold 自洽性也可能复用相似训练先验，形成循环验证。功能、特异性和可开发性仍需独立实验。\par
+
+\subsection*{6.3 Chroma：可编程的结构后验采样}
+
+\addcontentsline{toc}{subsection}{6.3 Chroma：可编程的结构后验采样}
+
+Chroma 将生成建模与可组合条件结合，使对称性、结构片段、形状和功能约束进入采样过程。它展示了如何把设计要求表达为后验条件，而不是在无条件生成后做一次筛选。\par
+
+但可编程条件仍主要约束模型学到的结构分布。若条件变量与训练数据中的家族或结构类别高度相关，生成结果可能依赖统计捷径。条件可控性需要与分布外组合和反事实测试配套。\par
+
+\subsection*{6.4 MultiFlow：离散与连续状态的耦合流}
+
+\addcontentsline{toc}{subsection}{6.4 MultiFlow：离散与连续状态的耦合流}
+
+MultiFlow 同时处理离散序列与连续结构变量，使两种模态在生成轨迹中协同演化。相对于“先骨架后序列”，联合流允许序列和结构互相调整，从而减少固定接口带来的不匹配。\par
+
+然而，联合轨迹中的共享表示并不提供序列因素与几何因素的独立坐标。要证明模型真正分离了两类约束，需要冻结一个模态、干预另一个模态，并测量生成分布和功能终点如何变化。\par
+
+\subsection*{6.5 Protpardelle 与 Pallatom：两种全原子表示策略}
+
+\addcontentsline{toc}{subsection}{6.5 Protpardelle 与 Pallatom：两种全原子表示策略}
+
+全原子生成必须面对可变侧链拓扑、原子类型、键连接和连续坐标。常见做法包括把不同残基映射到固定槽位，或在更统一的原子级表示中联合处理序列和坐标。固定槽位便于使用规则张量，却把虚拟原子和填充约定暴露给网络；原子级统一表示更灵活，但需要更强的化学约束和拓扑控制。\par
+
+全原子几何自洽仍不等于化学能量正确。催化、选择性和药物可开发性依赖电荷态、极化、溶剂、金属配位和过渡态等变量，而这些变量在静态结构数据库中通常表示不足。\par
+
+\subsection*{6.6 设计模型真正分离了什么}
+
+\addcontentsline{toc}{subsection}{6.6 设计模型真正分离了什么}
+
+结构优先流程分离的是计算阶段；联合模型分离的是词表、状态类型或生成变量；等变网络分离的是坐标系选择。它们都很有价值，但都不是功能机制的自动分解。\par
+
+设计中的强证据来自竞争状态。只有同时建模目标结合、脱靶结合、错误寡聚、聚集、蛋白酶降解、免疫原性和细胞环境，才能判断模型学到的是特异机制，还是只学会生成一个高置信度折叠。\par
+
+\section*{七、通过干预实现识别}
+
+\addcontentsline{toc}{section}{七、通过干预实现识别}
+
+\subsection*{7.1 序列轴空模型}
+
+\addcontentsline{toc}{subsection}{7.1 序列轴空模型}
+
+独立位点 MSA 保留每个位点的边缘频率，但破坏所有位点间依赖；系统发育感知的空模型还应尽量保留树结构或行相似性。真实 MSA 与不同空模型的差异，比删除最大经验特征向量更容易解释。\par
+
+任何被称为“系统发育模态”“熵背景”或“共进化残差”的成分，都应在真实 MSA、独立位点空模型、保守性空模型和系统发育空模型之间比较。若大模态在空模型中同样存在，它更可能是采样或边缘结构；若较小模态只在真实数据中富集，才值得进一步做结构或突变验证。\par
+
+\subsection*{7.2 轨道和模态干预}
+
+\addcontentsline{toc}{subsection}{7.2 轨道和模态干预}
+
+对多轨模型，可在保持其他输入不变时删除 MSA、模板、pair feedback 或坐标反馈，并观察目标表示和输出如何改变。对多模态模型，应设计“结构固定而功能变化”“功能相同而支架不同”“实验标签与计算注释分开”的样本。\par
+
+普通 dropout 主要用于正则化，不等于可解释干预。有效实验必须声明改变的变量、保持不变的变量、比较的读出以及潜在分布偏移。\par
+
+\subsection*{7.3 设计闭环与负向状态}
+
+\addcontentsline{toc}{subsection}{7.3 设计闭环与负向状态}
+
+结构预测模型常被同时用于生成筛选和最终评价，容易形成训练分布内的自洽循环。更可靠的设计验证应使用不同家族、不同结构方法、不同能量模型和前瞻实验，并报告最近邻相似度与失败样本。\par
+
+负向设计不是附加过滤器，而是识别特异性的必要条件。弱结合物、无活性同源物、替代底物、错误构象和失败设计能够打破自然数据库中长期共现的相关因素，因此往往比更多成功样本更有识别价值。\par
+
+\subsection*{7.4 位置轴的显式 nuisance 投影}
+
+\addcontentsline{toc}{subsection}{7.4 位置轴的显式 nuisance 投影}
+
+在得到类别规范固定的相互作用强度后，可以在位置轴上声明 nuisance 坐标，例如常数、保守性、缺口率、序列距离或其他预注册变量，并投影到其正交补。APC 或最大模态删除只是特定的低秩近似，只有当被删除方向在匹配空模型中被独立识别为 nuisance 时，才具有明确意义。\par
+
+操作顺序很重要：应先在类别轴移除单点函数，再形成位置对强度，最后处理位置轴 nuisance。先取范数再做类别投影，会由于范数的非线性而混合边缘尺度和相互作用几何。\par
+
+\subsection*{7.5 因果与机制边界}
+
+\addcontentsline{toc}{subsection}{7.5 因果与机制边界}
+
+MSA 场是进化统计对象。它可以预测接触和上位性，却不必是直接物理作用。神经 pair state 还混合模板、语言先验、循环更新和几何自洽，因此离机制更远。\par
+
+机制主张需要外部干预或终点：双突变上位性、结合测量、替代构象、动力学、活性、模板和 MSA 的受控移除。注意力可视化、主成分和高结构置信度都是诊断工具，不是因果识别定理。\par
+
+\section*{八、两个可检验的理论命题}
+
+\addcontentsline{toc}{section}{八、两个可检验的理论命题}
+
+以下两个命题尚待严格证明，其共同目标是把新增证据的组成与局部条件场的全局一致性纳入同一条可验证理论链。\par
+
+\subsection*{8.1 命题一：相对于语言模型先验的证据分解}
+
+\addcontentsline{toc}{subsection}{8.1 命题一：相对于语言模型先验的证据分解}
+
+令 \(P_0(x)\) 表示语言模型给出的基准分布，\(P_D(x)\) 表示加入当前家族 MSA 证据 \(D\) 后的分布。定义证据更新：\par
+
+
+\begin{equation}
+L_D(x)=\log\frac{P_D(x)}{P_0(x)}.
+\end{equation}
+
+在固定、正支撑的 product 或 cavity reference \(\mu\) 下，可以对 \(L_D\) 做函数 ANOVA：\par
+
+
+\begin{equation}
+L_D=c+\sum_i u_i(x_i)
++\sum_{i<j}G_{ij}(x_i,x_j)+R_{\ge 3}(x).
+\end{equation}
+
+这里，\(u_i\) 表示 MSA 对位点偏好的新增修正，\(G_{ij}\) 表示相对于语言模型先验新增的二阶家族约束，\(R_{\ge 3}\) 表示无法由 pairwise 更新表达的高阶证据。固定参考下的正交性给出能量分解：\par
+
+
+\begin{equation}
+\left\|L_D-\mathbb E_\mu L_D\right\|^2
+=\sum_i\|u_i\|^2
++\sum_{i<j}\|G_{ij}\|^2
++\|R_{\ge 3}\|^2.
+\end{equation}
+
+这一分解的解释必须严格限制为“证据更新的组成”，不能把它直接等同于真实生物机制。其经验价值在于回答：增加 MSA 深度后，模型改善主要来自 conservation 校准、pair coupling，还是高阶家族信息？\par
+
+最小验证实验可以逐步增加 MSA 深度、删除某个亚家族、加入远缘同源序列，并比较三类更新能量与结构、突变或功能预测的同步变化。若新增序列没有带来相对于 \(P_0\) 的可测后验变化，就不应继续占用行级或 pair 级计算。\par
+
+\subsection*{8.2 命题二：局部定向条件场的全局可积性}
+
+\addcontentsline{toc}{subsection}{8.2 命题二：局部定向条件场的全局可积性}
+
+语言模型和定向 cavity mixer 原生给出局部条件分布，而 Potts 或 Gibbs 解释要求一个全局联合分布。二者之间需要明确的兼容性条件。\par
+
+对目标 \(i\) 定义条件对数概率对源位置 \(j\) 的离散混合差分 \(\Gamma_{ij}\)。若全部局部条件来自同一个严格正的 pairwise Gibbs 模型，则应满足两个必要条件：\par
+
+1. 方向对称：\(\Gamma_{ij}(x_i,x_j)=\Gamma_{ji}(x_j,x_i)\)。\par
+
+2. 上下文独立：\(\Gamma_{ij}\) 不再依赖任何第三个位置 \(x_k\)。\par
+
+在有限连通的 product domain 上，若再满足适当归一化和路径无关条件，则有望反向积分出全局 pair potential。由此定义兼容性缺陷：\par
+
+
+\begin{equation}
+\mathcal E_{\mathrm{incompat}}
+=\sum_{i<j}\left\|\Gamma_{ij}-\Gamma_{ji}^{\mathsf T}\right\|^2
++\sum_{i,j,k}\left\|\Delta_k\Gamma_{ij}\right\|^2.
+\end{equation}
+
+第一项测量两个方向的局部条件是否冲突；第二项测量被写成 pair field 的高阶上下文依赖。简单对两个方向取平均会隐藏这两类误差，而不会使模型真正可积。\par
+
+这个诊断能区分四种情形：二阶证据强且可积，说明它接近统一的全局 pairwise constraint；二阶证据强但不可积，说明局部预测有效却不能解释为一个全局能量；二阶证据弱而高阶残差强，说明 pairwise 模型结构不足；主要只有边缘更新，则 MSA 的价值更多来自 conservation 校准而非共进化。\par
+
+\section*{九、尚未解决的技术前沿}
+
+\addcontentsline{toc}{section}{九、尚未解决的技术前沿}
+
+\subsection*{9.1 自适应融合家族证据与全局先验}
+
+\addcontentsline{toc}{subsection}{9.1 自适应融合家族证据与全局先验}
+
+未来模型不应永久选择“M​​SA 模型”或“无 MSA 模型”，而应按后验增益检索证据。对长蛋白质和复合物，可只在新增家族证据显著的位置保留 MSA 行、亚家族模态和带类别的稀疏 pair operator，并在冗余区域尽早压缩。\par
+
+这一路线的核心不是另一个置信度 gate，而是可比较的证据尺度：显式似然比、后验 KL 或经校准的信息增益。系统还必须记录预测的哪一部分因新检索证据而改变。\par
+
+\subsection*{9.2 从相关模态走向可识别生物变量}
+
+\addcontentsline{toc}{subsection}{9.2 从相关模态走向可识别生物变量}
+
+序列、结构和功能在自然数据中共同受家族身份和实验选择影响。仅靠多模态架构无法分离这些因素。需要更接近析因设计的数据：不同支架上的同一功能、同一折叠中的功能改变、失活突变、负结合和统一条件下的定量测量。\par
+
+显式潜变量可以用于表示家族、系统发育、几何、化学机制和 assay context，但其可识别性仍取决于多环境数据和干预假设，而不是潜变量名称。\par
+
+\subsection*{9.3 能量景观、构象系综与动力学}
+
+\addcontentsline{toc}{subsection}{9.3 能量景观、构象系综与动力学}
+
+单个静态坐标不是热力学。多次扩散采样也不会自动产生正确 Boltzmann 权重。更完整的目标应包含构象集合、状态权重、相对自由能、跃迁速率、功能和环境：\par
+
+
+\begin{equation}
+P\!\left(
+x,\mathcal A,\Delta G,\kappa,f,e\mid c
+\right),
+\end{equation}
+其中 $\mathcal A$ 表示构象系综，$\Delta G$ 表示相对自由能，$\kappa$ 表示动力学量，$f$、$e$ 和 $c$ 分别表示功能、环境与设计条件。
+
+生成模型可以提出候选状态，物理模型和实验观测则用于校准状态自由能与跃迁势垒。对酶、受体、开关、转运体和变构蛋白，功能往往由群体迁移而不是单一最低能结构决定。\par
+
+\subsection*{9.4 化学类型与可变拓扑的全原子生成}
+
+\addcontentsline{toc}{subsection}{9.4 化学类型与可变拓扑的全原子生成}
+
+固定 atom14 或 atom73 张量便于计算，却引入虚拟槽位和填充约定。长期目标应是在带类型的化学图与连续坐标上进行变维生成，使原子和键能够出现、消失或改变类型，同时严格满足价态、手性、键几何和排斥体积约束。\par
+
+同一表示还需要覆盖非标准氨基酸、配体、辅因子、共价修饰、核酸、离子和关键水分子。若缺少电子环境、电荷态和溶剂变量，仅凭结构数据库学习的坐标分布很难充分表示催化与选择性。\par
+
+\subsection*{9.5 特异性、负向设计与细胞可开发性}
+
+\addcontentsline{toc}{subsection}{9.5 特异性、负向设计与细胞可开发性}
+
+设计目标不能压缩为一个通用 fitness 标量。结合设计需要同时考虑亲和力与脱靶；酶设计需要反应速率与底物选择性；治疗蛋白还涉及聚集、蛋白酶稳定性、免疫原性、表达和定位。\par
+
+这些竞争状态应成为一等条件变量，而不是生成后的过滤规则。不同 assay 的不确定性也应分别校准，避免用高结构置信度替代功能成功率。\par
+
+\subsection*{9.6 独立评价与实验闭环}
+
+\addcontentsline{toc}{subsection}{9.6 独立评价与实验闭环}
+
+当前设计评估经常在生成和筛选两端复用 AlphaFold、ProteinMPNN、ESMFold 或相近训练分布。未来基准应做时间、家族和结构级隔离，联合多个独立折叠与能量模型，报告最近邻新颖性，并把前瞻实验作为最终终点。\par
+
+最有价值的闭环不是只测试最高分设计，而是主动选择能够区分竞争机制或最大幅度减少不确定性的实验：\par
+
+
+\begin{equation}
+\boxed{
+\text{检索与先验}
+\to\text{多状态全原子设计}
+\to\text{独立计算测试}
+\to\text{多重实验}
+\to\text{不确定性感知更新}}
+\end{equation}
+
+数据来源、失败实验、assay 条件和模型版本必须保留，否则无法判断进步来自模型规模、数据泄漏，还是更好的生物识别。\par
+
+\section*{十、结论}
+
+\addcontentsline{toc}{section}{十、结论}
+
+蛋白质模型首先是信息因子化系统。它们做出两个近乎独立的选择：为当前查询获取哪些证据，以及何时把这些证据压缩进序列、pair、坐标或功能状态。查询 MSA 与蛋白质语言模型不是两种互斥的“进化定义”，而是当前家族经验分布与预训练形成的跨家族进化先验。注意力、pair track、结构 token 和全原子坐标则是后续的计算表示。\par
+
+蛋白质设计在同一联合分布上反向工作。模块化流程暴露失败边界，却可能产生模型接口不一致；联合生成减少接口冲突，却主动混合序列、几何和化学信息。两者都不能仅凭架构证明功能或机制理解。\par
+
+贯穿全文的核心区别，是计算表示的分开与生物因素的识别。现代模型越来越擅长分离张量轴、神经轨道、词表、输出头和几何对称性，但其预测能力仍依赖系统发育、保守性、结构约束、数据库组成、功能标签和物理先验的联合使用。一个主模态或可控提示不能仅凭架构获得唯一生物意义。\par
+
+真正的生物识别从架构描述结束的地方开始：声明类别参考和规范，构造匹配的序列与模态空模型，进行反事实轨道干预，对竞争状态实施负向设计，校准不确定性，并使用独立实验终点。下一代模型最重要的进步，不只是生成更多自洽蛋白质，而是让证据、误差和机制主张从进化数据、全原子设计一直到实验都保持可追溯。\par
+
+\subsection*{参考文献（选列）}
+
+\addcontentsline{toc}{subsection}{参考文献（选列）}
+
+1. Hoeffding W. A class of statistics with asymptotically normal distribution. 1948.\par
+
+2. Morcos F. et al. Direct-coupling analysis of residue coevolution captures native contacts across many protein families. 2011.\par
+
+3. Ekeberg M. et al. Improved contact prediction in proteins: using pseudolikelihoods to infer Potts models. 2013.\par
+
+4. Cocco S., Feinauer C., Figliuzzi M., Monasson R., Weigt M. Inverse statistical physics of protein sequences. 2018.\par
+
+5. Senior A. W. et al. Improved protein structure prediction using potentials from deep learning. 2020.\par
+
+6. Jumper J. et al. Highly accurate protein structure prediction with AlphaFold. 2021.\par
+
+7. Evans R. et al. Protein complex prediction with AlphaFold-Multimer. 2022.\par
+
+8. Abramson J. et al. Accurate structure prediction of biomolecular interactions with AlphaFold 3. 2024.\par
+
+9. Rao R. et al. MSA Transformer. 2021.\par
+
+10. Baek M. et al. Accurate prediction of protein structures and interactions using a three-track neural network. 2021.\par
+
+11. Rives A. et al. Biological structure and function emerge from scaling unsupervised learning to 250 million protein sequences. 2021.\par
+
+12. Lin Z. et al. Evolutionary-scale prediction of atomic-level protein structure with a language model. 2023.\par
+
+13. Hayes T. et al. Simulating 500 million years of evolution with a language model. 2024.\par
+
+14. Watson J. L. et al. De novo design of protein structure and function with RFdiffusion. 2023.\par
+
+15. Dauparas J. et al. Robust deep learning-based protein sequence design using ProteinMPNN. 2022.\par
+
+16. Ingraham J. et al. Illuminating protein space with a programmable generative model. 2023.\par
+
+17. Campbell A. et al. Generative flows on discrete state-spaces: enabling multimodal flows with applications to protein co-design. 2024.\par
+
+18. Chu A. et al. Protpardelle: all-atom diffusion for protein structure generation. 2024.\par
+
+\end{document}

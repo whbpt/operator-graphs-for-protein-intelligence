@@ -8,6 +8,7 @@ tmp/
 artifacts/published/
 work/external/
 work/literature/
+work/
 tools/tectonic/cache/
 tools/tectonic/tectonic-bin
 tools/tectonic/default_bundle.zip
@@ -33,3 +34,6 @@ results/*
 *.out
 *.toc
 *.synctex.gz
+book/main.pdf
+paper/*.pdf
+output/pdf/*.pdf

@@ -1,0 +1,18 @@
+[project]
+name = "transformer-disentanglement"
+version = "0.1.0"
+description = "Diagnostics for nuisance and coevolutionary signals in protein Transformers"
+requires-python = ">=3.11"
+dependencies = [
+  "biopython>=1.84,<2",
+  "fair-esm==2.0.0",
+  "matplotlib>=3.10",
+  "numpy>=2.0",
+  "pandas>=2.2",
+  "scipy>=1.14",
+  "torch>=2.6",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]

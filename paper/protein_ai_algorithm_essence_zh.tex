@@ -1,0 +1,430 @@
+\documentclass[10pt]{article}
+
+\usepackage[a4paper,left=23mm,right=23mm,top=24mm,bottom=22mm]{geometry}
+\usepackage{fontspec,xeCJK,amsmath,amssymb,microtype,fancyhdr,titlesec,xcolor,booktabs,array}
+\usepackage[hidelinks]{hyperref}
+\setmainfont{Times New Roman}
+\setCJKmainfont{Songti SC}
+\setCJKsansfont{Heiti SC}
+\linespread{1.34}
+\setlength{\parindent}{2em}
+\setlength{\parskip}{0.42em}
+\setlength{\emergencystretch}{2em}
+
+\definecolor{ink}{HTML}{152033}
+\definecolor{muted}{HTML}{667085}
+\definecolor{ruleblue}{HTML}{1F4B6E}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\color{muted}从结构等价到干预等价}
+\fancyfoot[R]{\small\thepage}
+\renewcommand{\headrulewidth}{0.3pt}
+
+\titleformat{\section}{\CJKfamily{sf}\color{ink}\Large\bfseries}{ }{0pt}{}
+\titleformat{\subsection}{\CJKfamily{sf}\color{ink}\large\bfseries}{ }{0pt}{}
+\titlespacing*{\section}{0pt}{1.45em}{0.6em}
+\titlespacing*{\subsection}{0pt}{1.05em}{0.4em}
+
+\newenvironment{keyidea}
+{\begin{quote}\color{ruleblue}\CJKfamily{sf}\large\bfseries}
+{\end{quote}}
+
+\begin{document}
+
+\hypersetup{pageanchor=false}
+\begin{titlepage}
+\vspace*{23mm}
+{\CJKfamily{sf}\color{muted}\large 观点论文｜蛋白质 AI 与因果建模\par}
+\vspace{15mm}
+{\CJKfamily{sf}\color{ink}\bfseries\fontsize{25}{36}\selectfont
+从结构等价到干预等价：\\[5mm]
+蛋白质 AI 何时获得可迁移的因果结构\par}
+\vspace{14mm}
+{\CJKfamily{sf}\Large 静态准确、负设计与生化响应算子的理论边界\par}
+\vfill
+{\color{ruleblue}\rule{30mm}{1.8pt}}
+\end{titlepage}
+
+\hypersetup{pageanchor=true}
+\setcounter{page}{1}
+
+\section*{摘要}
+
+蛋白质人工智能正在从单链结构预测扩展到全原子复合物、从头设计和构象系综。然而，状态描述越来越精细，并不自动意味着模型掌握了突变、配体、竞争对象或环境变化所引起的生化响应。本文提出一个由观察等价、干预等价和机制等价组成的三级框架：两个系统可以在天然数据上输出相同结构，却在受控干预下产生不同的自由能变化、构象重分配和功能结果；即使干预响应相同，它们也未必使用相同的内部状态和动力学机制。
+
+这一框架把“预测正确是否等于理解”转化为可检验问题。为连接模型内部计算与外部生化响应，本文进一步采用带参考规范的算子图视角：Transformer 可以被严格描述为逐层生成输入条件化的动态通信图，但 attention 路由、带残基类别的响应、三维接触和生物学相互作用是四种不同对象。ESM-2 的旋转位置编码提供链内相对坐标；其残基表征已被证明可供下游算法恢复跨蛋白对齐，但一次前向并不直接输出同源或结构 alignment，也没有证据表明这种可对齐性由位置编码单独产生。
+
+AlphaFold、AlphaFold 3 和 Pallatom 主要扩大了可预测或可生成的状态空间；BindCraft 证明结构模型可以支持前瞻性功能设计；BioEmu 和动态蛋白设计开始触及带权重的构象系综；而现实负对照表明，几何可信度仍不能可靠判别结合特异性。由此，下一阶段的核心对象不应只是一个结构或一张 attention 图，而应是分子在给定环境和干预下的响应算子。相应的数据基础也必须从天然“幸存者数据库”扩展为包含失败设计、非匹配复合物、竞争实验和定量扰动的“反数据库”。
+\noindent\textbf{关键词：}蛋白质人工智能；动态通信图；位置编码；蛋白序列比对；因果干预；负设计；响应算子
+
+\section*{一、结构正确而特异性错误}
+
+2025 年，BindCraft 报告了 10\%--100\% 的实验命中率，并在无需高通量筛选或实验优化的情况下获得纳摩尔级蛋白质结合物\cite{pacesa2025}。这标志着计算设计跨过了一道重要门槛：模型不再只是复原天然结构，还能提出经实验验证、具有真实功能的新分子。
+
+但前瞻成功没有消除一个更困难的问题。2026 年，一项针对抗体--抗原识别的受控评估使用 106 个真实复合物和 11,342 个打乱的非匹配组合，测试 AlphaFold 3、Boltz-2 和 Chai-1。模型经常为错误配对生成几何上可信的复合物，内部置信度却不能可靠区分真实结合与非真实结合；增加采样改善了局部结构精细度，却没有改善配对判别\cite{smorodina2026}。
+
+这两项结果并不矛盾。BindCraft 证明模型可以在特定任务分布中找到高质量正例；非匹配评估则证明“能够生成正例”不等于“能够识别所有负例”。前者回答目标状态能否实现，后者追问目标状态相对于竞争状态是否具有足够优势。
+
+\begin{keyidea}
+蛋白质 AI 的下一道边界，不是把一个状态画得更精细，而是预测干预如何重新分配所有相关状态的概率。
+\end{keyidea}
+
+因此，本文不再把问题表述为“AI 是否学会了自然折叠的算法”。这个问法预设了一个过强而模糊的二分。更严格的问题是：模型与真实分子在哪个层级上等价？是只在静态观察上给出相同答案，还是在突变、结合和环境变化下也保持相同响应，甚至保存了相同的状态转移结构？
+
+\section*{二、幸存者数据库与观察局限}
+
+Anfinsen 的复性实验支持这样一个判断：在合适环境中，氨基酸序列包含恢复天然构象所需的信息\cite{anfinsen1973}。Levinthal 则指出，真实折叠不可能通过逐个穷举所有构象完成\cite{levinthal1969}。这两个经典问题说明序列--结构映射受到强约束，却没有说明实验数据库完整记录了这些约束如何发挥作用。
+
+多序列比对进一步压缩了进化历史。保守位点、共同变化和亚家族差异包含结构与功能线索，DCA 和 Potts 模型能够从全局统计中分离一部分直接耦合\cite{morcos2011,ekeberg2013}。但自然序列不是随机干预产生的样本。它们已经通过生存、繁殖、表达和实验测量等多重筛选：
+
+\begin{equation}
+P_{\mathrm{data}}(s,x)
+=
+P\!\left(s,x\mid
+\mathrm{survived},\mathrm{expressed},\mathrm{measured}\right)
+\neq P(s,x).
+\label{eq:survivor}
+\end{equation}
+
+式\eqref{eq:survivor}意味着，数据库主要记录“什么被留下”，而很少记录“什么失败、为何失败以及在什么条件下失败”。失败折叠、弱结合、错误寡聚、竞争状态和环境依赖通常缺席。模型能够非常准确地学习幸存者流形，却仍可能无法回答流形之外的反事实问题。
+
+MSA 内部还存在不同的信息空间。若把一份比对写成独热张量
+
+\begin{equation}
+X\in\{0,1\}^{N\times L\times q},
+\label{eq:msa_tensor}
+\end{equation}
+
+其中 $N$ 是序列数，$L$ 是位置数，$q$ 是残基与 gap 的类别数，那么沿序列轴的模式可能对应物种和亚家族，沿位置轴的模式可能对应保守性和接触，而类别轴中的方向对应具体替换。对不同轴的投影不能被自动解释为同一个生物因素。所谓解缠结，必须声明信息空间、参考分布、被控制的背景，以及改变一个因素时其他因素是否保持不变。
+
+相关性模型可以减少间接相关，却不能把进化统计自动升级为分子因果。进化数据提供观察分布；突变、配体和环境控制才提供干预分布。这一区别构成下文三级等价框架的出发点。
+
+\section*{三、三种等价}
+
+算法不是一个输入输出函数的同义词。函数规定 $x\mapsto y$；算法还规定表示、允许的状态转移、保持的不变量、停止条件和正确性关系。对于物理计算，还必须说明什么物理状态承担输入和输出编码，以及为什么某段物质演化实现了指定计算\cite{piccinini2015}。
+
+为避免把预测、干预和机制混为一谈，设真实生物系统为 $S$，模型为 $M_\theta$，环境为 $e$，干预为 $a$。干预可以是序列突变、配体加入、竞争对象、pH 改变或翻译后修饰。本文区分三个层级。
+
+\subsection*{观察等价}
+
+模型在天然或常规测试分布 $\mathcal D_{\mathrm{nat}}$ 上正确预测可观察量 $Y$：
+
+\begin{equation}
+\mathcal L_{\mathrm{obs}}(M_\theta)
+=
+\mathbb E_{(X,Y)\sim\mathcal D_{\mathrm{nat}}}
+\bigl[\ell(M_\theta(X),Y)\bigr]
+\leq \varepsilon_{\mathrm{obs}}.
+\label{eq:obs}
+\end{equation}
+
+CASP 主要检验这一层级：答案被隐藏，模型提交结构，随后与实验终点比较\cite{moult1995,jumper2021}。观察等价证明任务层面的成功，但不识别达到答案的因果路径。
+
+\subsection*{干预等价}
+
+模型在一组预先声明的环境 $\mathcal E$ 和干预 $\mathcal A$ 上，正确预测系统响应：
+
+\begin{equation}
+\mathcal L_{\mathrm{int}}(M_\theta)
+=
+\sup_{a\in\mathcal A,\,e\in\mathcal E}
+D\!\left[
+\widehat P_\theta(Y\mid \operatorname{do}(a),e),
+P_S(Y\mid \operatorname{do}(a),e)
+\right]
+\leq \varepsilon_{\mathrm{int}}.
+\label{eq:int}
+\end{equation}
+
+这里的 $D$ 可以针对任务选择：构象分布使用概率距离，亲和力使用 $\Delta G$ 误差，动力学使用转移率或 $k_{\mathrm{on}}/k_{\mathrm{off}}$ 误差，功能则使用定量实验终点。因果干预的意义不是给相关特征换一个名称，而是主动改变一个变量并比较系统响应\cite{pearl2009,peters2017}。
+
+\subsection*{机制等价}
+
+设真实系统和模型分别具有状态空间 $\mathcal Z_S$ 与 $\mathcal Z_M$，转移核为 $T_S^{a,e}$ 与 $T_M^{a,e}$。只有当存在状态抽象 $\phi:\mathcal Z_S\to\mathcal Z_M$，使观察读出一致，并近似保持干预下的状态转移，才有理由主张机制层面的对应：
+
+\begin{equation}
+\phi\,T_S^{a,e}
+\approx
+T_M^{a,e}\,\phi
+\qquad
+\text{for all }(a,e)\in\mathcal A\times\mathcal E.
+\label{eq:mech}
+\end{equation}
+
+式\eqref{eq:mech}比输出准确强得多。一个查表系统可以在有限测试集上观察等价，却没有可迁移的内部动力学；两个模型也可能在一组干预上输出相同，却通过不可对应的隐藏状态实现。
+
+本文的中心命题可以写成：
+
+\begin{equation}
+M_1\sim_{\mathrm{obs}}M_2
+\not\Rightarrow
+M_1\sim_{\mathrm{int}}M_2
+\not\Rightarrow
+M_1\sim_{\mathrm{mech}}M_2.
+\label{eq:hierarchy}
+\end{equation}
+
+式\eqref{eq:hierarchy}不是说静态准确没有价值，而是说它不足以推出更强的等价。这个命题可以被经验化检验：选择静态结构精度相近的模型，在预注册的突变、配体、竞争和环境基准上比较响应排序。如果静态指标在广泛干预中始终充分决定响应性能，且加入扰动数据不再提供额外解释力，那么本文关于层级分离的经验主张将被削弱。
+
+\section*{四、状态模型扩大了什么}
+
+AlphaFold2 的关键贡献是重新组织从家族进化证据到三维几何的推断。MSA 表示保存行级和位置级信息，pair 表示积累残基关系，三角更新和结构模块把兼容性约束实现为坐标\cite{jumper2021}。这些中间状态是计算表示，不是蛋白质中天然存在的物理变量。CASP 证明了终点结构准确，却没有证明网络重现真实折叠路径。
+
+蛋白质语言模型提供了另一条观察路线。它不要求每次查询都重建当前家族的 MSA，但训练数据库本身已经把与跨家族进化相关的序列统计压缩进参数\cite{rives2021,lin2023}。“没有 MSA 输入”因此不等于“参数中没有进化统计”。
+
+\subsection*{Transformer 生成的是动态通信图}
+
+对输入序列 $x=(x_1,\ldots,x_L)$，第 $\ell$ 层、第 $h$ 个 attention head 可以写成
+
+\begin{equation}
+\alpha_{ij}^{(\ell,h)}(x)
+=\operatorname{softmax}_{j}
+\left[
+\frac{q_i^{(\ell,h)}(x)^{\mathsf T}
+R_{j-i}k_j^{(\ell,h)}(x)}{\sqrt{d_h}}
+\right].
+\label{eq:dynamic_attention}
+\end{equation}
+
+这里 $i$ 是接收消息的目标残基，$j$ 是来源残基，$R_{j-i}$ 是 ESM-2 各 head 共享的 RoPE 相对旋转，由位置相位的组合调制 query--key 匹配核\cite{su2024,lin2023}。除 padding 或显式 mask 外，标准 softmax attention 的连接支撑始终是完全图；随输入、head 和层次变化的是边权以及式\eqref{eq:frozen_edge_map}中的有效边算子，而不是节点对是否存在。为序列远隔残基提供一步通信通道的是全局 self-attention，RoPE 的作用是在这条既有通道上加入有符号链位移坐标。因此，更准确的说法是：Transformer 在固定稠密支撑上逐层生成输入条件化的加权动态通信图。
+
+但边权只回答“从哪里取信息”，不完整回答“这些信息以什么方式改变目标”。固定某个输入的 attention 后，经过 value 与 output projection 的一步边映射为
+
+\begin{equation}
+\mathcal A_{i\leftarrow j}^{(\ell)}(x)
+=\sum_h\alpha_{ij}^{(\ell,h)}(x)B_h^{(\ell)},
+\qquad
+B_h^{(\ell)}=W_O^{(\ell,h)}W_V^{(\ell,h)}.
+\label{eq:frozen_edge_map}
+\end{equation}
+
+因此，同一层的所有位置边只是共享的一组 $B_h$ 的不同线性组合；连接矩阵可以很密，每一条边的关系类型却仍被共同的低维算子基限制。Transformer 随后立即把所有来源消息收缩回每个位置的单个 node state，并不保存一份独立、持久的 $L\times L$ pair state。完整输入影响还包括 query/key 改变引起的路由变化、残差路径、后续层传播和相消，故裸 attention map 既不是完整 Jacobian，也不是物理相互作用图\cite{vaswani2017}。层与层之间的更新是算法迭代，不能把层号直接解释为折叠时间或分子动力学轨迹。
+
+这个区分对长程关系尤其关键。蛋白质同时有链距离
+
+\begin{equation}
+d_{\mathrm{seq}}(i,j)=|i-j|
+\qquad\text{与}\qquad
+d_{\mathrm{3D}}(i,j)=\|r_i-r_j\|_2.
+\label{eq:two_distances}
+\end{equation}
+
+位置机制为前者提供坐标，使模型能够利用聚合物链的强距离背景；折叠的关键信息则包括 $d_{\mathrm{seq}}$ 很大、$d_{\mathrm{3D}}$ 很小的残基对。这样的“序列长程接触”在折叠后通常是三维短程接触，不等于物理学中的长程力；三维上仍相隔较远却存在功能耦合的变构关系又是第三种对象。高 attention 可能来自真实约束，也可能来自位置偏置、保守性、间接路径或 softmax 竞争。因而必须在控制 $|i-j|$ 后评价剩余信号，而不能把远离对角线的高权重直接命名为接触或变构边。
+
+\subsection*{位置坐标不等于生物学 alignment}
+
+围绕“alignment”的讨论至少混用了四种对象：RoPE 对 query/key 坐标相位的计算配准、attention 在单条输入内部按行归一的软匹配与路由、MSA 把不同序列的同源残基放入共同列的带 gap 比对，以及结构方法给出的三维等价残基对应。四者可以相关，却不是同一运算：
+
+\begin{equation}
+\mathrm{registration}_{\mathrm{RoPE}}
+\neq
+\mathrm{routing}_{\mathrm{attention}}
+\neq
+\mathrm{alignment}_{\mathrm{MSA}}
+\neq
+\mathrm{alignment}_{\mathrm{structure}}.
+\label{eq:alignment_distinction}
+\end{equation}
+
+RoPE 只通过相对旋转改变同一条链内 attention 的匹配核；attention 得到的是来源位置上的稠密概率分配，并不满足序列比对所需的单调对应、gap 和跨序列约束。每个 ESM-2 样本的 self-attention 域是一条 token 序列，batch 中不同蛋白彼此不通信，因而一次普通前向不会输出跨蛋白匹配矩阵。MSA Transformer 则接收已经带 gap、已经按同源列排好的二维张量，再分别沿序列位置轴和同源序列轴通信\cite{rao2021}。这里的 alignment 坐标显式存在于输入中，尽管外部搜索和比对本身也可能错配；它不是 positional embedding 从未对齐序列中创造出来的。
+
+形式上，RoPE 匹配核使用单链固定索引差 $j-i$；真正的两序列比对则从两条输入的隐藏状态构造分数，并在带 gap 的单调部分对应集合中求解
+
+\begin{equation}
+\pi^\star
+=\arg\max_{\pi\in\mathcal M_{\mathrm{mono}}}
+\left[
+\sum_{(i,j)\in\pi}\operatorname{sim}(h_i^x,h_j^y)
+-\operatorname{gap}(\pi)
+\right].
+\label{eq:embedding_alignment}
+\end{equation}
+
+RoPE 对整条序列共同平移天然不变，但内部插入或缺失会非均匀地改变后续索引差；式\eqref{eq:embedding_alignment}的任务恰恰是吸收这种重编号并决定哪些位置对应。
+
+但是，“蛋白语言模型隐藏状态含有可用的 alignment 信号”已不只是猜想。DEDAL、EBA 和 PEbA 等方法从两条蛋白的逐残基 embedding 构造匹配分数，再通过学习的对齐模块或动态规划输出显式对应；它们在远缘序列或结构相似性基准上优于传统替换矩阵，PEbA 还直接比较了 ESM-2 与 ProtT5 embedding\cite{llinares2023,pantolini2024,iovino2024}。这证明了表征层面的\mbox{可对齐性}，却不证明 ESM 前向本身正在执行序列比对，更不证明 RoPE 是该信号的原因。后一个因果主张仍须比较不同位置机制与无位置基线，控制氨基酸身份、局部 motif、家族近邻和语言模型损失，并用外部 MSA 或结构 alignment 评价输出。
+
+\subsection*{从路由图到带类别的替换响应}
+
+要把动态图连接到干预框架，比裸 attention 更合适的对象是有限氨基酸替换响应。对 $j\neq i$，先把 MLM 的目标位置 $i$ 固定替换为 $[\mathrm{MASK}]$，令 $\ell_i(a;x)$ 表示这一输入下类别 $a$ 的 logit；再遍历残基类别 $b$，把来源位置 $j$ 从 $x_j$ 替换为 $b$，定义
+
+\begin{equation}
+R_{i\leftarrow j}^{x}(a,b)
+=\ell_i(a;x^{j\to b})-\ell_i(a;x),
+\qquad
+G_{i\leftarrow j}^{x}=P_iR_{i\leftarrow j}^{x}P_j^{\mathsf T},
+\label{eq:typed_substitution_response}
+\end{equation}
+
+具体地，预先声明具有全支撑的残基参考分布 $p_i,p_j\in\Delta_{q-1}$，并令 $P_i=I-\mathbf 1p_i^{\mathsf T}$、$P_j=I-\mathbf 1p_j^{\mathsf T}$；双侧投影删除双变量表中的常数项和只依赖单个端点的分量。$G_{i\leftarrow j}^{x}$ 不再只是“位置 $j$ 是否被关注”的标量，而是回答“在给定背景 $x$ 下，把 $j$ 从原始类别 $x_j$ 换成 $b$，会怎样改变 $i$ 对各残基类别的偏好”。已有工作表明，这类 ESM-2 替换响应包含可预测接触的进化统计\cite{zhang2024motifs}。
+
+在线性加性的 Potts conditional 中，双侧投影后的响应可以精确恢复 pair coupling；在深层 ESM 中，它还混合直接 pair、三体及更高阶背景、以及经过 $j$ 的多条计算路径。因此它是输入条件化的\mbox{有效响应边}，而不是已经识别的物理势。距离范围、图路径长度与相互作用阶数是三个独立轴：一个序列长程效应可以来自直接二体边、若干局部边组成的多跳路径，或不可约的多残基项；只有最后一种必须用 hyperedge，pair graph 截断的是高阶成分而不是所有长程作用。若生成边、参考分布和路由的上下文仍读取 $x_i$ 或 $x_j$，改变端点时“边本身”也会变化，局部投影仍不足以证明严格的 pair interaction。普通 attention 默认保证的只是计算依赖；把它升级为统计、物理或生物相互作用，必须分别通过空模型、模型端点替换、实验双突变矩阵和多背景实验完成。式\eqref{eq:typed_substitution_response}首先是对模型的干预，只有与同一突变的真实生化响应校准后，才构成干预等价的证据。
+
+由此，ESM 与蛋白质结构之间最稳健的当前结论是：ESM 为每条输入逐层生成条件化的动态通信图，RoPE 提供一维链坐标，不同输入的隐藏状态则已被后续算法用于恢复跨蛋白残基对应。但“RoPE 导致可对齐性”与“链内长程路由对应真实接触或变构传播”是两个独立、尚待消融和干预检验的机制假说。这个中间层恰好把前文的观察等价连接到后文的干预等价，但不能替代后者。
+
+AlphaFold 3 把统一预测扩展到蛋白质、核酸、小分子、离子和修饰残基组成的复合物，并以扩散过程生成原子坐标\cite{abramson2024}。Pallatom 则联合生成序列与全原子几何，通过残基 token 和原子状态反复交换信息，并以 atom14 表示处理不同残基拓扑\cite{qu2024}。两者都显著扩大了状态表示范围，但扩散模型产生多个样本，并不自动意味着样本拥有真实平衡权重、正确结合特异性或真实反应动力学。
+
+Pallatom 的价值应当准确定位：它减少了“先骨架、后序列”之间的硬接口，使序列、侧链和主链几何在同一生成过程中耦合；但虚拟原子和 atom14 是计算约定，不是分子机制。全原子自洽是化学设计的重要必要条件，却不是催化、选择性或自由能正确的充分条件。该工作已收入 ICML 2025；其正式版本验证了计算设计性、多样性、新颖性和采样效率，但没有把这些指标升级为湿实验功能证据。
+
+BindCraft 进一步显示，状态模型可以反向用于设计：通过 AlphaFold2 权重和反向传播同时优化界面、骨架与序列，再用独立预测和实验筛选获得功能结合物\cite{pacesa2025}。但成功正例仍不足以标定完整选择性。结构模型在这里成为设计搜索器和过滤器，而不是已经完成的生化响应模型。
+
+\section*{五、从状态到生化响应算子}
+
+真实蛋白质不是一个坐标点，而是受环境控制的状态分布。2025 年发表的 BioEmu 使用结构数据、超过 200 毫秒的分子动力学轨迹和实验稳定性数据，生成蛋白质平衡系综，并在若干任务上报告约 $1\,\mathrm{kcal\,mol^{-1}}$ 的相对自由能误差\cite{lewis2025}。它能够采样隐蔽口袋、局部解折叠和大尺度结构域运动，说明生成模型的对象开始从最低能结构转向带概率权重的系综。
+
+同年，动态蛋白设计工作解析了四个从头设计结构，观察到微秒尺度的构象转换，并用正构配体和\mbox{变构突变}调节构象景观\cite{guo2025}。这项结果的重要性不只在于“蛋白质会动”，而在于设计目标开始包含状态之间的相对稳定性和可控转换。
+
+Boltz-2 则把复合物结构与结合亲和力联合建模，并报告接近自由能微扰方法的部分基准性能\cite{passaro2025}。但亲和力预测、结合分类和跨靶点特异性是不同任务；模型在同分布亲和力基准上的相关性，不能替代非匹配配对和竞争条件下的外部校准。
+
+这些路线可以被统一为一个更严格的建模对象。给定分子 $m$、环境 $e$ 和干预 $a$，响应算子应预测：
+
+\begin{equation}
+\mathcal R_\theta(m,e,a)
+=
+\left(
+\Delta p_\theta(z),
+\Delta G_\theta,
+K_\theta,
+\Delta F_\theta
+\right),
+\label{eq:response}
+\end{equation}
+
+其中 $\Delta p(z)$ 是构象概率重分配，$\Delta G$ 是相关自由能差，$K$ 是状态转移率矩阵，$\Delta F$ 是功能变化。单一结构只是 $\mathcal R_\theta$ 的一个状态表示；多个无权重样本也只是候选集合。只有当概率、能量、动力学和功能在受控干预下同时得到校准，模型才开始接近干预等价。
+
+平衡系综仍不等于真实动力学。一个模型可能正确恢复各状态的平衡比例，却错误估计状态之间的跃迁路径和时间尺度。因此，未来基准必须把结构、热力学和动力学分开报告，而不是用一个综合置信度代替所有机制变量。
+
+\section*{六、负设计与反数据库}
+
+正设计降低目标状态的能量；负设计要求同时抬高最危险竞争状态的能量。设目标状态为 $\star$，竞争集合为 $\mathcal D(s)$，一个稳健目标可以写成：
+
+\begin{equation}
+\max_s\;
+\min_{d\in\mathcal D(s)}
+\left[G_d(s,e)-G_\star(s,e)\right].
+\label{eq:negative_design}
+\end{equation}
+
+竞争集合不能只包含随机错误结构。对于结合物，它至少应包括同源旁系蛋白、错误表位、替代对接姿态、靶蛋白其他构象、binder 自聚集和现实高丰度竞争对象。对于动态开关，它还应包括无配体时的错误关闭、有配体时的错误开放以及非功能中间态。设计优化的对象不是某一个绝对分数，而是目标状态与最困难负例之间的最小能隙。
+
+非匹配抗体--抗原评估说明了困难负例的必要性。错误组合并非总被模型识别为低置信度；相反，它们可能被生成得相当合理\cite{smorodina2026}。因此，负集合必须随序列和模型更新而扩展：每轮寻找当前模型最容易误判的非目标状态，把它加入下一轮训练和筛选。这与对抗训练相似，但负样本来自真实生化竞争，而不是纯粹的输入扰动。
+
+实验也必须测量相对选择性，而不只是“是否结合”。对目标 $A$ 和非目标 $B$，选择性能隙可以写为
+
+\begin{equation}
+\Delta\Delta G_{\mathrm{sel}}
+=RT\ln\frac{K_d^{B}}{K_d^{A}},
+\label{eq:selectivity}
+\end{equation}
+
+并同时报告竞争条件下的 $k_{\mathrm{on}}$、$k_{\mathrm{off}}$、聚集和错误寡聚。一个对目标具有纳摩尔亲和力、但对旁系蛋白同样具有纳摩尔亲和力的分子，仍是失败设计。
+
+失败本身应成为训练数据。2025 年的一项预印本从被 Rosetta 预测为稳定、实验上却不稳定的从头设计出发，使用深度突变扫描寻找能够挽救稳定性的单点突变，由此识别出蛋白质核心过度堆积的系统性偏差，并重新拟合能量函数参数\cite{haddox2025}。这展示了一种不同于继续收集天然结构的数据范式：让模型提出设计，用实验暴露失败机制，再把失败机制写回模型。
+
+这种“反数据库”应保存配对的正负结果、实验环境、测量方法、竞争对象和不确定性，而不是只保存\mbox{最终成功结构}。它的价值不在于样本数量更大，而在于每个样本都回答一个受控反事实：改了什么、改变多少、在哪个环境中改变，以及同时牺牲了什么。
+
+\section*{七、可证伪的研究议程}
+
+物理折叠、生物进化和机器学习不应被描述成寻找同一答案的三种对称算法。分子折叠是真实物理状态在环境中的演化；进化改变种群中的序列分布，并通过遗传保存选择历史；机器学习从被筛选的数据中建立预测或生成捷径。三者可以在某些观察量上相遇，却拥有不同的状态、时间尺度和因果边界。
+
+因此，声称模型“理解”某种机制，至少需要五类预先声明的检验。第一，在静态精度匹配的模型之间比较突变、配体、环境和竞争响应。第二，用现实困难负例检验特异性，而不是只用随机 decoy。第三，分别校准构象概率、自由能和跃迁率，避免用结构置信度代替热力学与动力学。第四，验证内部状态抽象是否在未见干预下保持式\eqref{eq:mech}所要求的转移关系。第五，对动态通信图实施分层审计：分别报告位置距离基线、attention 路由、完整替换响应和高阶残差。长程接触评价除匹配 $|i-j|$ 外，还应匹配保守性、位点熵、二级结构、链长和训练集同源泄漏；跨蛋白残基对应则应把逐残基 embedding 加动态规划作为显式基线，并用外部 MSA 或结构比对评分。RoPE 的全局相位平移应作为严格抵消的实现负控，内部插入、局部 gap offset 或相位重排才检验距离依赖。因果比较应使用重新训练且语言模型损失匹配的无位置、RoPE 与相对 bias 模型；仅在预训练模型上删除位置机制并报告 masked-language-model loss，仍不足以把分布外崩溃解释为 alignment 的特异性证据。
+
+这些检验也给出了否证条件。如果静态结构指标在多靶点、多环境和多类干预中始终充分预测响应，不同模型在控制静态精度后不再表现出系统差异，那么观察等价与干预等价之间的经验分层就缺乏必要性。反之，如果加入失败样本、竞争实验和条件信息能够显著改变模型排序，并改善未知干预下的校准，那么“响应算子”将比“更精细的结构生成器”提供更有解释力的研究对象。
+
+生命闭环与人工学习的区别也应谨慎陈述。人工推荐系统和自动实验平台同样会改变未来数据分布，因此“输出反馈到输入”并非生命独有。生命系统更特殊的地方在于，编码、执行、复制和选择在同一开放系统中内生耦合；这一判断需要理论生物学和计算哲学继续分析，不能由蛋白质结构预测的成功直接推出。
+
+\begin{keyidea}
+下一次关键跃迁不会只是从骨架走向更多原子，而是从描述生物对象走向预测生化事件：改变什么，会改变多少，多久发生，以及会牺牲什么。
+\end{keyidea}
+
+AlphaFold 证明学习系统可以高效跨越从序列到结构的推断距离，ESM 则表明单序列模型可以在动态通信图中压缩与跨家族进化相关的序列统计，其隐藏状态也能为后续对齐算法提供有效的逐残基匹配分数。但 attention 图仍是计算状态，不是分子状态；位置配准既不等于生物学 alignment，也尚未被证明是表征可对齐性的原因。真正更强的算法主张，应建立在模型替换响应与实验响应的可重复校准、干预等价乃至机制等价上。结构是响应模型中的状态表示，而不是生命因果结构的终点。
+
+\clearpage
+\renewcommand{\refname}{参考文献}
+\begin{thebibliography}{99}
+\footnotesize
+\setlength{\parskip}{0pt}
+\setlength{\itemsep}{0.18em}
+
+\bibitem{pacesa2025}
+Pacesa M. et al. \href{https://doi.org/10.1038/s41586-025-09429-6}{One-shot design of functional protein binders with BindCraft}. \textit{Nature}, 2025.
+
+\bibitem{smorodina2026}
+Smorodina E. et al. \href{https://doi.org/10.64898/2026.03.02.709004}{Structural plausibility without binding specificity: limits of AI-based antibody-antigen structure prediction confidence scores}. \textit{bioRxiv}, 2026.
+
+\bibitem{anfinsen1973}
+Anfinsen C. B. Principles that govern the folding of protein chains. \textit{Science}, 1973.
+
+\bibitem{levinthal1969}
+Levinthal C. How to fold graciously. In \textit{Mossbauer Spectroscopy in Biological Systems}, 1969.
+
+\bibitem{morcos2011}
+Morcos F. et al. Direct-coupling analysis of residue coevolution captures native contacts across many protein families. \textit{PNAS}, 2011.
+
+\bibitem{ekeberg2013}
+Ekeberg M. et al. Improved contact prediction in proteins: using pseudolikelihoods to infer Potts models. \textit{Physical Review E}, 2013.
+
+\bibitem{piccinini2015}
+Piccinini G. \textit{Physical Computation: A Mechanistic Account}. Oxford University Press, 2015.
+
+\bibitem{moult1995}
+Moult J., Pedersen J. T., Judson R., Fidelis K. A large-scale experiment to assess protein structure prediction methods. \textit{Proteins}, 1995.
+
+\bibitem{jumper2021}
+Jumper J. et al. Highly accurate protein structure prediction with AlphaFold. \textit{Nature}, 2021.
+
+\bibitem{pearl2009}
+Pearl J. \textit{Causality: Models, Reasoning, and Inference}. 2nd ed., Cambridge University Press, 2009.
+
+\bibitem{peters2017}
+Peters J., Janzing D., Sch{\"o}lkopf B. \textit{Elements of Causal Inference}. MIT Press, 2017.
+
+\bibitem{rives2021}
+Rives A. et al. Biological structure and function emerge from scaling unsupervised learning to 250 million protein sequences. \textit{PNAS}, 2021.
+
+\bibitem{lin2023}
+Lin Z. et al. Evolutionary-scale prediction of atomic-level protein structure with a language model. \textit{Science}, 2023.
+
+\bibitem{su2024}
+Su J. et al. \href{https://doi.org/10.1016/j.neucom.2023.127063}{RoFormer: Enhanced Transformer with Rotary Position Embedding}. \textit{Neurocomputing}, 2024.
+
+\bibitem{vaswani2017}
+Vaswani A. et al. Attention is all you need. \textit{NeurIPS}, 2017.
+
+\bibitem{rao2021}
+Rao R. et al. MSA Transformer. \textit{Proceedings of ICML}, 2021.
+
+\bibitem{llinares2023}
+Llinares-L\'opez F. et al. \href{https://doi.org/10.1038/s41592-022-01700-2}{Deep embedding and alignment of protein sequences}. \textit{Nature Methods}, 2023.
+
+\bibitem{pantolini2024}
+Pantolini L. et al. \href{https://doi.org/10.1093/bioinformatics/btad786}{Embedding-based alignment: combining protein language models with dynamic programming alignment to detect structural similarities in the twilight-zone}. \textit{Bioinformatics}, 2024.
+
+\bibitem{iovino2024}
+Iovino B. G., Ye Y. \href{https://doi.org/10.1186/s12859-024-05699-5}{Protein embedding based alignment}. \textit{BMC Bioinformatics}, 2024.
+
+\bibitem{zhang2024motifs}
+Zhang Z. et al. \href{https://doi.org/10.1073/pnas.2406285121}{Protein language models learn evolutionary statistics of interacting sequence motifs}. \textit{PNAS}, 2024.
+
+\bibitem{abramson2024}
+Abramson J. et al. \href{https://doi.org/10.1038/s41586-024-07487-w}{Accurate structure prediction of biomolecular interactions with AlphaFold 3}. \textit{Nature}, 2024.
+
+\bibitem{qu2024}
+Qu W., Guan J., Ma R., Zhai K., Wu W., Wang H. \href{https://proceedings.mlr.press/v267/qu25c.html}{P(all-atom) is unlocking new path for protein design}. \textit{Proceedings of ICML}, 2025.
+
+\bibitem{lewis2025}
+Lewis S. et al. \href{https://doi.org/10.1126/science.adv9817}{Scalable emulation of protein equilibrium ensembles with generative deep learning}. \textit{Science}, 2025.
+
+\bibitem{guo2025}
+Guo A. B. et al. \href{https://doi.org/10.1126/science.adr7094}{Deep learning-guided design of dynamic proteins}. \textit{Science}, 2025.
+
+\bibitem{passaro2025}
+Passaro S. et al. \href{https://doi.org/10.1101/2025.06.14.659707}{Boltz-2: Towards accurate and efficient binding affinity prediction}. \textit{bioRxiv}, 2025.
+
+\bibitem{haddox2025}
+Haddox H. K. et al. \href{https://doi.org/10.64898/2025.12.12.691241}{Using experimental results of protein design to guide biomolecular energy-function development}. \textit{bioRxiv}, 2025.
+
+\end{thebibliography}
+
+\end{document}

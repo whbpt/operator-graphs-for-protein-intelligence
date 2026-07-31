@@ -60,10 +60,13 @@ substitution audit exactly recovers an additive Potts coupling.  Applied to a no
 model, it gives a background-dependent effective operator whose mean is the best static
 approximation and whose orthogonal fluctuation measures dynamic context dependence.  Under a fixed
 product reference, functional ANOVA identifies this fluctuation exactly with higher-order
-components containing both audited endpoints.  Reciprocity supplies the additional compatibility
+source-coordinate components valued in the target contrast fiber.  Reciprocity supplies the additional compatibility
 condition for directed additive responses to define a joint Potts energy.  We then distinguish this
 response object from attention routes, latent memories, scalar contact shadows, MSA estimators, and
-biological epistasis.  For row-stochastic routes, a stationary-measure adjoint further separates
+biological epistasis.  Phylogeny is represented separately as tree-constrained categorical
+transport through latent ancestors on the MSA sequence axis; this makes explicit why an MSA
+attention route may exploit ancestry without thereby identifying a tree.  For row-stochastic
+routes, a stationary-measure adjoint further separates
 reversible transport from directed circulation; an undirected Laplacian is then an explicit lossy
 shadow rather than the native Transformer graph.  Scalar, signed, and connection Laplacians further
 separate positional smoothness from transported categorical coherence.  The result is a mathematical coordinate
@@ -158,7 +161,8 @@ G_{i\leftarrow j}(C)
 \end{equation}
 The additive Potts limit has zero dynamic residual.  A nonlinear pLM generally has a nonzero
 residual; under a fixed product reference it equals higher-order functional mass, while correlated
-backgrounds can add nonorthogonal cross terms.  Moreover, a directed response defines a joint
+backgrounds can add nonorthogonal cross terms.  Here the target category is an output-fiber
+coordinate, not an assumed model input.  Moreover, a directed response defines a joint
 Potts energy only when the two directions satisfy a reciprocity condition.  Thus the comparison is
 made in common operator coordinates without asserting equal parameters, equal training laws, or a
 universal physical Hamiltonian.
@@ -211,11 +215,12 @@ family MSA is unnecessary for family-specific inference.  The goal is a mathemat
 system in which these claims can be stated, related, and falsified without changing meaning between
 statistical physics and machine learning.
 
-\BookUnit~2 establishes the translation rules.  \BookUnit~3 defines the master operator-valued graph.
-\BookUnit s~4--7 develop static and dynamic responses, higher-order and probability geometry, and
-model correspondences.  \BookUnit s~8 and 9 separate statistical estimation from architectural
-realizability.  \BookUnit~10 assigns falsification tests and biological endpoints, followed by the
-discussion and conclusion.
+The development proceeds from translation rules and the master operator-valued graph to static and
+dynamic responses, higher-order and probability geometry, and model correspondences.  A separate
+phylogeny chapter then types common ancestry as a generative graph on the MSA sequence axis before
+the treatment of estimation and spectra.  Architectural realizability, falsification tests, and
+biological endpoints follow.  This order prevents phylogeny from entering only as an informal
+post-hoc correction to an already compressed position graph.
 
 \fi
 \ifdefined\BOOKMODE
@@ -628,6 +633,28 @@ $G_{ij}^{[p]}=P_i^{[p]}T_{ij}P_j^{[p]\mathsf T}$ gives
 $P_i^{[r]}T_{ij}P_j^{[r]\mathsf T}=G_{ij}^{[r]}$.
 \end{proof}
 
+\paragraph{Reference-invariance of zero context dependence.}
+\label{rem:zero-dynamic-reference-invariance}
+Let a family of raw tables $T(C)$ be evaluated under one fixed background law, and let
+$G^{[p]}(C)$ and $G^{[r]}(C)$ be its representatives under two full-support reference pairs.  If
+\begin{equation}
+V_{\mathrm{dyn}}^{[p]}
+=\E_C\left\|G^{[p]}(C)-\E_CG^{[p]}(C)\right\|_{p_i,p_j}^2,
+\end{equation}
+and $V_{\mathrm{dyn}}^{[r]}$ is defined analogously, then
+\begin{equation}
+\boxed{V_{\mathrm{dyn}}^{[p]}=0
+\quad\Longleftrightarrow\quad
+V_{\mathrm{dyn}}^{[r]}=0.}
+\label{eq:zero-dynamic-reference-invariance}
+\end{equation}
+Indeed, Eq.~\ref{eq:reference-transport} maps a constant representative to a constant
+representative, and applying the same transport law in the reverse direction gives the converse.
+Thus absence of context dependence is reference independent, although every positive variance,
+norm, singular value, and dynamic fraction depends quantitatively on the chosen reference
+geometry.  When the denominator in Eq.~\ref{eq:dynamic-fraction} is nonzero, the same equivalence
+holds with $V_{\mathrm{dyn}}=0$ replaced by $\rho^{\mathrm{dyn}}=0$.
+
 Thus the gauge class is reference independent, while its centered representative, Hilbert norm,
 and singular geometry are reference dependent.  Comparisons across families or contexts must
 either use one fixed reference or transport every representative to a declared anchor by
@@ -787,7 +814,7 @@ For a nonlinear or higher-order conditional, the same response has the schematic
 G_{i\leftarrow j}(c)
 =G_{ij}^{(2)}
 +\sum_{k\notin\{i,j\}}G_{i,j,k}^{(3)}(c_k)
-+\sum_{k<l}G_{i,j,k,l}^{(4)}(c_k,c_l)+\cdots.
++\sum_{\substack{k<l\\k,l\notin\{i,j\}}}G_{i,j,k,l}^{(4)}(c_k,c_l)+\cdots.
 \label{eq:response-order-mixture}
 \end{equation}
 It is therefore a well-defined \emph{effective} edge at background $c$, assembled from all
@@ -876,10 +903,46 @@ This theorem supplies an operational definition of static and dynamic interactio
 \qquad 0\leq\rho_{i\leftarrow j}^{\mathrm{dyn}}\leq1,
 \label{eq:dynamic-fraction}
 \end{equation}
-whenever the denominator is nonzero.  An additive Potts conditional has
+whenever the denominator is nonzero.  In finite-precision estimation, the ratio should be reported
+only when
+\begin{equation}
+\E_C\|G_{i\leftarrow j}(C)\|_{p_i,p_j}^2>\tau_G,
+\label{eq:dynamic-fraction-threshold}
+\end{equation}
+for a preregistered absolute or null-calibrated threshold $\tau_G$; otherwise it is undefined, not
+zero or one.  This prevents a ratio of two numerical underflow terms on a null edge from appearing
+as strong dynamic response.  An additive Potts conditional has
 $\rho_{i\leftarrow j}^{\mathrm{dyn}}=0$.  A positive value measures background dependence of the effective
 response.  Higher-order epistasis, remote homologous patterns, and internal circuits are candidate
 sources to be separated by further interventions.
+
+Two background laws expose a genuine interpretation--geometry tradeoff.  With the same endpoint
+anchor references, define
+\begin{equation}
+\rho_{i\leftarrow j}^{\mathrm{dyn,prod}}
+=\rho_{i\leftarrow j}^{\mathrm{dyn}}
+\bigg|_{\mu_C=\bigotimes_{k\notin\{i,j\}}p_k},
+\qquad
+\rho_{i\leftarrow j}^{\mathrm{dyn,emp}}
+=\rho_{i\leftarrow j}^{\mathrm{dyn}}
+\bigg|_{\mu_C=\mu_C^{\mathrm{emp}}}.
+\label{eq:product-empirical-dynamic-fractions}
+\end{equation}
+Only the product-background quantity has the exact order-by-order ANOVA interpretation in
+Corollary~\ref{cor:dynamic-higher-order}; its independently assembled backgrounds may, however, be
+far outside the natural sequence manifold.  The empirical quantity evaluates natural or curated
+backgrounds and is therefore closer to the model's training support, although exhaustive endpoint
+substitutions can still leave that support.  Correlations destroy order orthogonality, so the
+empirical dynamic variance remains a valid mean--residual quantity but not a sum of pure
+higher-order masses.  Both should be reported, together with
+\begin{equation}
+\Delta\rho_{i\leftarrow j}^{\mathrm{geom}}
+=\rho_{i\leftarrow j}^{\mathrm{dyn,emp}}
+-\rho_{i\leftarrow j}^{\mathrm{dyn,prod}},
+\label{eq:dynamic-geometry-gap}
+\end{equation}
+as a diagnostic of sensitivity to the evaluation geometry rather than as a signed amount of
+biological interaction.
 
 The distribution $\mu_{ij}$ is part of the claim.  Averaging over one protein family, all natural
 proteins, or model-generated sequences produces different static components.  A pLM can therefore
@@ -895,11 +958,13 @@ context remains fixed while the endpoint states are varied.  Let
 $\mathcal C_{ij}=\sigma\{X_k:k\notin\{i,j\}\}$ and allow the reference, raw table, and any route
 decision to depend on this cavity.
 
-\begin{proposition}[Conditional gauge]
+\begin{proposition}[Conditional gauge under an endpoint-excluding audit]
 \label{prop:conditional-gauge}
-Suppose $T_{i\leftarrow j}(C)$, $p_i(C)$, and $p_j(C)$ are
-$\mathcal C_{ij}$-measurable and the conditional references have full support.  Then, almost
-surely in $C$,
+Require the audit protocol to construct $T_{i\leftarrow j}(C)$, $p_i(C)$, $p_j(C)$, and every route
+decision from an endpoint-excluding representation measurable with respect to $\mathcal C_{ij}$;
+in particular, it may not reuse a hidden state that previously observed $x_i$ or $x_j$.  If the
+conditional references have full support, and the enumerated source category $b$ enters only in the
+final endpoint evaluation used to assemble the table, then, almost surely in $C$,
 \begin{equation}
 G_{i\leftarrow j}(C)
 =P_i(C)T_{i\leftarrow j}(C)P_j(C)^{\mathsf T}
@@ -909,7 +974,8 @@ $p_i(\cdot\mid C)p_j(\cdot\mid C)$.
 \end{proposition}
 
 \begin{proof}
-Condition on $\mathcal C_{ij}$.  The table and reference measures are then fixed while
+The protocol condition ensures that, after conditioning on $\mathcal C_{ij}$, the table, route,
+and reference measures are fixed while
 $(X_i,X_j)$ vary, so Theorem~\ref{thm:pair-anova} applies on each conditional fiber.
 \end{proof}
 
@@ -1020,23 +1086,38 @@ omitted terms.
 
 \begin{corollary}[Dynamic variance equals higher-order response mass]
 \label{cor:dynamic-higher-order}
-Under the product reference of Theorem~\ref{thm:pair-truncation}, let
-$G_{i\leftarrow j}(C)$ be obtained by projecting a fixed target score on coordinates $i$ and $j$
-while all remaining coordinates $C$ are held fixed.  Then
+Let $N\subseteq[L]\setminus\{i\}$ contain $j$ and define the centered, vector-valued target score
+\begin{equation}
+\Phi(x_N)=P_i\ell_i(\mathord\cdot\mid x_N)
+\in\mathcal H_i^0,
+\qquad
+\Phi\in L^2\!\left(\bigotimes_{u\in N}p_u;\mathcal H_i^0\right).
+\label{eq:vector-valued-target-score}
+\end{equation}
+For $B\subseteq N$, let
+$\Pi_B^N=(\prod_{u\in B}P_u)(\prod_{v\in N\setminus B}E_v)$ act on the source coordinates of this
+Hilbert-valued function, and write $\Phi_B=\Pi_B^N\Phi$.  Under the product reference, the audited
+response satisfies
 \begin{align}
-\overline G_{i\leftarrow j}&=T_{\{i,j\}},\\
+G_{i\leftarrow j}(C)&=\sum_{B\subseteq N:\,j\in B}\Phi_B,\\
+\overline G_{i\leftarrow j}&=\Phi_{\{j\}},\\
 \E_C\|\delta G_{i\leftarrow j}(C)\|_{p_i,p_j}^2
-&=\sum_{B\supsetneq\{i,j\}}\|T_B\|^2.
+&=\sum_{B\subseteq N:\,B\supsetneq\{j\}}\|\Phi_B\|^2.
 \label{eq:dynamic-higher-order}
 \end{align}
 Thus dynamic response variance is exactly the total functional-ANOVA mass of components containing
-both endpoints and at least one additional coordinate.
+the audited source and at least one additional source coordinate.  The target category remains an
+output coordinate in $\mathcal H_i^0$; it is not assumed to be an observed model input.
+The norms on the right are the Bochner $L^2$ norms over the indicated source coordinates and the
+target fiber.
 \end{corollary}
 
 \begin{proof}
-Applying $P_iP_j$ retains exactly the ANOVA components containing both endpoints.  Averaging over
-$C$ then retains the pair component and removes those involving another coordinate, leaving
-$T_{\{i,j\}}$.  The remaining components are mutually orthogonal, so their squared norms sum.
+The commuting source-coordinate projections extend to the Bochner space in
+Eq.~\ref{eq:vector-valued-target-score} and remain mutually orthogonal.  Applying $P_j$ retains
+exactly the components whose source set contains $j$; $P_i$ has already centered the output fiber.
+Averaging over $C=X_{N\setminus\{j\}}$ retains only $\Phi_{\{j\}}$.  Orthogonality of the remaining
+Hilbert-valued components gives the squared-norm identity.
 \end{proof}
 
 The theorem gives Eq.~\ref{eq:response-order-mixture} a precise interpretation.  A dynamic edge
@@ -1055,10 +1136,10 @@ product reference.  If the same order-indexed components are evaluated under a c
 $\mu$, then in general
 \begin{equation}
 \begin{aligned}
-\E_{\mu}\left\|\sum_{B\supsetneq\{i,j\}}T_B(C_B)\right\|^2
-&=\sum_{B\supsetneq\{i,j\}}\E_{\mu}\|T_B(C_B)\|^2\\
-&\quad+\sum_{\substack{B,D\supsetneq\{i,j\}\\B\ne D}}
-\E_{\mu}\langle T_B(C_B),T_D(C_D)\rangle,
+\E_{\mu}\left\|\sum_{B\supsetneq\{j\}}\Phi_B(C_B)\right\|^2
+&=\sum_{B\supsetneq\{j\}}\E_{\mu}\|\Phi_B(C_B)\|^2\\
+&\quad+\sum_{\substack{B,D\supsetneq\{j\}\\B\ne D}}
+\E_{\mu}\langle \Phi_B(C_B),\Phi_D(C_D)\rangle,
 \end{aligned}
 \label{eq:correlated-anova-cross-terms}
 \end{equation}
@@ -1126,14 +1207,16 @@ $T=\mathbf1v^{\mathsf T}$ satisfies
 \begin{equation}
 P_iTP_j^{\mathsf T}=0,
 \qquad
-\|T\|_F=\sqrt q\,\|v\|_2.
+\|T\|_{p_i,p_j}=\|v\|_{p_j}>0.
+\label{eq:one-body-weighted-norm}
 \end{equation}
 \end{proposition}
 
 \begin{proof}
 Norms are invariant under sign and orthogonal changes of singular vectors, so the compression is
 many-to-one.  The final statement follows from $P_i\mathbf1=0$ and direct evaluation of the
-Frobenius norm.
+weighted norm:
+$\sum_{a,b}p_i(a)p_j(b)v(b)^2=\sum_bp_j(b)v(b)^2$.
 \end{proof}
 
 \BookInsert{chapters/05_same_shadow_example}
@@ -1204,7 +1287,10 @@ $(p_i,p_j)$.  For arbitrary vectors $a,b$ and scalar $c$,
 \label{eq:sinkhorn-gauge}
 \end{equation}
 Consequently, the exact nonlinear map $S\mapsto Q$ factors through the same quotient
-$\mathcal Q_{ij}$ as the linear Potts parameter-gauge quotient.
+$\mathcal Q_{ij}$ as the linear Potts parameter-gauge quotient.  The induced map is a bijection
+from $\mathcal Q_{ij}$ onto the relative interior
+$\operatorname{relint}\mathcal U(p_i,p_j)$, consisting of couplings with strictly positive entries.
+Finite score tables do not reach the boundary of the transport polytope.
 \end{proposition}
 
 \begin{proof}
@@ -1212,6 +1298,10 @@ Exponentiating the added row, column, and constant terms only left- and right-sc
 positive diagonal matrices and a positive scalar.  These factors are absorbed into the Sinkhorn
 vectors.  Uniqueness of the coupling with the prescribed marginals gives
 Eq.~\ref{eq:sinkhorn-gauge}.
+Conversely, for any strictly positive $Q\in\mathcal U(p_i,p_j)$, choosing $S=\log Q$ returns $Q$
+without nontrivial scaling.  If two finite score tables return the same positive coupling, their
+exponentials differ only by the positive diagonal scaling absorbed by Sinkhorn, so their logarithms
+differ by row, column, and constant terms.  This proves bijectivity on the quotient.
 \end{proof}
 
 Along
@@ -1295,6 +1385,7 @@ RBM & visible--hidden factors & static parameters; generally all visible orders 
 Message-passing GNN & declared or input-dependent support with shared messages & computation becomes higher order with depth & one-pass or iterated state; no required global normalization & supervised or self-supervised loss; route is not an identified coupling \\
 Modern Hopfield & maps between state and stored-memory fibers & state-dependent retrieval & iterative update with Lyapunov function under stated assumptions & learned or prescribed memories; Lyapunov energy is not a Potts sequence energy \\
 Transformer / pLM & dense routes plus audited categorical output response & input-dependent; generally all orders & layered hidden state; positional softmax, usually no global sequence energy & corpus pretraining plus intervention audit; attention coefficients are not response tables \\
+MSA Transformer & tied position routes plus sequence-axis routes & current-family conditioned with a cross-family amortized prior & axial updates on an $R\times L$ state; no required joint energy & MSA masked reconstruction; routes mix constraint, phylogeny, gaps, and sampling \\
 Pallatom & residue and atom-slot nodes with persistent pair state & coordinate-conditioned, multiscale, and higher order & iterative all-atom denoising with coordinate--pair recycling & composite geometric supervision; atom14 slots and aligned loss are biases, not chemical ontology or exact equivariance \\
 \bottomrule
 \end{tabular}
@@ -1424,6 +1515,87 @@ a Potts block.  The attention map supplies the route graph.  Route and response 
 therefore be reported separately: the first describes where a layer reads, while the second
 describes how a source substitution changes the model's categorical prediction.
 
+\BookSection{MSA Transformer as amortized family inference}
+
+MSA Transformer makes the family sample an explicit neural state rather than compressing it into
+fixed counts before the network \cite{rao2021}.  For an alignment with $R$ homologous sequences and
+$L$ positions, a layer acts on
+\begin{equation}
+H_f\in\R^{R\times L\times d}.
+\label{eq:msa-transformer-state}
+\end{equation}
+Column attention compares alignment rows at one fixed position,
+\begin{equation}
+A^{\mathrm{col}}_{i,rs}
+=\operatorname{softmax}_{s}
+\left(\frac{q_{ri}^{\mathsf T}k_{si}}{\sqrt d}\right),
+\qquad
+y_{ri}^{\mathrm{col}}=\sum_sA^{\mathrm{col}}_{i,rs}v_{si},
+\label{eq:msa-column-attention}
+\end{equation}
+whereas tied row attention aggregates evidence across homologues to produce one position route
+shared by all rows, schematically
+\begin{equation}
+S^{\mathrm{row}}_{ij}
+=\frac1R\sum_{r=1}^R\frac{q_{ri}^{\mathsf T}k_{rj}}{\sqrt d},
+\qquad
+A^{\mathrm{row}}_{ij}=\operatorname{softmax}_{j}S^{\mathrm{row}}_{ij},
+\qquad
+y_{ri}^{\mathrm{row}}=\sum_jA^{\mathrm{row}}_{ij}v_{rj}.
+\label{eq:msa-tied-row-attention}
+\end{equation}
+Thus the native computation contains two graph families: an $R$-node sequence graph for each
+position and an $L$-node position graph conditioned on the complete MSA.  Axial factorization
+reduces full attention over $RL$ cells from $O(R^2L^2)$ to
+$O(LR^2+RL^2)$ per layer.  Alternating the axes still permits information to travel from
+$(r,i)$ to $(s,j)$ through two-hop paths, but it is an architectural factorization rather than an
+exact equality with unrestricted joint attention.
+
+The cross-family commonality is most cleanly expressed hierarchically.  Let $\Theta_f$ denote the
+family-specific constraint system---fields, typed couplings, structural organization, and
+functional restrictions---and let $\mathcal T_f$ denote phylogeny and sampling.  A schematic
+population model is
+\begin{equation}
+\Theta_f\sim P_\star(\Theta),
+\qquad
+\mathcal M_f\sim p(\mathcal M\mid\Theta_f,\mathcal T_f).
+\label{eq:family-hierarchical-model}
+\end{equation}
+Families do not share one coupling graph.  They share recurring amino-acid response motifs,
+structural graph organization, conservation and compensation patterns, and the statistical task of
+separating constraint from finite depth, gaps, subfamilies, and common ancestry.  Training across
+many alignments learns an amortized inference rule
+\begin{equation}
+\boxed{
+\mathcal A_\theta:\mathcal M_f
+\longmapsto
+\widehat\Theta_f\ \text{or directly to family-conditioned predictions}.}
+\label{eq:msa-amortized-family-map}
+\end{equation}
+Here $\widehat\Theta_f$ is a conceptual audit coordinate, not necessarily an explicit stored model
+variable.  The current MSA supplies family evidence; the shared parameters supply a cross-family
+prior over how such evidence should be interpreted.
+
+This gives a precise intermediate position between DCA and a single-sequence pLM:
+\begin{equation}
+\begin{aligned}
+\text{Potts / DCA:}&\quad
+\mathcal M_f\xrightarrow{\text{family optimization}}\widehat J_f,\\
+\text{MSA Transformer:}&\quad
+(\theta_\star,\mathcal M_f)\xrightarrow{\text{forward inference}}
+G_f(C;\mathcal M_f),\\
+\text{single-sequence pLM:}&\quad
+(\theta_\star,x)\xrightarrow{\text{amortized inference}}G(C;x).
+\end{aligned}
+\label{eq:three-family-inference-regimes}
+\end{equation}
+The first estimates one static family field, the second combines an explicit family sample with a
+cross-family learned estimator, and the third relies on information already amortized into model
+parameters.  Tied row attention can contain contact-predictive statistics, but its scalar route is
+not a $q\times q$ Potts block.  Column attention is likewise a normalized route over homologues, not
+a phylogenetic tree.  Output substitution audits, clade-aware nulls, and row/column interventions
+are required to distinguish reusable family constraints from ancestry and sampling shortcuts.
+
 \BookSection{Softmax over different sample spaces}
 
 The Potts conditional in Eq.~\ref{eq:potts-conditional} normalizes over residue identities at one
@@ -1519,6 +1691,314 @@ after the shared matrix multiplication or softmax has been typed.
 \BookInsert{chapters/07_gcn_longitudinal}
 
 \BookInsert{chapters/07_coda}
+\BookChapter{Phylogeny as Tree-Constrained Transport}
+
+Phylogeny is not merely a correction applied after an MSA statistic has been computed.  It is a
+distinct generative graph on the sequence axis.  Its vertices include latent ancestors, its edges
+carry evolutionary transition kernels, and its shared topology makes the observed alignment rows
+dependent.  This graph must be separated from the residue-position graph, whose edges describe
+statistical or functional relations within a sequence, and from an MSA Transformer's row route,
+which is generated between observed sequences by a learned computation.  The distinction supplies
+the missing type information behind the informal statement that an MSA contains both constraint
+and common ancestry.
+
+\BookSection{Why a tree is a special computational structure}
+
+Let $T=(V,E)$ be a tree with observed leaves $\mathcal L$, latent internal vertices
+$\mathcal I=V\setminus\mathcal L$, and a root chosen to orient the computation.  A tree is not only
+a sparse graph.  It has no cycles, every pair of vertices is joined by one path, and deleting any
+edge separates it into exactly two components.  If $p$ is the parent of $u$, let $D_u$ be the
+descendant component containing $u$ after $(p,u)$ is deleted.  The Markov property on the tree gives
+\begin{equation}
+X_{D_u}
+\mathrel{\perp\!\!\!\perp}
+X_{V\setminus(D_u\cup\{p\})}
+\mid X_p .
+\label{eq:tree-separator-independence}
+\end{equation}
+Thus the single categorical variable $X_p$ separates the complete descendant subtree from the
+rest of the model.  In graphical-model language the separator has size one and the tree has
+treewidth one.
+
+This separator property is the source of the algorithm.  All observations below $u$ can be
+summarized for the rest of the tree by the $q$ numbers
+\begin{equation}
+m_{u\to p}(a)
+=P\!\left(
+x_{\mathcal L\cap D_u}\mid X_p=a
+\right),
+\qquad a\in[q].
+\label{eq:phylo-subtree-message}
+\end{equation}
+The size of this interface does not grow with the number of descendants.  Dynamic programming,
+belief propagation, variable elimination, and contraction of a tree tensor network are four
+descriptions of this same compression.  On a graph with cycles, eliminating a node generally
+creates larger separators and higher-order intermediate factors; exact cost is then governed by
+treewidth rather than vertex count alone.
+
+\BookSection{The classical recursion is exact message passing on a tree}
+
+For one aligned site, let $Q$ be a continuous-time substitution generator on $q$ categorical
+states.  An oriented edge $e=(p,u)$ of length $t_e$ carries the Markov operator
+\begin{equation}
+M_e=\exp(t_eQ),
+\qquad
+M_e(a,b)=P(X_u=b\mid X_p=a).
+\label{eq:phylo-edge-kernel}
+\end{equation}
+Let $\phi_u(b)$ be the observation factor: it is one at an unobserved internal vertex and is the
+indicator or ambiguity distribution of the observed category at a leaf.  Conditional independence
+between child subtrees gives the Felsenstein message
+\begin{equation}
+m_{u\to p}(a)
+=\sum_{b=1}^{q}
+M_{(p,u)}(a,b)\,
+\phi_u(b)
+\prod_{v\in\operatorname{ch}(u)}m_{v\to u}(b).
+\label{eq:felsenstein-message}
+\end{equation}
+The site likelihood is
+\begin{equation}
+p(x_{\mathrm{leaf}}\mid T,Q,t)
+=\sum_{a=1}^{q}\pi(a)
+\phi_r(a)
+\prod_{v\in\operatorname{ch}(r)}
+m_{v\to r}(a),
+\label{eq:phylo-site-likelihood}
+\end{equation}
+where $r$ is the root and $\pi$ its state distribution.  For a fixed tree this sum--product
+recursion evaluates the likelihood in $O(|V|q^2)$ time per site rather than summing explicitly over
+all ancestral assignments \cite{felsenstein1981}.  Its age is therefore not evidence of a missing
+neural replacement: it is already the exact dynamic program for the declared tree model.
+
+Equation~\ref{eq:felsenstein-message} also locates phylogeny inside the typed framework.  The edge
+map $M_{(p,u)}$ transports a categorical function from the child fiber to the parent fiber, while
+the product at $u$ combines conditionally independent descendant evidence.  This is a Graph
+Network on an augmented vertex set with latent nodes, but it is not a residue interaction graph
+and not a message-passing layer over only the observed MSA rows.
+
+\BookSection{Inference on a tree is not inference of a tree}
+
+Two computational problems are often compressed into the phrase "phylogenetic inference":
+\begin{equation}
+\boxed{
+\begin{aligned}
+\text{inference on a tree:}&\quad
+(T,Q,t)\longmapsto p(x_{\mathcal L}\mid T,Q,t),\\
+\text{inference of a tree:}&\quad
+x_{\mathcal L}\longmapsto
+\widehat T,\widehat Q,\widehat t
+\ \text{or}\ p(T,Q,t\mid x_{\mathcal L}).
+\end{aligned}}
+\label{eq:on-tree-versus-of-tree}
+\end{equation}
+The first problem uses Eq.~\ref{eq:felsenstein-message} and is exact for the declared model.  The
+second contains a discrete search over topologies and continuous estimation of branch lengths and
+substitution parameters.  Its parameter space has the schematic form
+\begin{equation}
+\mathfrak M_R
+=\coprod_{T\in\mathcal T_R}
+\left(
+\mathbb R_{>0}^{\,|E(T)|}\times\mathcal Q
+\right),
+\label{eq:phylogenetic-model-space}
+\end{equation}
+a union of topology-specific continuous regions whose boundaries meet when branches contract.
+Ordinary gradient descent operates within one continuous region; a topology move, relaxation, or
+sampling rule is needed to cross between them.
+
+The number of unrooted binary topologies on $R$ labeled leaves is
+\begin{equation}
+N_R=(2R-5)!!,
+\label{eq:number-unrooted-trees}
+\end{equation}
+so maximum-likelihood and Bayesian procedures must search or sample a vast outer space.  UPGMA,
+neighbor joining, parsimony, local NNI or SPR moves, stochastic search, and tree-space MCMC are
+different responses to this topology problem.  Modern implementations such as IQ-TREE 2 improve
+search, substitution models, model selection, bootstrap approximations, and parallel evaluation
+while retaining the inner likelihood recursion \cite{saitou1987,minh2020iqtree}.
+
+Rooting supplies a further type distinction.  If the substitution process is reversible,
+\begin{equation}
+\pi(a)M_t(a,b)=\pi(b)M_t(b,a),
+\label{eq:phylo-detailed-balance}
+\end{equation}
+the likelihood can be evaluated by placing the computational root anywhere on the same unrooted
+tree.  The chosen root orients the dynamic program but is not thereby statistically identified.
+A molecular clock, an outgroup, temporal samples, or a declared nonreversible process supplies
+additional information for evolutionary direction.  Computational direction and biological time
+direction must therefore be audited separately.
+
+\BookSection{Three graphs occupy three different base spaces}
+
+For an MSA $X\in[q]^{R\times L}$, three graph constructions must be kept separate:
+\begin{equation}
+\boxed{
+\begin{aligned}
+T_f &: \text{ancestral vertices and evolutionary branches},\\
+\mathcal G_{\mathrm{pos}} &: \text{residue positions and typed categorical interactions},\\
+A_i^{(\ell,h)}(X) &: \text{observed MSA rows and learned attention routes}.
+\end{aligned}}
+\label{eq:three-phylogeny-graphs}
+\end{equation}
+The first usually shares one topology across sites under the basic model, although recombination
+or gene-tree discordance can require local trees.  The second acts within a sequence and may encode
+structural or functional constraint.  The third is dense, layer- and input-dependent, generally
+directed after normalization, and defined only on observed homologues.
+
+The associated operators are also different.  A tree Laplacian acts on ancestral and observed
+vertices.  The generator $Q$ in Eq.~\ref{eq:phylo-edge-kernel} acts on categorical states.  A
+position Laplacian acts on residue positions after a position graph has been declared.  A
+Kronecker-sum construction can combine such axes under special separability assumptions, but their
+spectra are not interchangeable.  In particular, a leading singular vector across alignment rows
+does not become a residue interaction mode merely because both are low rank.
+
+An additive tree metric $d_{rs}$ satisfies the four-point condition: for every four leaves, the two
+largest members of
+\begin{equation}
+d_{rs}+d_{uv},\qquad d_{ru}+d_{sv},\qquad d_{rv}+d_{su}
+\label{eq:four-point-condition}
+\end{equation}
+are equal.  A generic attention-derived dissimilarity need not satisfy this condition, share a
+topology across positions, compose along paths, or correspond to a Markov transition kernel.
+Sequence similarity or clade-like clustering in column attention is therefore evidence of useful
+row structure, not identification of a phylogenetic tree.
+
+\BookSection{Static constraint and evolutionary dynamics are compatible}
+
+Calling a Potts model static and phylogeny dynamic refers to two different coordinates.  A fitted
+Potts Hamiltonian
+\begin{equation}
+E_{\Theta_f}(x)
+=-\sum_i h_i(x_i)-\sum_{i<j}J_{ij}(x_i,x_j)
+\label{eq:phylo-potts-energy}
+\end{equation}
+is one family-level constraint field shared across MSA rows.  Evolution is a stochastic process
+that transports sequences along the branches of $T_f$.  A hierarchical generative statement is
+therefore
+\begin{equation}
+\Theta_f\sim P_\star(\Theta),
+\qquad
+(T_f,t_f)\sim P_{\mathrm{tree}},
+\qquad
+X_f\sim p(X\mid T_f,t_f,\Theta_f).
+\label{eq:constraint-phylogeny-generative-model}
+\end{equation}
+The static field and the dynamic genealogy are not competitors: the first specifies which sequence
+configurations are favored, while the second specifies how correlated observations were produced.
+
+There is nevertheless a missing arrow in common practice.  A Gibbs distribution proportional to
+$\exp[-E_{\Theta_f}(x)]$ is an equilibrium law, not an evolutionary transition kernel.  To evolve
+complete sequences on a tree one must additionally specify rates
+\begin{equation}
+\mathcal Q_{\Theta_f}(x,x')
+\quad\text{with, for example,}\quad
+e^{-E_{\Theta_f}(x)}\mathcal Q_{\Theta_f}(x,x')
+=e^{-E_{\Theta_f}(x')}\mathcal Q_{\Theta_f}(x',x),
+\label{eq:potts-evolution-detailed-balance}
+\end{equation}
+if reversible evolution with the Potts equilibrium is intended.  This generator acts on a
+$q^L$-state sequence space and is generally intractable.  Classical site-independent phylogenetics
+regains tractability by factorizing the edge law across sites; a Potts model regains tractability by
+describing an equilibrium or using pseudolikelihood rather than exact evolutionary histories.
+Neither approximation contains the other.
+
+This separation exposes the central identifiability problem.  Correlated residues can arise from
+shared constraint, while correlated rows arise from shared ancestry; finite and taxonomically
+biased sampling couples the two in the empirical MSA.  Sequence weighting changes an estimator but
+does not identify the evolutionary process, and a high-scoring Potts block need not be free of
+phylogenetic contribution \cite{obermayer2014,dietler2022}.
+
+\BookSection{What modern phylogenetic learning actually replaces}
+
+Recent learning methods can be classified by the coordinate they change rather than by the broad
+label ``deep phylogenetics'':
+\begin{enumerate}
+\setlength{\itemsep}{2pt}
+\item \emph{Posterior representation.}  Variational Bayesian phylogenetic inference uses
+subsplit Bayesian networks to represent distributions over topologies; normalizing flows enrich
+the branch-length posterior.  The phylogenetic likelihood remains the target
+\cite{zhang2018vbpi,zhang2020flow}.
+\item \emph{Tree-space parameterization.}  GeoPhy embeds topology distributions into continuous
+geometric coordinates, while Dodonaphy combines hyperbolic embeddings with a differentiable
+soft-NJ decoder.  These methods make optimization differentiable without turning a generic dense
+matrix into a tree \cite{mimori2023,macaulay2024}.
+\item \emph{Combinatorial sampling.}  PhyloGFN trains a generative flow network to sample diverse
+high-reward or posterior-weighted trees, replacing part of topology exploration rather than the
+biological definition of likelihood \cite{zhou2023phylogfn}.
+\item \emph{Likelihood-free amortization.}  Phyloformer learns evolutionary distance estimation
+and reconstruction from simulated alignments.  It can be faster and can absorb richer simulated
+dependencies, but its conclusions inherit the training simulator and distribution-shift problem
+\cite{nesterenko2025phyloformer}.
+\end{enumerate}
+Thus the modern frontier is not one universal successor to neighbor joining or pruning.  It is a
+collection of learned proposal distributions, posterior approximations, continuous relaxations,
+and simulator-trained estimators attached to different stages of the classical pipeline.
+
+\BookSection{MSA attention is an amortized mixed signal}
+
+An MSA Transformer is trained to predict masked residues, not to recover $(T_f,Q,t_f)$.  Its column
+attention may exploit close homologues, clades, subfamilies, gaps, or taxonomic redundancy whenever
+these improve reconstruction.  Its tied row attention may simultaneously collect conservation and
+coevolutionary evidence across the same rows.  Consequently the learned representation is more
+accurately described as
+\begin{equation}
+H_f
+=\mathcal A_\theta
+\bigl(X_f;\ \text{constraint},\text{ancestry},\text{sampling},\text{gaps}\bigr),
+\label{eq:msa-mixed-amortization}
+\end{equation}
+where the semicolon lists latent causes, not supplied labels.  Successful masked reconstruction
+does not by itself identify their decomposition.
+
+The useful comparison with classical phylogenetics is therefore not ``old tree versus modern
+attention.''  Classical phylogenetics declares a tree and substitution law, then performs exact
+latent-state marginalization conditional on them.  MSA Transformer learns a cross-family rule that
+compresses several latent causes into hidden states and dynamic routes.  It is more flexible but
+less identified.  An explicit hybrid would supply a tree-conditioned row operator and reserve a
+learned residual route for dependence not explained by that tree:
+\begin{equation}
+H^{(\ell+1)}
+=\Phi_\theta\!\left(
+H^{(\ell)},
+\mathcal K_{T_f,Q,t_f}H^{(\ell)},
+A_{\theta,\mathrm{res}}^{(\ell)}(X_f)H^{(\ell)}
+\right).
+\label{eq:phylo-neural-hybrid}
+\end{equation}
+Equation~\ref{eq:phylo-neural-hybrid} is an architectural hypothesis, not a uniquely identified
+additive decomposition.  It becomes scientific only when the tree component and residual are
+tested by interventions or matched nulls.
+
+\BookSection{A phylogeny-aware operator audit}
+
+A defensible audit should preserve the distinction in Eq.~\ref{eq:three-phylogeny-graphs}:
+\begin{enumerate}
+\setlength{\itemsep}{2pt}
+\item infer or sample trees with uncertainty rather than naming leading row principal components
+``phylogeny'' from magnitude alone;
+\item simulate an independent-site or declared epistatic process along the fitted tree while
+matching depth, gaps, composition, and taxonomic sampling;
+\item pass real and null MSAs through the identical operator-extraction pipeline and compare full
+typed blocks before scalar compression;
+\item evaluate leave-clade-out transfer and clade-preserving interventions, because arbitrary row
+shuffling destroys both ancestry and the sampling structure one intends to control;
+\item report sensitivity across plausible topologies, branch lengths, substitution models, and
+product versus empirical background measures.
+\end{enumerate}
+The resulting null-relative quantity
+\begin{equation}
+\Delta G_{i\leftarrow j}
+=G_{i\leftarrow j}^{\mathrm{real}}
+-\E_{\widetilde X\sim Q_{T_f}}
+G_{i\leftarrow j}(\widetilde X)
+\label{eq:phylo-null-operator}
+\end{equation}
+asks which operator structure exceeds that generated by the declared genealogy.  It does not prove
+physical contact or causal epistasis; those remain separate validation coordinates.  Its advantage
+is narrower and more rigorous: common ancestry is represented as a generative row-graph rather
+than removed by an unlabeled spectral heuristic.
+
 \BookOnlyChapter{Three AlphaFolds: The Evolution of Relational State}
 \BookInsert{chapters/08_three_alphafolds}
 \ifdefined\BOOKMODE
@@ -1632,8 +2112,12 @@ ordinary row bootstrap when estimating confidence intervals for
 Eq.~\ref{eq:estimand-decomposition} and $\rho_{i\leftarrow j}^{\mathrm{dyn}}$.
 
 Protein language models trained on single sequences and MSA Transformer instantiate different
-amortization regimes \cite{rives2021,rao2021}.  Both can be audited in the same categorical
-coordinates.  Row attention acts on the sequence axis; residue edges act on the position axis.
+amortization regimes \cite{rives2021,rao2021}.  The former transfers a cross-family prior through
+fixed parameters and one query sequence; the latter combines that learned prior with an explicit
+current-family sample as in Eq.~\ref{eq:three-family-inference-regimes}.  Both can be audited in the
+same categorical output coordinates.  MSA column attention acts on the sequence axis, tied row
+attention produces a family-conditioned position route, and neither route is itself the audited
+categorical residue operator.
 
 \BookSection{Null-relative evidence}
 
@@ -1881,7 +2365,7 @@ restriction to its supported singular subspace.  For symmetric nonnegative
 weights $a_{ij}=a_{ji}$, the connection energy is
 \begin{equation}
 \mathcal E_{\mathrm{conn}}(f)
-=\frac12\sum_{i<j}a_{ij}
+=\sum_{i<j}a_{ij}
 \left\|f_i-U_{i\leftarrow j}f_j\right\|_2^2
 =\langle f,\mathbb L_{\mathrm{conn}}f\rangle.
 \label{eq:connection-laplacian}
@@ -2176,8 +2660,8 @@ graph unchanged.
 \begin{theorem}[Spanning-support no-go]
 \label{thm:global-support-no-go}
 If a globally endpoint-invariant router has one input for which its output graph has no isolated
-vertices, then the router is constant on $[q]^L$.  Hence no nonconstant such router can output a
-graph of minimum degree at least one for every input.
+vertices, then the router is constant on $[q]^L$.  Equivalently, every output of a nonconstant
+globally endpoint-invariant router contains at least one isolated vertex.
 \end{theorem}
 
 \begin{proof}
@@ -2266,7 +2750,17 @@ procedure, and an observation that would reject the proposed upgrade in the clai
 softmax, and verify the categorical zero-marginal constraints before and after reference transport.
 On synthetic additive Potts data, the substitution audit must recover the canonical block for every
 background.  Controlled higher-order models must satisfy the pair-truncation identity under the
-declared product reference.  Report reciprocal and nonintegrable response, Sinkhorn marginal error,
+declared product reference.  Nonzero dynamic variance is insufficient: require AUC or enrichment
+for localization of planted higher-order pairs or source--modulator tuples, rather than ordinary
+contact pairs, and compare with the
+same deep architecture trained on a column-wise shuffled alignment that preserves one-site
+marginals while destroying the planted dependence.  If one audited pair belongs to several planted
+hyperedges, score recovery against its complete true modulator set, or require the top recovered
+modulator to lie in that set; do not impose a fictitious unique label.  Apply
+Eq.~\ref{eq:dynamic-fraction-threshold} before ranking any dynamic fraction.  Report
+$\rho^{\mathrm{dyn,prod}}$, $\rho^{\mathrm{dyn,emp}}$, and
+$\Delta\rho^{\mathrm{geom}}$; repeat the additive zero-dynamic test under several full-support
+endpoint references.  Report reciprocal and nonintegrable response, Sinkhorn marginal error,
 and the difference between tangent norms and exact mutual information.  Verify the scalar, signed,
 and connection Dirichlet identities in Eqs.~\ref{eq:scalar-dirichlet},
 \ref{eq:signed-dirichlet}, and \ref{eq:connection-laplacian}.  Failure of any exact identity under
@@ -2409,7 +2903,9 @@ the training signal while those inference-time information constraints remain.
 Six limitations remain structural.  First, reference transport preserves the gauge class but not
 the numerical norm, so the anchor measure remains part of every static average and ranking.
 Second, the exact identification of dynamic variance with higher-order mass requires a product
-reference; correlated family backgrounds introduce nonorthogonal cross terms.  Third, a Laplacian
+reference that may be far off the natural sequence manifold; correlated empirical backgrounds are
+closer to that manifold but introduce nonorthogonal cross terms.  The two quantities and their
+geometry gap in Eq.~\ref{eq:dynamic-geometry-gap} must therefore be reported separately.  Third, a Laplacian
 spectrum depends on scalarization, sign convention, transport, normalization, and null graph;
 inside a nearly degenerate band only the eigenspace is stable.  Fourth, a row-stochastic route has
 no unique undirected spectrum until a stationary law, support convention, and symmetrization are
@@ -2557,6 +3053,52 @@ B.~Obermayer and E.~Levine.
 L.~Dietler, U.~Lupo, and A.~F. Bitbol.
 \newblock Impact of phylogeny on the inference of functional sectors from protein sequence data.
 \newblock \emph{Molecular Biology and Evolution}, 39:msac159, 2022.
+
+\bibitem{felsenstein1981}
+J.~Felsenstein.
+\newblock Evolutionary trees from DNA sequences: A maximum likelihood approach.
+\newblock \emph{Journal of Molecular Evolution}, 17:368--376, 1981.
+
+\bibitem{saitou1987}
+N.~Saitou and M.~Nei.
+\newblock The neighbor-joining method: A new method for reconstructing phylogenetic trees.
+\newblock \emph{Molecular Biology and Evolution}, 4:406--425, 1987.
+
+\bibitem{minh2020iqtree}
+B.~Q. Minh et al.
+\newblock IQ-TREE 2: New models and efficient methods for phylogenetic inference in the genomic era.
+\newblock \emph{Molecular Biology and Evolution}, 37:1530--1534, 2020.
+
+\bibitem{zhang2018vbpi}
+C.~Zhang and F.~A. Matsen IV.
+\newblock Generalizing tree probability estimation via Bayesian networks.
+\newblock \emph{Advances in Neural Information Processing Systems}, 31, 2018.
+
+\bibitem{zhang2020flow}
+C.~Zhang.
+\newblock Improved variational Bayesian phylogenetic inference with normalizing flows.
+\newblock \emph{Advances in Neural Information Processing Systems}, 33, 2020.
+
+\bibitem{mimori2023}
+T.~Mimori and M.~Hamada.
+\newblock GeoPhy: Differentiable phylogenetic inference via geometric gradients of tree topologies.
+\newblock arXiv:2307.03675, 2023.
+
+\bibitem{macaulay2024}
+M.~Macaulay and M.~Fourment.
+\newblock Differentiable phylogenetics via hyperbolic embeddings with Dodonaphy.
+\newblock \emph{Bioinformatics Advances}, 4:vbae082, 2024.
+
+\bibitem{zhou2023phylogfn}
+M.~Zhou, Z.~Yan, E.~Layne, N.~Malkin, D.~Zhang, M.~Jain, M.~Blanchette, and Y.~Bengio.
+\newblock PhyloGFN: Phylogenetic inference with generative flow networks.
+\newblock arXiv:2310.08774, 2023.
+
+\bibitem{nesterenko2025phyloformer}
+L.~Nesterenko, L.~Blassel, P.~Veber, B.~Boussau, and L.~Jacob.
+\newblock Phyloformer: Fast, accurate, and versatile phylogenetic reconstruction with deep neural
+networks.
+\newblock \emph{Molecular Biology and Evolution}, 42:msaf051, 2025.
 
 \bibitem{hopf2017}
 T.~A. Hopf et al.

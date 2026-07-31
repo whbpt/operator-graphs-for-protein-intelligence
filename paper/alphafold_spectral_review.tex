@@ -1,0 +1,1672 @@
+\documentclass[10pt]{article}
+
+\usepackage[margin=0.82in]{geometry}
+\usepackage{amsmath,amssymb,array,booktabs,microtype,multicol}
+\usepackage[hidelinks]{hyperref}
+\setlength{\emergencystretch}{1em}
+
+\newcommand{\E}{\mathbb E}
+\newcommand{\R}{\mathbb R}
+\newcommand{\KL}{\mathrm{KL}}
+\newcommand{\diag}{\operatorname{diag}}
+\newcommand{\Span}{\operatorname{span}}
+
+\title{How Protein Models Organize Biological Information:\\
+A Multi-Axis Framework for Evolution, Structure, Function, and Design}
+\author{Review working draft}
+\date{July 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Protein models are commonly classified by architecture or benchmark performance.  We instead ask
+how they acquire, represent, compress, and reuse biological information.  Two statistical routes
+dominate.  Query-specific systems construct an MSA and estimate the current family's evolutionary
+distribution; amortized systems compress regularities from many families into pretrained language-
+model parameters.  Within either route, information moves among sequence, residue-position,
+categorical-state, pair, coordinate, and functional representations through explicit tracks and
+bottlenecks.  We use this multi-axis framework to reinterpret AlphaFold 1--3, MSA Transformer,
+RoseTTAFold, ESM, ESMFold, and ESM3.  We then show that protein design is the inverse or joint form
+of the same statistical problem: RFdiffusion and ProteinMPNN factor backbone from sequence,
+MultiFlow couples discrete and continuous flows, and Protpardelle and Pallatom fuse sequence,
+side-chain chemistry, and all-atom geometry.  The central conclusion is that modern systems
+increasingly separate computational representations without necessarily identifying the biological
+causes that produced them.  Attention, pair states, modality tracks, and all-atom coordinates become
+biologically interpretable only under declared categorical gauges, matched nulls, counterfactual
+interventions, negative design, and independent experiments.
+\end{abstract}
+
+\section{Introduction}
+
+The central problem of protein modeling is not merely to map sequence to structure.  It is to decide
+which biological evidence is available, how that evidence is represented, and which information is
+discarded before a prediction or design is produced.  Similar outputs can arise from very different
+statistical experiments.  A query MSA measures one protein family's current sequence variation;
+a protein language model recalls regularities previously learned from a global mixture of families;
+a structure-trained network adds a prior over geometries observed in deposited structures.
+
+These sources become difficult to distinguish after neural processing.  An MSA contains ancestry
+and sampling variation across rows, conservation and gaps across columns, and dependence among
+positions and residue states.  Attention, outer products, pair tracks, triangle operations, and
+recycling combine these signals with templates and learned structural priors.  A representation can
+therefore predict contacts or coordinates without being identifiable as direct coevolution or a
+physical interaction.
+
+We organize the field around a single information map:
+\begin{equation}
+\boxed{
+\begin{gathered}
+\{X_f,\theta_{\mathrm{LM}},\text{templates},\text{chemical context}\}
+\longrightarrow
+\text{sequence/pair/coordinate states}\\
+\longrightarrow
+\text{structure and function}
+\mathrel{\substack{\longrightarrow\\[-4pt]\longleftarrow}}
+\text{conditional protein design}.
+\end{gathered}}
+\label{eq:unified-information-map}
+\end{equation}
+The forward direction covers evolutionary inference and structure prediction.  The reverse or joint
+direction covers inverse folding, backbone generation, sequence--structure co-design, and all-atom
+generation.  The same questions apply in both directions: where does information enter, which state
+stores it, how do states communicate, where is an axis compressed, which objective assigns meaning,
+and which biological factors remain mixed.
+
+This perspective distinguishes computational factorization from biological disentanglement.
+Separate tensor axes, tracks, token alphabets, or prediction heads make a model easier to control and
+analyze.  They do not prove that phylogeny, structural constraint, function, and chemical mechanism
+occupy independent latent variables.  Stronger claims require matched nulls, interventions that vary
+one source while controlling others, and validation against external biological measurements.
+
+The review proceeds in four steps.  We first define a multi-axis coordinate system and an operational
+criterion for disentanglement.  We then analyze two routes from evolutionary data to structure:
+query-specific inference through an explicit MSA and amortized inference through pretrained language
+models.  Next, we reinterpret protein design as alternative factorizations of the same joint
+distribution.  Finally, we develop an interventionist research program and a technical outlook for
+multistate, chemically typed, experimentally calibrated design.
+
+\section{A unified information-factorization framework}
+
+\subsection{Three axes of an alignment}
+
+For $N$ homologous sequences, $L$ aligned positions, and alphabet size $q$, the one-hot MSA can be
+written as
+\begin{equation}
+X\in
+\mathcal H_{\mathrm{seq}}
+\otimes
+\mathcal H_{\mathrm{pos}}
+\otimes
+\mathcal H_{\mathrm{cat}}.
+\label{eq:msa-product-space}
+\end{equation}
+Each axis has a different interpretation.
+\begin{itemize}
+\setlength{\itemsep}{1pt}
+\item The \emph{sequence axis} contains ancestry, subfamilies, taxonomic imbalance, reweighting,
+and finite-depth sampling.
+\item The \emph{position axis} contains residue-indexed operators such as covariance, contact
+scores, pair representations, and geometric constraints.
+\item The \emph{categorical axis} contains amino-acid or nucleotide states and the distinction
+between one-body preferences and multistate interaction contrasts.
+\end{itemize}
+A sequence principal component, a dominant eigenvector of a position matrix, and a categorical
+constant mode are different objects.  AlphaFold architectures mix information across these axes,
+but that mixing does not make the axes mathematically interchangeable.
+
+\subsection{Query-specific and amortized evolution}
+
+Let $f$ index a protein family and let $P_f(x)$ denote its evolutionary sequence distribution.
+A query MSA provides a finite family-specific sample
+\begin{equation}
+X_f=\{x^{(1)},\ldots,x^{(N_f)}\},
+\qquad x^{(n)}\sim P_f.
+\label{eq:family-msa-sample}
+\end{equation}
+By contrast, a protein language model is trained on a global mixture
+\begin{equation}
+P_{\mathrm{train}}(x)
+=\sum_f\pi_fP_f(x),
+\label{eq:global-evolutionary-mixture}
+\end{equation}
+with family, taxonomic, and database sampling weights absorbed into $\pi_f$.  The model parameters
+therefore amortize regularities shared across families.  At inference, a single query sequence must
+implicitly identify which parts of this global prior are relevant.
+
+We call $X_f$ \emph{query-specific evolutionary information} and the fitted language-model
+parameters \emph{amortized evolutionary information}.  The distinction is not absolute: AlphaFold
+also contains a learned cross-family prior, while ESM is trained on sequences whose redundancy and
+phylogeny reflect the underlying database.  It identifies which evidence is newly acquired for the
+query and which evidence is already stored in model weights.
+
+\subsection{Marginal and interaction geometry}
+
+Let $p_i(a)$ be the empirical or predicted marginal distribution at position $i$, and let
+$D_i=\diag(p_i)$.  The weighted zero-mean projector is
+\begin{equation}
+P_i=I-\mathbf1p_i^{\mathsf T}.
+\label{eq:categorical-projector}
+\end{equation}
+For a fixed categorical pair table $T_{ij}(a,b)$, the bivariate contrast is
+\begin{equation}
+G_{ij}=P_iT_{ij}P_j^{\mathsf T},
+\qquad
+p_i^{\mathsf T}G_{ij}=0,\quad G_{ij}p_j=0.
+\label{eq:categorical-gauge}
+\end{equation}
+Under the product reference $p_i\otimes p_j$, this is the canonical functional-ANOVA projection
+that removes constant and one-body terms \cite{hoeffding1948}.  The weighted strength is
+\begin{equation}
+m_{ij}=\|D_i^{1/2}G_{ij}D_j^{1/2}\|_F.
+\label{eq:weighted-pair-strength}
+\end{equation}
+Equation~\ref{eq:categorical-gauge} is useful for interpreting MSA-derived couplings or learned
+categorical fields.  It does not apply directly to an arbitrary hidden pair vector $z_{ij}$ unless
+a decoder specifies how that vector acts on residue states.
+
+\subsection{Four stages of an evolutionary structure model}
+
+The systems can be compared through four transformations:
+\begin{equation}
+\boxed{
+\text{sequence search}
+\longrightarrow
+\text{evolutionary representation}
+\longrightarrow
+\text{position-pair geometry}
+\longrightarrow
+\text{3D structure realization}.}
+\label{eq:four-stage-pipeline}
+\end{equation}
+The major architectural choice is whether the evolutionary representation is constructed from a
+query MSA or retrieved from a pretrained language model, and where it is compressed into pair
+geometry.
+
+The same distinction becomes operational in protein design.  Prediction estimates structure or
+function from observed sequence, whereas design samples a sequence and structure under desired
+constraints.  A design pipeline can explicitly factor backbone generation, inverse folding,
+side-chain packing, and functional conditioning, or attempt to learn their joint distribution.
+These factorizations determine both what can be controlled and which inconsistencies can arise at
+the interfaces between models.
+
+\subsection{An operational definition of disentanglement}
+
+Let $B=(B_{\mathrm{evo}},B_{\mathrm{phy}},B_{\mathrm{chem}},B_{\mathrm{geom}},
+B_{\mathrm{func}},B_{\mathrm{nuis}})$ denote evolutionary constraint, phylogeny, local chemistry,
+three-dimensional geometry, function, and nuisance variation.  A learned representation
+$r=T_\theta(B)$ is not disentangled merely because its covariance has several eigenvectors.  For
+source $B_k$, operational disentanglement requires a declared readout or subspace $D_k(r)$ such that
+\begin{equation}
+D_k\!\left(T_\theta(\operatorname{do}(B_k=b))\right)
+\text{ responds to }b,
+\qquad
+D_k\!\left(T_\theta(\operatorname{do}(B_\ell=b'))\right)
+\text{ is controlled for }\ell\ne k.
+\label{eq:operational-disentanglement}
+\end{equation}
+Because most biological factors cannot be independently randomized, practical evidence comes from
+null MSAs, sequence interventions, modality dropout, architectural ablations, and external labels.
+
+We distinguish four weaker architectural mechanisms.  \emph{Axis factorization} assigns sequence,
+position, category, or coordinates to different tensor axes.  \emph{Track factorization} maintains
+separate neural states such as MSA, pair, and coordinate tracks.  \emph{Objective factorization}
+uses separate prediction heads or losses.  \emph{Bottleneck projection} deliberately removes an
+axis, for example by averaging MSA rows into a pair state.  These mechanisms make analysis possible,
+but none guarantees that phylogeny, conservation, structure, and function are statistically
+independent inside a hidden channel.
+
+For every model below we therefore ask the same questions: what information is observed; in which
+state space is it stored; how states communicate; where information is compressed; which loss
+assigns biological meaning; and which factors remain unidentifiable.
+
+At the highest level, the systems separate into two evidence regimes:
+\begin{center}
+\small
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.17\linewidth}
+                >{\raggedright\arraybackslash}p{0.30\linewidth}
+                >{\raggedright\arraybackslash}p{0.39\linewidth}}
+\toprule
+Route & Evidence available at inference & Principal bottleneck \\
+\midrule
+Query-specific & current family sample $X_f$ plus learned structural priors & when row, subfamily, and categorical information is compressed into position-pair geometry \\
+Amortized & query sequence or multimodal prompt interpreted through pretrained parameters & whether a global prior retains rare family constraints and separates sequence, structure, and function \\
+\bottomrule
+\end{tabular}
+\end{center}
+The following sections use representative models to examine these bottlenecks; the model-specific
+audit is deferred to the synthesis rather than used as the organizing principle.
+
+\section{Route I: query-specific evolutionary inference}
+
+This route observes a finite sample $X_f$ from the query family during inference.  Its central
+design choice is the lifetime of the sequence axis:
+\begin{equation}
+X_f
+\xrightarrow{\text{family inference}}
+r_f
+\xrightarrow{\text{sequence-to-pair projection}}
+z_{ij}
+\xrightarrow{\text{geometric realization}}
+a.
+\label{eq:query-specific-route}
+\end{equation}
+Classical statistics and AF1 construct $r_f$ before the neural trunk.  AF2 keeps alignment rows as
+an evolving state.  MSA Transformer explicitly factorizes row and column communication.  AF3
+compresses a shallow MSA module into the pair track, while RoseTTAFold adds an active coordinate
+track.  These systems differ less in whether they use evolution than in when family evidence becomes
+irreversibly indistinguishable from learned geometry.
+
+\subsection{Before AlphaFold: from covariance to learned pair potentials}
+
+Classical coevolution methods convert an MSA into one- and two-position statistics.  Mutual
+information and covariance measure marginal association but contain indirect effects.  Sparse
+inverse covariance and direct-coupling analysis introduce probabilistic models intended to recover
+conditional dependence \cite{jones2012,morcos2011,ekeberg2013,cocco2018}.  Their outputs are often
+reduced to a scalar $L\times L$ contact score.
+
+This reduction creates two losses of information.  First, a scalar block norm mixes the magnitude
+of a categorical field with the marginal distributions under which it was estimated.  Second,
+phylogeny, conservation, and finite-depth sampling can create low-rank position structure even
+without genuine pair dependence.  APC and related corrections improve contact ranking but do not
+provide a universal identification theorem for the removed mode \cite{dunn2008,wang2024}.
+
+The immediate predecessors of AF1 replaced binary contacts with learned distance distributions.
+Deep residual networks consumed profiles and coevolutionary features and predicted a distogram,
+which supplies more geometric information than a contact threshold.  AlphaFold's first generation
+combined this learned pair potential with a differentiable structure-realization procedure.
+
+\subsection{AlphaFold 1: engineered MSA compression and distance potentials}
+
+\subsubsection{Input and state space}
+
+AF1 first constructs MSAs using sequence database search, including HHblits and PSI-BLAST
+\cite{senior2020}.  Its released feature specification includes one-position quantities such as
+HHM profiles, reweighted profiles, deletion probabilities, and alignment counts.  Pair inputs
+include gap covariation, a $q^2$-dimensional pseudolikelihood coupling tensor, and the Frobenius norm
+of that tensor.  The released CASP13 feature list contains, among others,
+\begin{equation}
+\texttt{hmm\_profile}_i,\quad
+\texttt{reweighted\_profile}_i,\quad
+\texttt{gap\_matrix}_{ij},\quad
+\texttt{pseudolikelihood}_{ijab}.
+\end{equation}
+Thus AF1 is strongly MSA-based, but the neural trunk does not maintain the raw sequence axis.  The
+alignment has already been compressed into site summaries and pair statistics.
+
+In the language of Eq.~\ref{eq:msa-product-space}, AF1 applies an engineered map
+\begin{equation}
+X
+\longmapsto
+\bigl\{\phi_i(X),\Psi_{ij}(X)\bigr\}
+\longmapsto
+F_{\theta}\bigl(\phi_i,\phi_j,\Psi_{ij}\bigr),
+\label{eq:af1-compression}
+\end{equation}
+where $\phi_i$ contains profile-like information and $\Psi_{ij}$ contains coevolutionary pair
+features.  Any sequence-axis correction must therefore occur during feature construction; the
+convolutional network cannot revisit individual homologous sequences.
+
+\subsubsection{Communication, bottleneck, and output}
+
+One-dimensional residue features are broadcast along the two axes of an $L\times L$ grid and
+concatenated with pair features.  A deep dilated two-dimensional residual network predicts a
+distribution over inter-residue distances.  Separate networks predict a background distance
+distribution and torsion-related quantities.  The output is a distogram
+\begin{equation}
+P_{ij}(d_k\mid X),
+\qquad k=1,\ldots,K,
+\label{eq:af1-distogram}
+\end{equation}
+rather than a binary contact score.
+
+The model converts the predicted distance distributions into a potential of mean force relative
+to a learned background distribution.  Coordinates are then optimized by gradient descent, with
+torsion and stereochemical terms supplying additional constraints.  The neural network predicts a
+geometric energy landscape; it does not directly output the final atomic coordinates.
+
+\subsubsection{Information retained and information mixed}
+
+AF1 performs early sequence-axis compression and then learns on the position axis.  Its
+pseudolikelihood tensor retains categorical state information, but scalar pair features such as
+Frobenius norms are not marginal-orthogonal by construction.  Profile, entropy, gap, and coupling
+strength can therefore remain entangled in the neural input.
+
+The advantage is computational and statistical simplicity: engineered summaries expose known
+coevolutionary signals to a powerful 2D network.  The limitation is that the model cannot learn a
+new representation of phylogeny or alignment-row heterogeneity after compression.  AF1 should
+therefore be described as an \emph{MSA-feature model}, not a raw-MSA neural architecture.
+
+\subsection{AlphaFold 2: joint inference on MSA and pair states}
+
+\subsubsection{Input and state space}
+
+AF2 is an architectural discontinuity rather than a deeper AF1.  It embeds sampled MSA rows into
+\begin{equation}
+m_{si}\in\R^{c_m},
+\end{equation}
+where $s$ indexes homologous sequences and $i$ indexes residue positions.  In parallel it maintains
+a pair representation
+\begin{equation}
+z_{ij}\in\R^{c_z}.
+\end{equation}
+The initial pair representation is formed from target-sequence embeddings and relative position;
+templates and extra MSA sequences provide additional updates \cite{jumper2021}.
+This explicit neural treatment of alignment rows is shared at a broad level with MSA language
+models, although the Evoformer is distinguished by its coupled geometric pair track
+\cite{rao2021}.
+
+The main trunk contains 48 Evoformer blocks.  Each block performs
+\begin{align}
+m&\xrightarrow{\text{row attention with pair bias}}
+\xrightarrow{\text{column attention}}
+\xrightarrow{\text{transition}}m',\\
+z&\xrightarrow{\text{outer-product mean from }m'}
+\xrightarrow{\text{triangle multiplication/attention}}
+\xrightarrow{\text{transition}}z'.
+\end{align}
+The pair state biases row-wise attention in the MSA, while the MSA updates the pair state through
+the outer-product mean.  This creates repeated bidirectional communication between the sequence and
+position axes.
+
+\subsubsection{Communication and bottleneck}
+
+The key sequence-to-pair operation has the schematic form
+\begin{equation}
+\Delta z_{ij}
+=W\left[
+\frac{1}{N}
+\sum_{s=1}^N
+a(m_{si})\otimes b(m_{sj})
+\right].
+\label{eq:outer-product-mean}
+\end{equation}
+This resembles a learned second moment, but the vectors $m_{si}$ have already been transformed by
+attention, pair bias, and previous Evoformer blocks.  It is therefore not a fixed covariance or
+Potts coupling.  The operation learns which categorical and sequence features should contribute to
+the position-pair state.
+
+AF2's own ablation study is informative.  Replacing raw MSA rows by only the profile and pairwise
+frequency tables degrades performance.  This shows that access to individual alignment sequences
+provides useful information beyond fixed first- and second-order summaries.  It does not prove
+that every useful component is higher-order coevolution; sequence weighting, phylogeny, deletion
+patterns, and adaptive denoising can also contribute.
+
+\subsubsection{Output and supervision}
+
+Triangle multiplicative updates and triangle attention enforce consistency among edges
+$(i,j),(i,k),(j,k)$.  They treat $z$ as a dense relational geometry rather than an independently
+scored contact map.  After the Evoformer, the first MSA row is projected to a single representation
+$s_i$, while $z_{ij}$ is retained.
+
+The structure module maps $(s_i,z_{ij})$ directly to coordinates.  Invariant point attention uses
+pair features to bias communication among residue frames.  Each residue is represented by a rigid
+backbone frame plus predicted torsion angles, and the module is trained end to end using frame
+aligned point error and auxiliary geometric losses.  Recycling feeds the predicted structure,
+pair representation, and first-row MSA representation back into the network for repeated
+refinement.
+
+\subsubsection{Information retained and information mixed}
+
+AF2 delays sequence-axis compression.  The learned MSA tensor remains available throughout the
+main trunk, so the model can adaptively combine row modes and position modes.  At the same time,
+the representation is nonlinear, input-dependent, and repeatedly conditioned on $z$.  Its
+attention spectra cannot be interpreted as phylogeny or direct coevolution from eigenvalue order
+alone.
+
+From the categorical perspective, $z_{ij}$ is a hidden vector, not an explicit $q\times q$ pair
+potential.  Auxiliary masked-MSA and distogram heads encourage evolutionary and geometric content,
+but they do not impose the marginal-orthogonal gauge in Eq.~\ref{eq:categorical-gauge}.  A decoded
+categorical field would still require a stated reference and projection before it could be called
+a one-body-free interaction.
+
+AF2 is best described as a \emph{joint MSA--pair inference system}.  MSA information is not merely
+an input feature; it is an evolving latent state coupled to structural geometry.
+
+\subsection{AlphaFold 3: MSA-conditioned all-atom diffusion}
+
+\subsubsection{Input and molecular scope}
+
+AF3 predicts complexes containing proteins, RNA, DNA, small molecules, ions, modified residues,
+and covalent links \cite{abramson2024}.  Its tokenizer assigns one token to a standard amino acid
+or nucleotide and generally one token to each heavy atom of other chemical components.  This
+broader domain already prevents a purely MSA-centric architecture: ligands and ions have no
+homologous-sequence alignment.
+
+The data pipeline nevertheless performs genetic search for polymer chains.  Protein chains are
+searched against protein sequence databases; RNA chains are searched against Rfam, RNACentral,
+and nucleotide collections.  AF3 constructs MSAs with up to 16,384 rows and uses paired rows where
+cross-chain genetic information is available, extending the paired-MSA strategy developed for
+AlphaFold-Multimer \cite{evans2022}.  If no hits are found, the query itself forms a
+one-row MSA.  Protein templates remain optional and are searched per chain; non-protein ligands do
+not receive sequence templates in this sense.
+
+\subsubsection{Early sequence-axis bottleneck}
+
+AF3 embeds MSA rows into $m_{si}$ but processes them in only four homogeneous MSA-module blocks.
+Each block includes
+\begin{equation}
+m
+\xrightarrow{\text{outer-product mean}}z,
+\qquad
+m\xrightarrow{\text{pair-weighted averaging}}m',
+\qquad
+z\xrightarrow{\text{triangle operations}}z'.
+\label{eq:af3-msa-module}
+\end{equation}
+Unlike AF2, AF3 does not directly combine information across MSA rows by column-wise attention.
+Alignment rows communicate through the pair representation.  The design explicitly aims to place
+as much polymer information as possible into $z_{ij}$ before the main trunk.
+
+After four blocks, the MSA representation is discarded and only the updated pair representation
+is passed forward.  Thus AF3 still uses raw MSA rows, but the explicit sequence axis is no longer a
+persistent state of the core network.
+
+\subsubsection{Persistent pair state}
+
+The Pairformer contains 48 blocks operating on a single token representation $s_i$ and pair
+representation $z_{ij}$.  It retains the triangle operations of AF2 and uses pair-biased attention
+to update the single representation.  There is no column-wise MSA attention.  Moreover, within
+the Pairformer the single representation does not update the pair representation; information
+flow from MSA and templates has already been deposited into $z$ by earlier modules.
+
+This yields a one-way conditioning pattern in the core trunk:
+\begin{equation}
+z_{ij}
+\longrightarrow
+\text{bias and condition token communication},
+\qquad
+s_i\not\longrightarrow z_{ij}
+\quad\text{inside Pairformer}.
+\label{eq:pairformer-flow}
+\end{equation}
+The pair representation acts as the persistent relational memory of sequence, template, chemical,
+and recycling information.
+
+\subsubsection{Output and supervision}
+
+AF3 replaces AF2's invariant-point-attention structure module with a conditional diffusion model
+over all heavy-atom coordinates.  During training, Gaussian noise is added to the complete
+structure and a denoiser predicts the clean coordinates conditioned on $s_i$ and $z_{ij}$.  The
+same output space handles proteins, nucleic acids, ligands, ions, and modified components without
+hard-coding a protein-specific rigid-frame parameterization.
+
+The diffusion head is generative: multiple coordinate samples can be drawn from the same trunk
+conditioning.  Most computation remains in the conditioning trunk, while the denoising network is
+comparatively cheaper.  Confidence heads predict pLDDT, aligned error, and pairwise distance
+confidence from the trunk and sampled structure.
+
+\subsubsection{Information retained and information mixed}
+
+AF3 makes the pair representation the main information bottleneck.  On proteins and RNA, $z$ is
+MSA-conditioned; on ligands and ions, it must be constructed from chemical identity, covalent
+structure, neighboring polymers, templates, and learned priors.  The same position-pair space
+therefore contains heterogeneous evidence sources.
+
+This heterogeneity makes a universal ``coevolution mode'' interpretation untenable.  A pair mode
+linking two protein residues may contain evolutionary information, while a protein--ligand pair
+cannot.  Spectral analysis of AF3 must condition on entity type and input provenance.  The correct
+description is an \emph{MSA-conditioned multimolecular pair model}, not a purely MSA-based model.
+
+\subsection{MSA Transformer: separating alignment axes without discarding the MSA}
+
+\subsubsection{Input, state space, and objective}
+
+MSA Transformer is trained across many protein families, but each inference input is an explicit
+alignment $X_f$ \cite{rao2021}.  After embedding, its hidden state remains
+\begin{equation}
+H\in\R^{N\times L\times d}.
+\end{equation}
+Each layer alternates column attention across homologous sequences at fixed position, row attention
+across residue positions, and a channel-wise transition:
+\begin{equation}
+H\xrightarrow{\operatorname{Attn}_{\mathrm{seq}}}
+H^{c}\xrightarrow{\operatorname{Attn}_{\mathrm{pos}}}
+H^{r}\xrightarrow{\operatorname{MLP}}H'.
+\label{eq:msa-transformer-axes}
+\end{equation}
+The row-attention map is tied across MSA rows, imposing the hypothesis that homologues share one
+position--position structural organization.  The model minimizes masked reconstruction over MSA
+entries,
+\begin{equation}
+\mathcal L_{\mathrm{MSA\text{-}MLM}}
+=-\E_{X,M}\sum_{(s,i)\in M}
+\log p_\theta(X_{si}\mid X_{\setminus M}).
+\label{eq:msa-transformer-loss}
+\end{equation}
+Unlike a Potts model fitted separately to one family, the inference rule is shared across millions
+of MSAs.  Unlike single-sequence ESM, the current family sample is still directly observed.
+
+\subsubsection{Information retained and information mixed}
+
+The architecture explicitly factorizes two computational axes.  Column attention can compare
+residue states, gaps, and subfamily occupancy across sequences at one aligned position.  Tied row
+attention forms a shared $L\times L$ routing operator that can accumulate covariation and structural
+compatibility across homologues.  This is a genuine axis-level separation and explains why contact
+patterns emerge in row attention without structure supervision.
+
+It is not a biological disentanglement theorem.  Phylogenetic relatedness, redundancy,
+conservation, gap patterns, and compensatory substitutions all enter the same $H_{si}$ channels and
+are optimized by the same reconstruction loss.  Tying row attention assumes common geometry across
+the family and can suppress subfamily-specific conformations.  Contact decoding from attention
+still requires symmetrization, APC, and a logistic readout; it does not turn attention into a Potts
+coupling.  MSA Transformer is therefore best described as a \emph{query-specific plus amortized
+evolution model}: $X_f$ supplies current family evidence, while $\theta$ supplies a cross-family
+denoising prior.
+
+\subsection{RoseTTAFold: coupled sequence, pair, and coordinate tracks}
+
+\subsubsection{Input, tracks, and communication}
+
+RoseTTAFold organizes inference into three communicating representations \cite{baek2021}:
+\begin{equation}
+m_{si}\in\mathcal H_{\mathrm{seq}}\otimes\mathcal H_{\mathrm{pos}},
+\qquad
+z_{ij}\in\mathcal H_{\mathrm{pos}}^{\otimes2},
+\qquad
+x_i\in\R^3.
+\label{eq:rosettafold-tracks}
+\end{equation}
+The 1D track processes the query MSA, the 2D track represents residue distances and orientations,
+and the 3D track updates backbone coordinates with an SE(3)-equivariant transformer.  Information
+is repeatedly exchanged rather than passed through only once:
+\begin{equation}
+m\rightleftarrows z\rightleftarrows x,
+\qquad m\rightleftarrows x.
+\label{eq:rosettafold-communication}
+\end{equation}
+Templates can enter as additional geometric evidence.  End-to-end coordinate and geometric losses
+allow errors in the 3D track to modify how the 1D and 2D tracks extract MSA information.
+
+\subsubsection{Information retained and information mixed}
+
+RoseTTAFold makes the sequence/pair/coordinate distinction explicit.  This is stronger than AF1's
+early feature compression because geometry remains an active state, and it differs from AF2's
+Evoformer-to-structure ordering because approximate coordinates can communicate back during
+three-track reasoning.  SE(3) equivariance removes dependence on the arbitrary global coordinate
+frame, which is a rigorous disentanglement of a geometric nuisance symmetry.
+
+The tracks do not isolate biological causes.  The 2D state combines MSA covariation, templates,
+current coordinates, residue identity, and learned structural priors.  The 3D loss encourages every
+predictive signal to cooperate, not to remain independently readable.  Consequently a pair mode
+that predicts a contact cannot be assigned uniquely to direct coevolution, template evidence, or
+geometric feedback without track ablation.  RoseTTAFold fits sequence compatibility, pairwise
+distance/orientation geometry, and coordinate consistency; it does not explicitly fit function or
+phylogeny as separate targets.
+
+\section{Route II: amortized language-model inference}
+
+This route moves the expensive evolutionary aggregation from query time to pretraining:
+\begin{equation}
+P_{\mathrm{train}}
+\xrightarrow{\text{pretraining}}
+\theta_{\mathrm{LM}},
+\qquad
+x\xrightarrow{\theta_{\mathrm{LM}}}
+r_x\xrightarrow{\text{geometric or multimodal decoder}}(a,f).
+\label{eq:amortized-route}
+\end{equation}
+The query-family sequence axis is never instantiated, but evolutionary information remains present
+through $\theta_{\mathrm{LM}}$.  ESM stops at contextual sequence representations, ESMFold maps
+those representations to coordinates, and ESM3 adds structure and function token tracks.  The gain
+is rapid inference and transfer across families; the cost is weaker access to rare, current-family,
+and subfamily-specific statistics.
+
+\subsection{ESM: amortizing evolutionary information}
+
+\subsubsection{Input, state space, and objective}
+
+ESM models are trained on large collections of unaligned natural protein sequences rather than on
+one MSA for each query \cite{rives2021}.  Let $x=(x_1,\ldots,x_L)$ and let $M$ be a random set of
+masked positions.  The masked language-model objective is
+\begin{equation}
+\mathcal L_{\mathrm{MLM}}(\theta)
+=-\E_{x\sim P_{\mathrm{train}}}
+\E_{M\sim\nu}
+\sum_{i\in M}
+\log p_{\theta}(x_i\mid x_{[L]\setminus M}).
+\label{eq:esm-mlm-objective}
+\end{equation}
+When one position is masked at a time, this resembles a nonlinear pseudolikelihood objective.  In
+practice several positions are corrupted simultaneously, so the model learns denoising
+conditionals under a distribution of missing contexts \cite{rao2020}.
+
+The objective does not explicitly separate conservation, phylogeny, structure, and function.  Any
+regularity that helps predict a missing amino acid can reduce the loss.  The learned conditional
+may therefore contain
+\begin{equation}
+\log p_{\theta}(x_i\mid x_{-M})
+=c_i+u_i(x_i)+
+\sum_{j\notin M}g_{ij}(x_i,x_j)
++R_i^{(\geq2)}(x_i,x_{-M}),
+\label{eq:esm-conditional-decomposition}
+\end{equation}
+where the displayed terms are a conceptual functional decomposition, not separate ESM parameter
+blocks.  The Transformer can represent higher-order and context-dependent effects through its
+depth and nonlinear attention.
+
+Unlike a family-specific Potts model, ESM minimizes Eq.~\ref{eq:esm-mlm-objective} over the mixture
+in Eq.~\ref{eq:global-evolutionary-mixture}.  Its conditionals are shared across protein families.
+This parameter sharing explains why single-sequence language models can be particularly useful for
+proteins with shallow MSAs, but it also means that rare family-specific constraints can be averaged
+with broader sequence regularities.
+
+\subsubsection{Communication and position operators}
+
+For layer $\ell$ and head $h$, ESM forms a row-stochastic attention matrix
+\begin{equation}
+A_{ij}^{\ell h}
+=\operatorname{softmax}_{j}
+\left(
+\frac{q_i^{\ell h\,\mathsf T}k_j^{\ell h}}
+{\sqrt d}
+\right).
+\label{eq:esm-attention}
+\end{equation}
+Attention permits every residue to condition on every other residue.  Sparse linear combinations
+of symmetrized attention heads, followed by APC in the published contact pipeline, recover
+long-range contact information without a query MSA \cite{rao2020}.  ESM-1b can outperform a
+family-specific pseudolikelihood pipeline on contact prediction, especially when the available MSA
+is shallow.
+
+This does not make $A^{\ell h}$ a direct biological interaction matrix.  It is normalized by
+softmax, depends on the input sequence and layer context, and may route information needed for
+motifs, syntax, position, or optimization rather than physical contact.  Its invariant row-sum
+mode and non-normal dynamics also make eigenvalue deletion difficult to interpret.  Contact
+readout is a supervised or lightly supervised decoder of attention, not an identity between
+attention and contact.
+
+ESM-MSA-1b is a separate branch that takes an explicit MSA and performs row and column attention
+\cite{rao2021}.  It is useful as a bridge between the two paradigms, but the ESM-2 model used by
+ESMFold is a single-sequence language model.
+
+\subsubsection{Biological signals fitted and mixed}
+
+The MLM loss rewards several nested forms of predictability.
+\begin{enumerate}
+\setlength{\itemsep}{1pt}
+\item \textbf{Marginal composition and conservation.}  Amino-acid frequencies, low-complexity
+regions, signal peptides, transmembrane composition, and family-specific conservation reduce token
+uncertainty.
+\item \textbf{Local sequence grammar.}  Motifs, secondary-structure propensities, turn patterns,
+and local biochemical compatibility are visible in short contexts.
+\item \textbf{Long-range structural constraints.}  Contacts, fold topology, disulfide pairing,
+and compensatory substitutions can improve prediction across distant positions.
+\item \textbf{Function and cellular context.}  Active-site motifs, binding families, localization
+signals, and domain architecture correlate with sequence and can emerge in representations.
+\item \textbf{Mutational tolerance.}  The log-odds score
+\begin{equation}
+\Delta_i(a\to b)
+=\log p_{\theta}(b\mid x_{-i})
+-\log p_{\theta}(a\mid x_{-i})
+\label{eq:esm-mutation-score}
+\end{equation}
+is used as a zero-shot proxy for variant effect \cite{meier2021}.
+\item \textbf{Phylogeny and database composition.}  Taxonomic redundancy and family abundance are
+part of $P_{\mathrm{train}}$ unless explicitly reweighted.  ESM learns from these signals but does
+not identify them as nuisance.
+\end{enumerate}
+
+Scaling improves the linear recoverability of secondary structure, contacts, function, and other
+properties \cite{rives2021,lin2023}.  This is evidence that the representations contain these
+signals, not that the MLM objective uniquely separates them.
+
+\subsection{ESMFold: from amortized sequence statistics to coordinates}
+
+\subsubsection{Input and state initialization}
+
+ESMFold uses a pretrained ESM-2 model and requires only the query sequence at inference
+\cite{lin2023}.  Let $h_i^{(\ell)}$ be the residue representation at ESM-2 layer $\ell$.  A learned
+softmax combination initializes the folding single state,
+\begin{equation}
+s_i^{(0)}
+=\operatorname{MLP}
+\left(
+\sum_{\ell=0}^{L_{\mathrm{LM}}}
+\alpha_{\ell}h_i^{(\ell)}
+\right)
++e(x_i),
+\qquad
+\alpha=\operatorname{softmax}(w).
+\label{eq:esmfold-single-init}
+\end{equation}
+The attention maps from every language-model layer and head are concatenated and projected to form
+the initial pair state,
+\begin{equation}
+z_{ij}^{(0)}
+=\operatorname{MLP}
+\left(
+\operatorname{concat}_{\ell,h}
+A_{ij}^{\ell h}
+\right).
+\label{eq:esmfold-pair-init}
+\end{equation}
+The released implementation freezes ESM-2 while training the folding trunk and output heads.  The
+single state therefore receives amortized sequence statistics through hidden representations, and
+the pair state receives a learned readout of position-to-position attention.
+
+\subsubsection{Communication, bottleneck, and output}
+
+The folding trunk contains 48 triangular self-attention blocks.  Each block updates the sequence
+state using pair-biased attention, updates the pair state from the sequence state, and applies
+triangle multiplication and triangle attention:
+\begin{align}
+s&\leftarrow s+\operatorname{Attention}(s;\operatorname{bias}(z))
++\operatorname{MLP}(s),\\
+z&\leftarrow z+\operatorname{SeqToPair}(s)
++\operatorname{Triangle}(z)+\operatorname{MLP}(z).
+\label{eq:esmfold-trunk}
+\end{align}
+Relative position and recycled distance bins provide additional pair information.  Up to four
+recycling iterations repeatedly refine $(s,z)$ and the predicted structure.
+
+The final states enter an AlphaFold 2-style structure module derived from OpenFold.  The module
+predicts residue frames, torsions, atom coordinates, distograms, pTM, and pLDDT-related quantities.
+Thus ESMFold replaces AF2's query MSA and Evoformer with ESM-2 plus a single-sequence folding trunk,
+while retaining the dense pair geometry and structure-module logic.
+
+\subsubsection{Sequence and structural supervision}
+
+ESMFold combines two objectives trained on different data distributions.  First, ESM-2 fits the
+sequence mixture through Eq.~\ref{eq:esm-mlm-objective}.  Second, the folding parameters $\phi$ fit
+structure supervision,
+\begin{equation}
+\phi^*
+=\arg\min_{\phi}
+\E_{(x,y)\sim P_{\mathrm{struct}}}
+\mathcal L_{\mathrm{fold}}
+\left(
+y,
+F_{\phi}(s^{(0)}(x),z^{(0)}(x))
+\right),
+\label{eq:esmfold-structure-objective}
+\end{equation}
+where $y$ is an experimentally determined or distilled structure.  The language model attempts to
+capture sequence regularities; the folding trunk learns which of those regularities predict
+geometry.
+
+Biologically, ESMFold attempts to reconstruct local stereochemistry, secondary structure,
+long-range contacts, fold topology, and confidence from a single sequence plus the amortized prior
+stored in ESM-2.  It does not observe the query family's current MSA, so it cannot directly measure
+family-specific covariation, subfamily occupancy, or alignment depth.  Its speed comes from
+replacing query-time evolutionary search with a shared pretrained inference map.
+
+\subsubsection{Information retained and information mixed}
+
+ESMFold's initial pair spectrum is inherited from the collection of language-model attention maps,
+then transformed by 48 nonlinear pair blocks and recycling.  It should therefore be interpreted as
+a learned structural compatibility geometry, not as a direct-coupling matrix.  A leading mode can
+contain residue identity, secondary structure, relative position, fold class, confidence, and
+training-set priors.
+
+The central comparison is
+\begin{equation}
+\begin{aligned}
+\text{AlphaFold:}\quad
+&F_{\theta}(x,X_f,\text{templates}),\\
+\text{ESMFold:}\quad
+&G_{\phi}(x;\theta_{\mathrm{LM}}),
+\end{aligned}
+\label{eq:af-esmfold-comparison}
+\end{equation}
+where $X_f$ is a query-specific family sample and $\theta_{\mathrm{LM}}$ is an amortized global
+evolutionary prior.  Neither route is intrinsically more ``biological''; they observe different
+statistics and fail in different regimes.
+
+\subsection{ESM3: multimodal sequence--structure--function generation}
+
+\subsubsection{Input tracks, latent fusion, and objective}
+
+ESM3 extends masked modeling from amino-acid sequences to several aligned token tracks
+\cite{hayes2024}.  At residue $i$, the observed variables can include sequence $a_i$, a discrete
+structure token $u_i$, secondary structure, solvent accessibility, function keywords, and
+residue-level annotations.  Learned embeddings from the available tracks are added and processed
+in one bidirectional Transformer latent state:
+\begin{equation}
+h_i^{(0)}
+=\sum_{t\in\mathcal T}e_t(y_i^t)+e_{\mathrm{pos}}(i),
+\qquad
+h^{(L)}=\operatorname{Transformer}_\theta(h^{(0)};x^{\mathrm{3D}}).
+\label{eq:esm3-track-fusion}
+\end{equation}
+When coordinates are supplied, invariant geometric attention in the first block conditions the
+latent representation on local residue frames.  Structure tokens are produced by a discrete
+autoencoder that compresses local atomic neighborhoods; a separate decoder reconstructs atomic
+coordinates from generated structure tokens.
+
+Training masks variable fractions of one or more tracks and predicts their missing tokens:
+\begin{equation}
+\mathcal L_{\mathrm{ESM3}}
+=-\E_{y,M}\sum_{t\in\mathcal T}\sum_{i\in M_t}
+\log p_\theta(y_i^t\mid y_{\setminus M}).
+\label{eq:esm3-loss}
+\end{equation}
+This trains many conditional directions in one model: sequence from structure and function,
+structure from sequence, function-compatible completion, and unconditional joint generation.
+
+\subsubsection{Biological distribution fitted}
+
+ESM3 attempts to fit the observational joint distribution
+\begin{equation}
+P_{\mathrm{train}}(
+\text{sequence},\text{structure},\text{function},\text{annotations}).
+\label{eq:esm3-joint-distribution}
+\end{equation}
+This distribution contains natural evolutionary selection, predicted structures, computational
+function annotations, inverse-folding augmentations, and database sampling.  Conditional
+generation can enforce a fold, catalytic annotation, secondary-structure pattern, or partial
+sequence while completing the remaining variables.  It therefore targets sequence viability,
+local and global geometry, biochemical function labels, solvent exposure, and compatibility among
+these properties.
+
+The phrase ``evolutionary simulation'' must be interpreted statistically.  ESM3 samples from a
+learned distribution shaped by surviving natural proteins and augmented labels; it does not model
+mutation, population size, selection coefficients, genetic drift, or historical time as explicit
+dynamical variables.
+
+\subsubsection{Information retained and information mixed}
+
+ESM3 has the clearest objective-level factorization in this review: modalities have separate input
+tokens, corruption masks, and output heads.  Modality dropout and cross-track prompting provide
+direct tests of whether one track contains information predictive of another.  Structure
+tokenization also creates an explicit bottleneck between atomic geometry and discrete local motifs.
+
+Yet Eq.~\ref{eq:esm3-track-fusion} shows that the tracks are fused by addition into one latent
+space.  A hidden direction need not be uniquely ``sequence,'' ``structure,'' or ``function.''
+Moreover, structure and function labels are correlated with sequence family, and many are predicted
+rather than experimentally measured.  Successful conditional generation establishes compatibility
+under the training distribution, not causal independence.  ESM3 therefore provides
+\emph{controllable multimodal factorization at the interface}, but not identifiable biological
+disentanglement in its internal representation.
+
+\section{Synthesis: computational factorization and biological entanglement}
+
+The case studies reduce to two independent architectural choices.  The first is the source of
+evolutionary evidence: a current family sample $X_f$, an amortized parameter prior, or both.  The
+second is the representation bottleneck: when sequence rows, categorical states, pair geometry,
+and coordinates cease to be separately accessible.  Performance can improve while identifiability
+decreases because later states integrate more evidence but preserve less provenance.
+
+\subsection{Where the sequence axis disappears}
+
+The most informative comparison is the lifetime of $\mathcal H_{\mathrm{seq}}$:
+\begin{align}
+\text{AF1:}\quad
+&X
+\xrightarrow{\text{profiles/couplings}}
+\Psi_{ij}
+\xrightarrow{\text{2D ResNet}}
+P_{ij}(d),\\
+\text{AF2:}\quad
+&X
+\xrightarrow{\text{embedding}}
+m_{si}
+\mathrel{\overset{\text{outer-product mean}}
+{\underset{\text{pair bias}}{\rightleftarrows}}}
+z_{ij}
+\xrightarrow{\text{structure module}}
+x,\\
+\text{AF3:}\quad
+&X
+\xrightarrow{\text{four-block MSA module}}
+z_{ij}
+\xrightarrow{\text{Pairformer}}
+(s_i,z_{ij})
+\xrightarrow{\text{diffusion}}
+x,\\
+\text{MSA Transformer:}\quad
+&X\xrightarrow{\text{row/column attention}}H_{si}
+\xrightarrow{\text{row-attention readout}}A_{ij},\\
+\text{RoseTTAFold:}\quad
+&(X,\text{templates})\xrightarrow{\text{three-track blocks}}
+(m_{si},z_{ij},x_i),\\
+\text{ESM:}\quad
+&x
+\xrightarrow{\theta_{\mathrm{LM}}}
+\{h_i^{(\ell)},A_{ij}^{\ell h}\},\\
+\text{ESMFold:}\quad
+&x
+\xrightarrow{\theta_{\mathrm{LM}}}
+(s_i^{(0)},z_{ij}^{(0)})
+\xrightarrow{\text{folding trunk}}
+x^{\mathrm{3D}},\\
+\text{ESM3:}\quad
+&y_{\mathrm{observed}}^{\mathcal T}
+\xrightarrow{\theta_{\mathrm{MM}}}h_i
+\xrightarrow{\text{track heads/decoder}}
+y_{\mathrm{missing}}^{\mathcal T},x^{\mathrm{3D}}.
+\end{align}
+AF1 compresses before the neural trunk, AF2 retains the axis throughout the trunk, and AF3
+compresses it near the trunk entrance.  MSA Transformer retains the alignment tensor but
+factorizes communication along its two axes.  RoseTTAFold retains an MSA track while adding active
+pair and coordinate tracks.  ESM, ESMFold, and ESM3 never instantiate a query-family sequence axis
+at inference.  Instead, population-level regularities were compressed during pretraining into
+shared parameters.  Thus ``no MSA input'' means no query-specific empirical sample, not absence of
+evolutionary information.
+
+\subsection{What each system learns on the position axis}
+
+AF1 predicts an explicit distribution over distances.  Its pair object has a direct geometric
+readout.  AF2 and AF3 instead maintain hidden pair vectors with triangle operations.  These vectors
+are more expressive but less directly interpretable.  Their spectrum reflects a learned metric of
+structural compatibility, not a single contact or coupling matrix.
+
+ESM creates position--position attention matrices $A^{\ell h}$ as routing operators for contextual
+prediction.  Their symmetrized, APC-corrected combinations can predict contacts, but an attention
+edge is not itself a contact or direct coupling.  ESMFold projects the full collection of these
+maps into $z_{ij}^{(0)}$ and then applies triangle updates.  Its final pair geometry is therefore a
+learned transformation of attention-derived compatibility, rather than a raw language-model
+attention spectrum.
+
+MSA Transformer obtains a position operator by tying row attention across homologues.  RoseTTAFold
+makes position-pair geometry an explicit 2D track and exchanges it with coordinates.  ESM3 instead
+compresses local atomic neighborhoods into categorical structure tokens; global geometry is only
+recovered after contextual modeling and structure decoding.  These are respectively an attention
+operator, a persistent geometric state, and a discrete geometric code, so their spectra are not
+directly interchangeable.
+
+The triangle operations can be viewed as nonlinear message passing on triples of positions.  They
+enforce relational consistency but should not be confused with graph-Laplacian diffusion.  The
+updates are channel-dependent, gated, and input-dependent; their operators are generally
+non-normal, so singular values and Jacobian modes may be more informative than eigenvalues of one
+attention matrix.
+
+\subsection{What happens to categorical state geometry}
+
+AF1 directly receives categorical profiles and Potts-like pair couplings.  AF2 embeds amino-acid
+states into MSA channels and only exposes categorical predictions through auxiliary heads.  AF3
+extends token categories beyond biological alphabets to arbitrary chemical components.  Across
+the generations, categorical information becomes more latent and more heterogeneous.
+
+ESM is trained by explicit categorical prediction: at masked positions it estimates a conditional
+distribution over amino acids.  Nevertheless, its attention matrices live only on the position
+axis, and its hidden channels are not an identifiable $q\times q$ interaction table.  ESMFold
+inherits these categorical conditionals only indirectly through frozen ESM-2 representations;
+its pair state is optimized for geometry, not for recovering a Potts gauge.
+
+MSA Transformer predicts categorical residues at every MSA entry while sharing position maps across
+rows.  RoseTTAFold embeds residue categories in its MSA track but supervises pair and coordinate
+tracks geometrically.  ESM3 has explicit vocabularies for each modality, including amino acids,
+structure codes, and function annotations; however, their embeddings are summed into a common
+latent state.  Separate output alphabets therefore provide objective factorization without latent
+independence.
+
+For mechanistic interpretation, a hidden pair state should be decoded into a typed field
+\begin{equation}
+T_{ij}(a,b)=D_{\theta}(z_{ij};a,b)
+\end{equation}
+and projected using Eq.~\ref{eq:categorical-gauge}.  Without this step, a scalar norm or leading
+mode of $z_{ij}$ can mix conservation, residue identity, chain type, geometry, confidence, and
+interaction information.
+
+\subsection{Disentanglement audit by model}
+
+The architectures can now be compared without treating a named track as proof of biological
+identifiability.
+
+\begin{center}
+\scriptsize
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.09\linewidth}
+                >{\raggedright\arraybackslash}p{0.26\linewidth}
+                >{\raggedright\arraybackslash}p{0.25\linewidth}
+                >{\raggedright\arraybackslash}p{0.29\linewidth}}
+\toprule
+Model & Explicit separation & Main compression or bottleneck & Information that remains entangled \\
+\midrule
+AF1 & engineered one-site, pair, gap, and template features & raw MSA rows removed before the neural trunk & phylogeny, conservation, coupling magnitude, and finite-depth noise in scalar pair features \\
+AF2 & persistent MSA and pair tracks; auxiliary categorical and geometric heads & outer-product mean projects sequence rows into $z_{ij}$ & MSA ancestry, residue identity, templates, pair geometry, recycling, and structural prior \\
+AF3 & short MSA module, token and pair tracks, entity-aware all-atom output & MSA axis discarded before Pairformer; all evidence deposited in $z_{ij}$ & evolutionary, template, chemical, interface, confidence, and diffusion-conditioning signals \\
+MSA Transformer & row and column attention factorize MSA axes & tied row map pools homologues into one position operator & phylogeny, redundancy, gaps, conservation, covariation, and family heterogeneity \\
+RoseTTA\hspace{0pt}Fold & 1D MSA, 2D pair, and 3D coordinate tracks; SE(3) symmetry handling & repeated cross-track projections & coevolution, templates, coordinate feedback, and learned fold priors inside the pair track \\
+ESM & categorical MLM head and layer/head organization & global families compressed into $\theta_{\mathrm{LM}}$; query compressed into hidden states & family identity, phylogeny, structure, function, motifs, and database composition \\
+ESMFold & frozen LM, single and pair states, folding trunk, geometric heads & attention maps projected into $z_{ij}^{(0)}$ and repeatedly recycled & LM priors, residue identity, relative position, geometry, fold class, and confidence \\
+ESM3 & separate modality tokens, masks, heads, and structure tokenizer & track embeddings summed into one latent state; geometry discretized & sequence family, predicted structure, function labels, annotations, and dataset augmentation \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The strongest exact separation in the table concerns representation type or symmetry: MSA rows
+versus residue positions, pair states versus coordinates, or invariance to rigid motion.  The
+separation of evolutionary history, physical constraint, and biological function is weaker because
+these variables are correlated in natural data and are usually optimized jointly.
+
+\subsection{MSA depth and amortized structural priors}
+
+All three AlphaFold generations, MSA Transformer, and RoseTTAFold benefit from deeper informative
+alignments, but none is merely a deterministic coevolution estimator.  Training across many
+families or structures supplies a strong
+prior over local geometry, folds, interfaces, and chemical environments.  Templates provide an
+additional route.  AF2 and AF3 can therefore make useful predictions for shallow or query-only
+MSAs, although uncertainty and failure rates generally increase.  MSA-free structure models such
+as ESMFold make the complementary point that a sufficiently trained protein language model can
+carry a substantial evolutionary prior in its parameters \cite{lin2023}.
+
+The relationship can be summarized as
+\begin{equation}
+\begin{aligned}
+\widehat x_{\mathrm{AF}}
+&=F_{\theta}(x,X_f,\text{templates},\text{chemical graph},\text{recycling}),\\
+\widehat x_{\mathrm{ESMFold}}
+&=G_{\phi}\!\left(x;\theta_{\mathrm{LM}},\text{recycling}\right),
+\end{aligned}
+\end{equation}
+where the learned parameter $\theta$ carries information accumulated across the structural
+training distribution, while $\theta_{\mathrm{LM}}$ carries regularities accumulated across the
+global sequence distribution.  Removing MSA input does not remove evolutionary information that
+is already encoded statistically in trained parameters.
+
+\section{Protein design as inverse and joint inference}
+
+Prediction models approximate conditionals such as $p(a,f\mid x,X_f,\theta)$; design requires the
+reverse conditional or a joint model under a specification $c$.  The apparent diversity of protein
+design algorithms therefore reflects different choices for factorizing one joint distribution, not
+a separate conceptual field.  Structure-first pipelines expose modular interfaces, while joint
+generators permit sequence, backbone, and chemistry to adapt simultaneously.  The same trade-off
+between controllability and identifiability reappears in reverse.
+
+\subsection{Design as a choice of probabilistic factorization}
+
+Let $x$ denote amino-acid sequence, $b$ backbone coordinates, $a$ all-atom coordinates including
+side chains, $f$ a desired function, and $c$ other constraints such as a motif, target, symmetry, or
+shape.  Contemporary design systems approximate different factorizations of
+\begin{equation}
+p(x,b,a,f\mid c).
+\label{eq:design-joint}
+\end{equation}
+Three common strategies are
+\begin{align}
+\text{structure first:}\quad
+&p(b\mid c)\,p(x\mid b,c)\,p(a_{\mathrm{side}}\mid x,b,c),
+\label{eq:structure-first-design}\\
+\text{sequence first:}\quad
+&p(x\mid f,c)\,p(a\mid x,c),
+\label{eq:sequence-first-design}\\
+\text{joint generation:}\quad
+&p(x,a\mid f,c).
+\label{eq:joint-protein-design}
+\end{align}
+The first is modular and easy to audit, but errors accumulate across interfaces.  The third permits
+side-chain and sequence decisions to reshape the backbone, but makes the source of a design signal
+less identifiable.  In every case, function is only disentangled when $f$ is represented by an
+explicit condition and tested against alternatives, not merely inferred from fold similarity.
+
+\subsection{RFdiffusion and ProteinMPNN: a structure-first pipeline}
+
+RFdiffusion fine-tunes RoseTTAFold as an SE(3)-aware denoiser over residue frames
+\cite{watson2023}.  Translations are corrupted with Gaussian noise and rotations by Brownian motion
+on $\mathrm{SO}(3)$.  Starting from noisy frames $B_T$, the reverse process samples
+\begin{equation}
+B_T\rightarrow B_{T-1}\rightarrow\cdots\rightarrow B_0
+\sim p_{\theta}(b\mid c),
+\label{eq:rfdiffusion}
+\end{equation}
+where $c$ may specify a fixed functional motif, target surface, fold, partial sequence, or symmetry.
+Self-conditioning passes a previous denoised prediction into the next step.  The model normally
+generates backbone geometry rather than amino-acid sequence or side-chain conformations.
+
+ProteinMPNN then performs inverse folding on the sampled backbone \cite{dauparas2022}.  For a
+decoding order $\pi$, its graph message-passing network parameterizes
+\begin{equation}
+p_{\phi}(x\mid b)
+=\prod_{k=1}^{L}
+p_{\phi}(x_{\pi_k}\mid b,x_{\pi_{<k}}).
+\label{eq:proteinmpnn}
+\end{equation}
+Backbone atom distances and relative orientations are geometric inputs; residue identities are
+categorical outputs.  Order-agnostic training, multichain graphs, tied positions, and positive or
+negative weights on alternative backbones support symmetry and multistate design.
+
+This pipeline has the clearest modular separation in current practice:
+\begin{equation}
+c\xrightarrow{\mathrm{RFdiffusion}}b
+\xrightarrow{\mathrm{ProteinMPNN}}x
+\xrightarrow{\mathrm{predictor}}\widehat b(x).
+\label{eq:rfdiffusion-pipeline}
+\end{equation}
+Yet the separation is computational rather than biological.  A backbone motif is only a geometric
+proxy for function; ProteinMPNN learns sequence compatibility from deposited structures, not
+binding affinity or catalytic rate; and side chains cannot feed back while RFdiffusion chooses the
+backbone.  Self-consistency with AlphaFold or ESMFold tests whether $x$ returns to $b$, but reuses
+learned structural priors and is not an independent functional assay.
+
+\subsection{Chroma: programmable posterior sampling}
+
+Chroma also uses a structure-first factorization, but explicitly interprets controllable design as
+Bayesian conditioning \cite{ingraham2023}.  A correlated diffusion prior reflects polymer chain
+structure and radius-of-gyration statistics.  During sampling, external conditions modify the score
+schematically as
+\begin{equation}
+\nabla_b\log p_t(b\mid c)
+=\nabla_b\log p_t(b)
++\nabla_b\log p_t(c\mid b).
+\label{eq:chroma-guidance}
+\end{equation}
+Conditions can encode symmetry, substructures, shape, distances, semantic classes, or language
+annotations.  Random graph neural networks supply long-range communication with subquadratic
+scaling, and a separate design network predicts sequence and side-chain conformations from the
+sampled backbone.
+
+Chroma separates the unconditional structural prior from user-provided constraint energies, which
+makes combinations of controls transparent.  It does not guarantee that separately trained
+conditioners are mutually compatible or calibrated.  Adding their score gradients is a
+product-of-experts construction, not evidence that shape, function, and fold are independent.  Its
+sequential backbone-then-sequence decoder also retains the same missing side-chain-to-backbone
+feedback as Eq.~\ref{eq:structure-first-design}.
+
+\subsection{MultiFlow: coupled discrete and continuous generation}
+
+MultiFlow replaces the sequential factorization with a joint state for each residue
+\cite{campbell2024}:
+\begin{equation}
+T_i=(r_i,R_i,x_i)
+\in\R^3\times\mathrm{SO}(3)\times\mathcal A,
+\label{eq:multiflow-state}
+\end{equation}
+where translations and rotations follow continuous flow matching, while amino-acid identities
+follow a continuous-time Markov chain on a discrete alphabet.  A shared denoising network predicts
+clean translations, rotations, and categorical probabilities.  By fixing one modality and flowing
+the other, the same model can perform forward folding, inverse folding, or joint co-generation.
+
+This is a mathematically clean track factorization: continuous geometry has a vector field and
+discrete sequence has a rate matrix.  It removes the hard interface between a backbone generator
+and a separately trained inverse-folding model.  However, the shared denoiser deliberately learns
+cross-modal correlations, and the model state contains residue frames rather than explicit
+side-chain chemistry.  Function, binding context, dynamics, and alternate conformations are not
+separate variables in the basic objective.
+
+\subsection{Protpardelle and Pallatom: two all-atom representations}
+
+Protpardelle addresses the fact that amino-acid identity determines which side-chain atoms exist
+\cite{chu2024}.  At every residue it maintains an ``atom73'' superposition containing backbone
+atoms and the possible side-chain atoms of all twenty amino acids.  A structure denoiser updates
+coordinates, while a non-autoregressive mini-ProteinMPNN predicts the current residue identity.
+The selected identity collapses the superposition at each step:
+\begin{equation}
+\mathcal S_i^{(t)}
+\xrightarrow{p_\phi(x_i\mid\mathcal S^{(t)})}
+x_i^{(t)}
+\xrightarrow{\mathrm{collapse}}
+a_i^{(t)}
+\xrightarrow{\mathrm{denoise}}
+\mathcal S_i^{(t-1)}.
+\label{eq:protpardelle-superposition}
+\end{equation}
+Side chains can therefore influence backbone updates during generation.  Nevertheless, sequence
+has no independent diffusion process; Protpardelle is structure-primary, and its sequence estimate
+acts as an iterative latent assignment.  The superposition solves changing dimensionality but is not
+a physical ensemble.  Reported functional-group conditioning is promising, while conditional
+fidelity remains weaker than backbone-only scaffolding.
+
+Pallatom uses a different fixed-dimensional construction \cite{qu2024}.  Every residue is padded to
+fourteen atom slots; atoms absent for the current amino acid are placed as virtual atoms at the
+$C_\alpha$ coordinate.  An EDM-style Gaussian diffusion is learned on
+\begin{equation}
+a_t\in\R^{L\times14\times3},
+\qquad
+\mathcal L_{\mathrm{EDM}}
+=\E_{a_0,a_t,\sigma}
+\lambda(\sigma)\|D_\theta(a_t,\sigma)-a_0\|_2^2.
+\label{eq:pallatom-loss}
+\end{equation}
+A dual-track network maintains globally communicating residue-token states and locally attending
+atomic states.  Token information is broadcast to atoms, atomic information is aggregated back,
+and denoised coordinates are recycled as pair and self-conditioning features.  A categorical head
+decodes amino-acid identity from the generated atom geometry.
+
+Pallatom deliberately learns $p(a)$ and relies on all-atom geometry to encode sequence and chemical
+properties.  The atom14 padding removes changing dimensionality and reduces direct leakage from an
+atom-existence mask, but it also embeds a representation convention into the coordinate
+distribution.  Sequence, side-chain chemistry, packing, and backbone geometry are therefore not
+disentangled; they are intentionally fused so that one coordinate denoiser can co-generate them.
+This may improve compatibility, but a successful amino-acid readout does not show that catalytic
+function, binding specificity, or physical energy has been separately learned.
+
+\subsection{What the design models actually disentangle}
+
+\begin{center}
+\scriptsize
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.12\linewidth}
+                >{\raggedright\arraybackslash}p{0.23\linewidth}
+                >{\raggedright\arraybackslash}p{0.24\linewidth}
+                >{\raggedright\arraybackslash}p{0.29\linewidth}}
+\toprule
+Model & Generated variables & Explicit separation & Remaining ambiguity \\
+\midrule
+RFdiffusion & residue-frame backbone & condition versus backbone; translation versus rotation & motif geometry versus biochemical function; no sequence or side chains \\
+ProteinMPNN & sequence conditioned on a fixed backbone & geometric input versus categorical output & stability, expression, function, and negative states absent from ordinary training \\
+Chroma & backbone, then sequence and side chains & structural prior versus external guidance; separate design decoder & conditioner calibration, product-of-experts conflicts, no sequence feedback during backbone diffusion \\
+MultiFlow & residue frames and amino-acid sequence & continuous geometric flow versus discrete categorical flow & shared latent denoiser; side-chain chemistry and function absent \\
+Protpardelle & backbone, side chains, and sequence estimate & atom superposition versus categorical collapse & sequence is not an independent generative process; superposition is algorithmic rather than physical \\
+Pallatom & atom14 coordinates and decoded sequence & token-level versus atom-level neural tracks & geometry, residue identity, chemistry, and virtual-atom convention fused in $p(a)$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The design lesson is not that joint generation is always superior.  Modular factorization exposes
+which component failed and permits specialized replacement; joint generation permits mutual
+adaptation but makes attribution harder.  A controllable design system should therefore report
+both interface-level controls and intervention-based evidence that changing one target property
+does not silently change the others.
+
+\section{Identification through interventions}
+
+Architectural inspection establishes where information can flow, not what a hidden state means.
+Meaning is identified only by comparing representations under perturbations that preserve declared
+nuisances and remove a specific source of evidence.  The required intervention depends on whether
+the source is present at inference, stored in pretrained parameters, supplied as a geometric track,
+or imposed as a design condition.
+
+\subsection{Sequence-axis nulls}
+
+To identify MSA-specific modes, one should compare real alignments with null ensembles that
+preserve selected marginals while destroying selected dependencies.  Useful controls include
+independent-site shuffles, conservation-matched resampling, phylogeny-preserving simulations, and
+row-identity perturbations.  For a representation $O(X)$, define
+\begin{equation}
+\Delta O
+=O(X_{\mathrm{real}})
+-\E_{\widetilde X\sim Q_{\mathrm{null}}}O(\widetilde X).
+\label{eq:null-residual}
+\end{equation}
+Modes should be called coevolutionary only when they are enriched under an intervention that
+removes pair dependence while retaining the relevant marginal and phylogenetic controls.
+
+For AF1, the intervention is applied before feature generation.  For AF2, it can be followed
+through $m_{si}$, outer-product-mean updates, and $z_{ij}$.  For AF3, the key measurement is how the
+four-block MSA module changes $z_{ij}$ relative to the no-MSA or null-MSA condition.
+For MSA Transformer, row and column interventions should be crossed: shuffle residues within
+columns while preserving row phylogeny, then shuffle rows or simulate phylogeny while preserving
+column marginals.  For RoseTTAFold, the same MSA nulls should be combined with template removal and
+stopping feedback from the coordinate track.
+
+ESM requires a different intervention because the training sequences are not present at inference.
+With $\theta_{\mathrm{LM}}$ fixed, one can perturb the query sequence while matching composition,
+motifs, or predicted secondary structure and measure changes in $h_i^{(\ell)}$ and
+$A_{ij}^{\ell h}$.  To distinguish global evolutionary signal from database composition and
+phylogeny, one must additionally compare models pretrained on reweighted data or controlled family
+subsets.  For ESMFold, ablations should separately remove the attention contribution to
+$z_{ij}^{(0)}$, alter the ESM layer mixture in $s_i^{(0)}$, and trace which modes are created or
+suppressed by the folding trunk.
+
+\subsection{Track and modality interventions}
+
+For a multi-track model with output $O$ and information tracks $Y^1,\ldots,Y^K$, define the
+conditional contribution of track $k$ relative to a matched null as
+\begin{equation}
+\Delta_k O
+=O(Y^1,\ldots,Y^k,\ldots,Y^K)
+-\E_{\widetilde Y^k\sim Q_k}
+O(Y^1,\ldots,\widetilde Y^k,\ldots,Y^K).
+\label{eq:track-intervention}
+\end{equation}
+In RoseTTAFold this separates MSA, template, pair, and coordinate feedback only if the null preserves
+the scale and uncertainty of the removed state.  Zeroing a track can create an out-of-distribution
+activation and overstate its importance.
+
+In ESM3, one should measure the full conditional matrix
+\begin{equation}
+C_{ab}=I_\theta(Y^a;Y^b\mid Y^{\mathcal T\setminus\{a,b\}}),
+\label{eq:cross-modal-information}
+\end{equation}
+or a predictive approximation to it, under modality dropout and matched prompts.  High
+$C_{\mathrm{sequence},\mathrm{function}}$ shows cross-modal predictability, but not whether function
+is mediated by structure, family identity, annotation pipelines, or training-set duplication.
+Counterfactual prompts that hold structure fixed while changing function, or vice versa, are more
+diagnostic than unconditional generation.
+
+\subsection{Design-cycle validation and negative states}
+
+Backbone design is commonly evaluated by generating sequences and folding them back:
+\begin{equation}
+b\xrightarrow{G_{\mathrm{seq}}}x
+\xrightarrow{F_{\mathrm{fold}}}\widehat b,
+\qquad
+S_{\mathrm{cycle}}=\operatorname{sim}(b,\widehat b).
+\label{eq:design-cycle}
+\end{equation}
+This is useful evidence of designability, but it is not an experimental likelihood and can be
+inflated when the generator, inverse folder, and evaluator share training structures or learned
+priors.  Strong evaluation should cross multiple sequence designers and folding models, search for
+training-set neighbors, estimate uncertainty, and reserve biochemical function for independent
+assays.
+
+Functional design also requires negative states.  For a desired state $b^+$ and undesired folds,
+complexes, or conformations $\{b_k^-\}$, a discriminative objective has the form
+\begin{equation}
+J(x)
+=\log p(x\mid b^+)
+-\sum_k\lambda_k\log p(x\mid b_k^-)
++\mu S_{\mathrm{func}}(x,b^+).
+\label{eq:positive-negative-design}
+\end{equation}
+A model that optimizes only $b^+$ may create promiscuous binders, alternative oligomers, or
+overstabilized inactive states.  Disentangled design should measure the cross-sensitivity matrix
+between requested controls and realized properties rather than report only success on the prompted
+property.
+
+\subsection{Position-axis nuisance projection}
+
+Let $M$ be a scalar position statistic decoded from a pair representation.  Let $Z$ contain known
+position covariates such as conservation, entropy, gap rate, chain identity, relative position,
+template coverage, and entity type.  A declared nuisance residual is
+\begin{equation}
+M_{\perp}
+=Q_Z(M-M_0)Q_Z^*,
+\qquad
+Q_Z=I-Z(Z^{\mathsf T}WZ)^{-1}Z^{\mathsf T}W.
+\label{eq:position-residual}
+\end{equation}
+This is preferable to deleting the first empirical eigenvector without specifying why it is
+nuisance.  In AF3, entity-type stratification is mandatory because protein--protein,
+protein--RNA, and protein--ligand pairs have different information sources.
+
+\subsection{Causal and mechanistic limits}
+
+An MSA-derived field is an evolutionary statistical object.  It can predict contacts and
+epistasis without being a causal physical interaction.  A learned pair state is further removed
+from direct interpretation because it combines evolutionary evidence, templates, sequence priors,
+recycling, and geometric self-consistency.
+
+Mechanistic claims require interventions or external endpoints: mutational epistasis, contact
+maps, binding measurements, alternate conformations, or controlled removal of MSA and template
+evidence.  Attention visualization and leading eigenmodes are diagnostic tools, not identification
+theorems.
+
+\section{Technical outlook and unresolved frontiers}
+
+The next generation of protein models must move beyond predicting one deposited structure or
+generating one self-consistent sequence--backbone pair.  A more complete target is
+\begin{equation}
+p\!\left(
+x,\{a^{(k)},w_k\}_{k=1}^{K},
+\Delta G,\kappa,f,e
+\mid c\right),
+\label{eq:future-protein-target}
+\end{equation}
+where $\{a^{(k)},w_k\}$ is a weighted conformational ensemble, $\Delta G$ denotes relative free
+energies, $\kappa$ kinetic or transition quantities, $f$ molecular function, $e$ the biochemical or
+cellular environment, and $c$ the design specification.  Current systems model only selected
+marginals of Eq.~\ref{eq:future-protein-target}.
+
+\subsection{Adaptive integration of family evidence and global priors}
+
+Query MSAs preserve rare family- and subfamily-specific constraints, while language models provide
+broad priors when homologues are absent.  Future architectures should retrieve evolutionary
+evidence adaptively rather than choose a permanently MSA-based or MSA-free route.  A learned router
+could retain row-level and subfamily modes only where they change the posterior relative to the
+language-model prior, while compressing redundant regions early.  Typed sparse pair operators could
+replace a uniformly dense $L\times L$ memory for long proteins and complexes.
+
+The unresolved difficulty is calibration.  Database depth, taxonomic redundancy, family rarity,
+and language-model confidence are measured on different scales.  Without an explicit likelihood
+ratio or uncertainty model, adding retrieved homologues can overwrite a valid global prior, while a
+large language model can smooth away a rare but decisive coupling.  Future hybrid models need to
+report which prediction changed because of newly retrieved family evidence.
+
+\subsection{From correlated modalities to causal biological variables}
+
+ESM3-style modality tracks make sequence, structure, and function separately promptable, but the
+tracks remain correlated through family identity and annotation pipelines.  Future multimodal
+training should include counterfactual examples that hold structure fixed while varying function,
+hold function fixed across unrelated scaffolds, and separate experimentally measured activities
+from computational annotations.  Explicit latent variables for family, phylogeny, geometry,
+chemical mechanism, and assay context would permit nuisance projection and intervention tests.
+
+This will require new data rather than architecture alone.  Natural databases rarely contain the
+factorial combinations needed for identification.  Negative biochemical results, weak binders,
+inactive homologues, alternative substrates, and failed designs are especially valuable because
+they break correlations that successful natural proteins preserve.
+
+\subsection{Energy landscapes, ensembles, and kinetics}
+
+Static coordinate prediction is not equivalent to thermodynamics.  Multiple diffusion samples are
+also not automatically Boltzmann-weighted.  Future models need explicit representations of
+conformational states and their relative populations, together with solvent, protonation,
+electrostatics, metal coordination, membrane context, and temperature.  One possible decomposition
+is
+\begin{equation}
+p(a\mid x,e)
+=\sum_{k=1}^{K}w_k(x,e)\,p_k(a\mid x,e),
+\qquad
+w_k\propto\exp[-\beta G_k(x,e)].
+\label{eq:ensemble-mixture}
+\end{equation}
+Learned generators could propose states, while differentiable physical models or experimental
+observables calibrate $G_k$ and transition barriers.  This is essential for enzymes, receptors,
+switches, transporters, and allosteric proteins, whose function depends on motion and population
+shifts rather than one minimum-energy structure.
+
+\subsection{Chemically typed, variable-topology all-atom generation}
+
+Atom73 superposition and atom14 virtual padding convert variable side-chain topology into a fixed
+tensor, but both expose artificial conventions to the network.  A longer-term solution is a
+trans-dimensional generator over a typed chemical graph and continuous coordinates:
+\begin{equation}
+(V_t,E_t,A_t)
+\longrightarrow
+(V_{t-1},E_{t-1},A_{t-1}),
+\label{eq:transdimensional-all-atom}
+\end{equation}
+where atoms and bonds can appear, disappear, or change type while coordinates evolve under an
+equivariant flow.  Hard or differentiable constraints should preserve valence, chirality, bond
+geometry, and excluded volume.  The same representation should extend beyond standard amino acids
+to ligands, cofactors, covalent modifications, nucleic acids, ions, and waters.
+
+The central unresolved issue is whether a learned coordinate distribution can recover chemical
+energy and function without explicit atom types and electronic context.  All-atom self-consistency
+demonstrates packing compatibility, but catalysis and specificity depend on charge states,
+polarization, solvent rearrangement, and transition-state stabilization that are weakly represented
+in structural databases.
+
+\subsection{Specificity, negative design, and cellular developability}
+
+Most design pipelines optimize a desired fold or interaction and only weakly represent competing
+states.  Future systems should jointly model target binding, off-target binding, oligomerization,
+aggregation, proteolysis, immunogenicity, expression, and localization.  Positive and negative
+states should be first-class conditioning variables rather than filters applied after generation.
+
+For functional proteins, the target is not simply a high structural confidence score.  Binding
+design needs affinity and specificity; enzyme design needs reaction rate and substrate selectivity;
+therapeutic design needs stability and behavior in a cellular or organismal environment.  These
+outputs will require assay-specific uncertainty and cannot be reduced to a universal scalar fitness
+without hiding trade-offs.
+
+\subsection{Independent evaluation and experimental closed loops}
+
+Current designability benchmarks often reuse ProteinMPNN, AlphaFold, ESMFold, or related training
+distributions inside both generation and evaluation.  Future benchmarks should separate training
+families temporally and structurally, use multiple independent folding and energy models, report
+nearest-neighbor novelty, and reserve prospective experiments as the final endpoint.  Calibration
+curves should relate model confidence to synthesis, expression, folding, binding, and activity
+success rates.
+
+The most consequential technical development may be a closed experimental loop:
+\begin{equation}
+\boxed{
+\begin{gathered}
+\text{retrieval and priors}
+\rightarrow
+\text{multistate all-atom design}
+\rightarrow
+\text{independent tests}\\
+\longrightarrow
+\text{multiplexed experiments}
+\rightarrow
+\text{uncertainty-aware model update}
+\end{gathered}}
+\label{eq:future-design-loop}
+\end{equation}
+Active learning should select experiments that distinguish competing mechanisms or reduce
+uncertainty, rather than testing only the highest-scoring designs.  Data provenance, failed
+experiments, assay conditions, and model versions must be retained so that improvements in scale
+can be separated from improvements in biological identification.
+
+\section{Conclusion}
+
+Protein models are best understood as information-factorization systems.  They make two largely
+independent choices: which evidence is acquired for the current query, and where that evidence is
+compressed into sequence, pair, coordinate, or functional states.  Query MSAs and pretrained
+language models are not competing definitions of evolution; they are family-specific and amortized
+observations of evolutionary sequence distributions.  Pair tracks, attention maps, structure tokens,
+and all-atom coordinates are subsequent computational representations of that evidence.
+
+Protein design operates on the same joint distribution in reverse.  A modular pipeline factors
+backbone generation, inverse folding, and side-chain construction; a joint generator allows those
+variables to adapt together.  Modularity exposes failure boundaries but can create interface
+inconsistency.  Joint generation reduces that inconsistency but intentionally mixes sequence,
+geometry, and chemistry in a shared state.  Neither choice by itself establishes functional or
+mechanistic understanding.
+
+The main distinction throughout this review is therefore between \emph{computational
+factorization} and \emph{biological disentanglement}.  Modern architectures increasingly separate
+tensor axes, neural tracks, token vocabularies, output heads, and geometric symmetries.  Their
+predictive power, however, often depends on combining phylogeny, conservation, structural
+constraint, database composition, function labels, and learned physical priors.  A leading mode or
+controllable prompt cannot be assigned one biological meaning from architecture alone.
+
+Biological identification begins where architectural description ends.  It requires declared
+categorical gauges, matched sequence and modality nulls, counterfactual track interventions,
+negative design against competing states, calibrated uncertainty, and independent experimental
+endpoints.  The most important future advance will not be a larger model that produces more
+self-consistent proteins, but a model whose evidence, uncertainty, and causal claims remain
+traceable from evolutionary data through all-atom design to experiment.
+
+\scriptsize
+\begin{multicols}{2}
+\raggedcolumns
+\begin{thebibliography}{99}
+\setlength{\itemsep}{-0.2pt}
+\setlength{\parskip}{0pt}
+
+\bibitem{hoeffding1948}
+W.~Hoeffding.
+\newblock A class of statistics with asymptotically normal distribution.
+\newblock \emph{Annals of Mathematical Statistics}, 19:293--325, 1948.
+
+\bibitem{jones2012}
+D.~T. Jones, D.~W. Buchan, D.~Cozzetto, and M.~Pontil.
+\newblock PSICOV: precise structural contact prediction using sparse inverse covariance estimation
+on large multiple sequence alignments.
+\newblock \emph{Bioinformatics}, 28:184--190, 2012.
+
+\bibitem{morcos2011}
+F.~Morcos et al.
+\newblock Direct-coupling analysis of residue coevolution captures native contacts across many
+protein families.
+\newblock \emph{PNAS}, 108:E1293--E1301, 2011.
+
+\bibitem{ekeberg2013}
+M.~Ekeberg et al.
+\newblock Improved contact prediction in proteins: Using pseudolikelihoods to infer Potts models.
+\newblock \emph{Physical Review E}, 87:012707, 2013.
+
+\bibitem{cocco2018}
+S.~Cocco, C.~Feinauer, M.~Figliuzzi, R.~Monasson, and M.~Weigt.
+\newblock Inverse statistical physics of protein sequences: A key issues review.
+\newblock \emph{Reports on Progress in Physics}, 81:032601, 2018.
+
+\bibitem{dunn2008}
+S.~D. Dunn, L.~M. Wahl, and G.~B. Gloor.
+\newblock Mutual information without the influence of phylogeny or entropy dramatically improves
+residue contact prediction.
+\newblock \emph{Bioinformatics}, 24:333--340, 2008.
+
+\bibitem{wang2024}
+H.~Wang, S.~Feng, K.~Tsuboyama, S.~Liu, G.~J. Rocklin, and S.~Ovchinnikov.
+\newblock Disentanglement of evolutionary constraints in statistical models of proteins.
+\newblock \emph{PRX Life}, 2:023005, 2024.
+
+\bibitem{senior2020}
+A.~W. Senior et al.
+\newblock Improved protein structure prediction using potentials from deep learning.
+\newblock \emph{Nature}, 577:706--710, 2020.
+
+\bibitem{jumper2021}
+J.~Jumper et al.
+\newblock Highly accurate protein structure prediction with AlphaFold.
+\newblock \emph{Nature}, 596:583--589, 2021.
+
+\bibitem{evans2022}
+R.~Evans et al.
+\newblock Protein complex prediction with AlphaFold-Multimer.
+\newblock bioRxiv 2021.10.04.463034, revised 2022.
+
+\bibitem{abramson2024}
+J.~Abramson et al.
+\newblock Accurate structure prediction of biomolecular interactions with AlphaFold 3.
+\newblock \emph{Nature}, 630:493--500, 2024.
+
+\bibitem{rao2021}
+R.~Rao et al.
+\newblock MSA Transformer.
+\newblock \emph{ICML}, 2021.
+
+\bibitem{baek2021}
+M.~Baek et al.
+\newblock Accurate prediction of protein structures and interactions using a three-track neural
+network.
+\newblock \emph{Science}, 373:871--876, 2021.
+
+\bibitem{rives2021}
+A.~Rives et al.
+\newblock Biological structure and function emerge from scaling unsupervised learning to 250
+million protein sequences.
+\newblock \emph{PNAS}, 118:e2016239118, 2021.
+
+\bibitem{rao2020}
+R.~Rao et al.
+\newblock Transformer protein language models are unsupervised structure learners.
+\newblock bioRxiv 2020.12.15.422761, 2020.
+
+\bibitem{meier2021}
+J.~Meier et al.
+\newblock Language models enable zero-shot prediction of the effects of mutations on protein
+function.
+\newblock \emph{NeurIPS}, 2021.
+
+\bibitem{lin2023}
+Z.~Lin et al.
+\newblock Evolutionary-scale prediction of atomic-level protein structure with a language model.
+\newblock \emph{Science}, 379:1123--1130, 2023.
+
+\bibitem{hayes2024}
+T.~Hayes et al.
+\newblock Simulating 500 million years of evolution with a language model.
+\newblock \emph{Science}, 387:850--858, 2025.
+
+\bibitem{watson2023}
+J.~L. Watson et al.
+\newblock De novo design of protein structure and function with RFdiffusion.
+\newblock \emph{Nature}, 620:1089--1100, 2023.
+
+\bibitem{dauparas2022}
+J.~Dauparas et al.
+\newblock Robust deep learning-based protein sequence design using ProteinMPNN.
+\newblock \emph{Science}, 378:49--56, 2022.
+
+\bibitem{ingraham2023}
+J.~Ingraham et al.
+\newblock Illuminating protein space with a programmable generative model.
+\newblock \emph{Nature}, 623:1070--1078, 2023.
+
+\bibitem{campbell2024}
+A.~Campbell, J.~Yim, R.~Barzilay, T.~Rainforth, and T.~Jaakkola.
+\newblock Generative flows on discrete state-spaces: Enabling multimodal flows with applications
+to protein co-design.
+\newblock \emph{ICML}, 2024.
+
+\bibitem{chu2024}
+A.~E. Chu et al.
+\newblock An all-atom protein generative model.
+\newblock \emph{PNAS}, 121:e2311500121, 2024.
+
+\bibitem{qu2024}
+W.~Qu, J.~Guan, R.~Ma, K.~Zhai, W.~Wu, and H.~Wang.
+\newblock P(all-atom) is unlocking new path for protein design.
+\newblock \emph{Proceedings of the 42nd International Conference on Machine Learning},
+PMLR 267:50786--50816, 2025.
+
+\end{thebibliography}
+\end{multicols}
+
+\end{document}

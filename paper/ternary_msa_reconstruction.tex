@@ -1,0 +1,867 @@
+\documentclass[10pt,twocolumn]{article}
+
+\usepackage[margin=0.72in,columnsep=0.24in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,booktabs,mathtools,microtype}
+\usepackage[hidelinks]{hyperref}
+\setlength{\emergencystretch}{1em}
+
+\newcommand{\E}{\mathbb E}
+\newcommand{\R}{\mathbb R}
+\newcommand{\KL}{\mathrm{KL}}
+\newcommand{\1}{\mathbf 1}
+\newtheorem{proposition}{Proposition}
+\newtheorem{corollary}[proposition]{Corollary}
+\theoremstyle{remark}
+\newtheorem{remark}[proposition]{Remark}
+
+\title{Ternary Relation Fields from Protein Families\\
+to Sequence Transformers}
+\author{PRL/PRX working draft}
+\date{July 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Multiple-sequence alignments sample a high-dimensional categorical distribution shaped by
+conservation, phylogeny, and epistatic constraints.  Standard attention routes information with a
+nonnegative probability distribution over source positions, whereas graphical sequence models
+assign signed, typed interactions to position pairs.  We study a ternary relation field in
+which every candidate edge occupies one of three states, $-1$, $0$, or $+1$, representing negative
+polarity, inactivity, or positive polarity relative to a fixed edge orientation.  A three-state
+softmax supplies differentiable state probabilities; an amino-acid softmax separately normalizes
+the reconstructed residue distribution.  The model decomposes each relation into activity,
+conditional polarity, magnitude, and a reference-centered categorical operator.  We prove that the
+soft ternary state is exactly equivalent to an activity--polarity factorization and identify when
+its sign is redundant or meaningful.  A continuous signed energy already spans attraction, zero,
+and repulsion, so ternarity does not add a new equilibrium interaction value.  Its possible content
+is instead an exact support state, uncertainty over an oriented mechanism, and a quantized
+computational control.  For associative retrieval we derive a constrained three-state potential
+whose mean gate is the derivative of a smooth thresholded energy; the tied-memory update follows
+from a concave--convex procedure and monotonically decreases that energy.  We also distinguish the
+common mean-gate relaxation from exact
+marginalization over latent energy states.  We study two realizations of the same state space: a
+static family-level graph fitted to an MSA and an ESM-style dynamic mixer whose edge states depend
+on a single sequence.  An optional teacher--student bridge transfers family relations during
+training without requiring an MSA at inference.  We formulate the phase diagram and cross-family
+controls needed to determine whether ternary relations improve likelihood, epistasis recovery,
+transfer, and realized compute at matched model budgets.
+\end{abstract}
+
+\section{Introduction}
+
+A protein family is an evolutionary ensemble of categorical sequences constrained by fold,
+function, and historical contingency.  A multiple-sequence alignment (MSA) provides a finite and
+phylogenetically correlated sample
+\begin{equation}
+X^{(n)}=(X_1^{(n)},\ldots,X_L^{(n)}),
+\qquad X_i^{(n)}\in\{1,\ldots,q\},
+\label{eq:msa}
+\end{equation}
+from that ensemble.  Reconstructing its distribution is useful for two different reasons.  As a
+predictive problem, it asks whether masked or corrupted residues can be recovered.  As an inverse
+problem, it asks which one-site and multi-site constraints are supported by the observations.  The
+second question is harder: conservation, phylogeny, finite sampling, and epistasis can all improve
+prediction while implying different interaction structures.
+
+Protein sequence models make different compromises between these two objectives.  A
+position-specific model represents conservation but not epistasis.  Potts and related inverse
+statistical models attach a typed $q\times q$ coupling table to each position pair and have been
+successful in contact and mutational analyses \cite{morcos2011,ekeberg2013}.  Protein language
+models instead optimize masked-token prediction with deep, input-dependent representations
+\cite{rives2021}; MSA Transformer extends this strategy to alignment tensors \cite{rao2021}.
+Dauparas et al. showed that PSSMs, Potts pseudolikelihood, Gaussian models, and autoencoders can be
+placed in one reconstruction framework \cite{dauparas2019}.  These connections clarify the loss
+being optimized, but they do not make every internal edge weight an identified interaction.
+
+For protein reconstruction, the unresolved issue is the state assigned to a candidate relation.
+A Potts table is a signed,
+typed interaction field, but its support is normally imposed by regularization or post hoc
+thresholding.  Standard attention learns dynamic routing, but its source-softmax distributes one
+unit of nonnegative mass across positions and generally has no exact inactive edge
+\cite{vaswani2017}.  Negative effects remain possible through value and output projections, yet
+their polarity is implicit and is contracted immediately into node states.  Thus relation
+existence, signed routing, categorical response, and predictive uncertainty are present in the
+models, but are not exposed as separate, jointly auditable variables.
+
+We ask whether the relation state itself should be categorical.  For every candidate edge we use a
+three-state distribution over negative polarity, inactivity, and positive polarity.  This edge
+distribution is distinct from the categorical output distribution over amino acids:
+\begin{equation}
+\boxed{
+\begin{gathered}
+\text{edge-state softmax over }\{-1,0,+1\}\\
+\neq\\[-2pt]
+\text{residue softmax over }\{1,\ldots,q\}.
+\end{gathered}}
+\label{eq:two-softmaxes}
+\end{equation}
+The first softmax represents uncertainty about one relation; it is normalized across three states
+for a fixed edge and does not force different source positions to compete.  The second softmax is
+required to define a normalized conditional distribution for MSA reconstruction.
+
+We study this construction at two scales.  At family level, one static ternary graph and one set of
+reference-centered categorical fields are fitted to all rows of an MSA.  This setting permits direct
+tests of support, polarity, and operator recovery under controlled sampling and phylogenetic
+noise.  At sequence level, an ESM-style mixer predicts layer- and input-dependent ternary states
+from hidden representations.  A leave-query-out teacher can transfer the family graph during
+training, while inference remains single-sequence.  The two branches address complementary
+questions: whether a ternary relation is statistically recoverable in an ensemble, and whether the
+same organization is transferable as a dynamic computation.
+
+Ternarity does not acquire physical or algorithmic content merely from the labels $-1$, $0$, and
+$+1$.  A continuous signed coupling already spans negative, zero, and positive values.  If a full
+categorical edge field is closed under negation, its scalar sign can be absorbed into the field.
+Moreover, a soft mean gate is generally not the exact marginal of three latent energy models, and
+an inactive state saves computation only when the hardened implementation skips the edge.  These
+facts make binary-support signed energy, continuous signed routing, and ordinary sparse attention
+decisive null models rather than weak ablations.
+
+The individual ingredients also have direct predecessors.  Modern Hopfield networks express
+softmax attention as associative retrieval from a log-sum-exp energy \cite{ramsauer2021}.  Neural Relational Inference learns
+categorical latent edge types and may reserve one type for a non-edge \cite{kipf2018}.  Differential
+Transformer subtracts two source-softmax maps to obtain continuous signed attention \cite{ye2024},
+while SignGT learns signed graph attention values \cite{chen2026}.  Ternary Weight Networks
+quantize parameters to $-1$, $0$, and $+1$ \cite{li2016}.  Table~\ref{tab:prior-art-boundary}
+therefore treats the proposed model as a constrained synthesis, not as the invention of any one of
+these primitives.
+
+\begin{table*}[t]
+\centering
+\small
+\begin{tabular}{p{0.18\textwidth}p{0.17\textwidth}p{0.17\textwidth}p{0.17\textwidth}p{0.21\textwidth}}
+\toprule
+Method & Discrete zero state & Signed relation & Protein MSA objective & Missing relative to the present test \\
+\midrule
+Potts/DCA \cite{morcos2011,ekeberg2013} & Only with an added sparsity model & Typed signed coupling
+table & Family pseudolikelihood & No learned three-state uncertainty or transferable ESM router \\
+NRI \cite{kipf2018} & Optional no-edge type & Multiple learned edge types & No & No categorical MSA
+gauge, phylogeny audit, or protein transfer \\
+Ternary Weight Networks \cite{li2016} & Zero parameter value & Signed quantized parameter & No &
+Quantizes weights rather than inferring relation states \\
+Differential Transformer \cite{ye2024} & No categorical inactive state & Difference of two continuous
+attention maps & No & No per-edge state simplex or support-recovery target \\
+MSA Transformer \cite{rao2021} & No & Implicit through value paths & Alignment MLM & No explicit
+ternary relation recovery or hard sparse execution \\
+Modern Hopfield attention \cite{ramsauer2021} & No exact inactive memory & Nonnegative memory
+weights & Associative retrieval & No signed state or thresholded zero-retrieval regime \\
+This work & Explicit $-1/0/+1$ edge state & Oriented polarity plus typed field & Family
+pseudolikelihood and ESM MLM & Must demonstrate a new recovery law or resource frontier \\
+\bottomrule
+\end{tabular}
+\caption{Prior-art boundary.  Every primitive of the architecture has a close predecessor.  The
+scientific claim must therefore rest on recovery, transfer, or scaling behavior of their combined
+protein-sequence realization.}
+\label{tab:prior-art-boundary}
+\end{table*}
+
+The central hypothesis is consequently about collective behavior, not the three-way softmax.  The
+ternary description is scientifically substantive only if it produces at least one phenomenon not
+explained by its simpler nulls: a shifted recovery boundary relative to binary-support signed
+energy, a cross-family scaling law for identifiability of the zero state, or transfer of calibrated
+family relations into a single-sequence ESM with a measured accuracy--compute advantage.  The
+associative realization should therefore be read as a signed, factorized memory: activity selects
+whether a memory participates, while conditional polarity selects whether it is added or
+subtracted.  The analysis below first separates probability, energy, activity, polarity, and typed edge value; it
+then defines the two realizations and the falsification tests needed to distinguish these outcomes
+from reparameterization.
+
+\section{Probability, energy, and the role of ternarity}
+
+Every strictly positive conditional distribution admits an energy coordinate
+\begin{equation}
+E_i(a\mid x_{-i})
+=-\beta^{-1}\log P(X_i=a\mid x_{-i})+C(x_{-i}),
+\label{eq:conditional-energy}
+\end{equation}
+where the additive function $C$ is unobservable.  This identity does not by itself make the score a
+physical Hamiltonian.  A global equilibrium interpretation additionally requires that all
+conditionals be compatible with one joint law, that undirected pair fields obey the relevant
+transpose symmetry, and that the joint distribution have one partition function.  Ordinary
+Transformer attention probabilities are routing coefficients, not configuration probabilities;
+calling their negative logarithms energies is a coordinate choice rather than a mechanism.
+
+For a fixed oriented scalar interaction mode $\Phi_{ij}$, a continuous coefficient
+$\kappa_{ij}\in\R$ already represents the full progression
+\begin{align}
+\kappa_{ij}<0&\quad\text{(negative)},\nonumber\\
+\kappa_{ij}=0&\quad\text{(inactive)},\nonumber\\
+\kappa_{ij}>0&\quad\text{(positive)}.
+\label{eq:continuous-three-regimes}
+\end{align}
+
+\begin{proposition}[No new energy values from ternary sign]
+Let an interaction be $\kappa_{ij}\Phi_{ij}$ with unrestricted
+$\kappa_{ij}\in\R$.  The parameterization
+\begin{equation}
+\kappa_{ij}=z_{ij}\rho_{ij},
+\qquad z_{ij}\in\{-1,0,+1\},\quad \rho_{ij}\geq0,
+\label{eq:sign-magnitude-reparameterization}
+\end{equation}
+represents exactly the same scalar energy family.
+\end{proposition}
+
+\begin{proof}
+Given $(z,\rho)$, their product is real.  Conversely, take $z=\operatorname{sign}(\kappa)$ and
+$\rho=|\kappa|$, with $z=0$ at $\kappa=0$.
+\end{proof}
+
+Thus a ternary edge is not a new attraction--repulsion physics when the continuous energy is
+already signed.  It becomes substantive only if the zero label is used as an exact support and
+execution decision, if $p^-,p^0,p^+$ quantify uncertainty over declared mechanisms, or if the
+interaction is deliberately quantized.  For a Potts table the limitation is stronger: one edge
+$G_{ij}(a,b)$ can favor some amino-acid pairs and disfavor others, so an intrinsic scalar label
+``attractive'' or ``repulsive'' generally does not exist without an orientation functional.
+
+\subsection{APC as an endpoint-activity null}
+
+Average product correction (APC) removes a separable background from a nonnegative pair score
+$S_{ij}$, such as a mutual-information score or a gauge-fixed coupling norm
+\cite{dunn2008}.  In its standard form,
+\begin{equation}
+S_{ij}^{\mathrm{APC}}
+=S_{ij}-\frac{S_{i\boldsymbol\cdot}S_{\boldsymbol\cdot j}}
+{S_{\boldsymbol\cdot\boldsymbol\cdot}},
+\label{eq:apc}
+\end{equation}
+where the dotted quantities are the corresponding row, column, and global means.  A useful null
+model is
+\begin{equation}
+S_{ij}=a_i a_j+R_{ij},
+\label{eq:endpoint-score-null}
+\end{equation}
+with $a_i$ the generic propensity of position $i$ to participate in a strong inferred relation and
+$R_{ij}$ the pair-specific residual.  When the rank-one term dominates the means and the residual
+has small row and column averages, Eq.~\ref{eq:apc} approximately removes $a_i a_j$ and retains
+$R_{ij}$.
+
+The ternary parameterization makes this interpretation testable.  Suppose the log-odds that an
+edge is active decompose as
+\begin{equation}
+\log\frac{m_{ij}}{1-m_{ij}}
+=u_i+u_j+\Delta_{ij},
+\label{eq:activity-null}
+\end{equation}
+where $u_i$ and $u_j$ are endpoint propensities and $\Delta_{ij}$ is pair specific.  In the sparse
+regime $m_{ij}\ll1$,
+\begin{equation}
+m_{ij}\simeq e^{u_i}e^{u_j}e^{\Delta_{ij}}.
+\label{eq:sparse-activity-factorization}
+\end{equation}
+Under the endpoint-only null $\Delta_{ij}=0$, the active mass is therefore approximately rank one.
+This yields the falsifiable interpretation
+\begin{equation}
+\boxed{
+\begin{gathered}
+\text{APC is a first-order estimator}\\
+\text{of an endpoint-driven activity null.}
+\end{gathered}}
+\label{eq:apc-interpretation}
+\end{equation}
+It is not an identity, and it need not hold outside the sparse or approximately separable regime.
+Endpoint propensity can collect conservation, entropy, effective alphabet size, finite MSA depth,
+phylogeny, susceptibility, or neural query/key scale.  These causes must be separated by matched
+null ensembles rather than assigned a physical meaning from APC alone.
+
+This interpretation also explains why signed interactions can still show a large APC effect.
+Contact pipelines usually compress $G_{ij}(a,b)$ to $\|G_{ij}\|$ or another nonnegative magnitude,
+discarding polarity while retaining activity and endpoint susceptibility.  Categorical gauge
+fixing and APC remove different nuisances: Eq.~\ref{eq:gauge} removes additive one-body components
+inside each amino-acid coupling table, whereas APC removes an across-position separable mode after
+that table has been compressed to a scalar.  The ternary state adds a diagnostic separation:
+$m_{ij}$ measures activity, while $g_{ij}$ measures signed mean.  The proposed mechanism predicts
+that the leading separable mode is stronger in $m_{ij}$ and in interaction magnitudes than in a
+consistently oriented signed matrix $g_{ij}$.
+
+\section{Ternary relation model}
+
+For every candidate directed edge $j\to i$, let
+\begin{equation}
+(p_{ij}^{-},p_{ij}^{0},p_{ij}^{+})
+=\operatorname{softmax}
+\left((r_{ij}^{-},r_{ij}^{0},r_{ij}^{+})/\tau\right).
+\label{eq:state-softmax}
+\end{equation}
+Define its active mass, signed mean, and polarity conditional on activity by
+\begin{equation}
+m_{ij}=p_{ij}^{+}+p_{ij}^{-},\qquad
+g_{ij}=p_{ij}^{+}-p_{ij}^{-},\qquad
+s_{ij}=\frac{g_{ij}}{m_{ij}+\varepsilon}.
+\label{eq:activity-polarity}
+\end{equation}
+In a hard forward pass,
+\begin{equation}
+z_{ij}=\arg\max_{z\in\{-1,0,+1\}}p_{ij}^{z}
+\in\{-1,0,+1\}.
+\label{eq:hard-state}
+\end{equation}
+A Gumbel--softmax or straight-through estimator may train the discrete state
+\cite{jang2017,maddison2017}; it is an optimization device rather than an exact-gradient claim.
+
+The value carried by an edge must still distinguish amino-acid types.  Let $u_i(a)>0$ be a
+reference distribution at position $i$.  A categorical field $G_{ij}(a,b)$ is placed in the
+reference gauge
+\begin{equation}
+\sum_a u_i(a)G_{ij}(a,b)=0,
+\qquad
+\sum_b u_j(b)G_{ij}(a,b)=0.
+\label{eq:gauge}
+\end{equation}
+Write $G_{ij}=\rho_{ij}\widehat G_{ij}$ with $\rho_{ij}\geq0$ and
+$\|\widehat G_{ij}\|_{u_i,u_j}=1$.  The soft conditional reconstruction model is
+\begin{align}
+\ell_i(a)
+&=h_i(a)+\sum_{j\ne i}g_{ij}\rho_{ij}
+\widehat G_{ij}(a,X_j),
+\label{eq:conditional-logit}\\
+P_\theta(X_i=a\mid X_{-i})
+&=\frac{\exp[\ell_i(a)]}
+{\sum_{c=1}^{q}\exp[\ell_i(c)]}.
+\label{eq:conditional-model}
+\end{align}
+The hard model replaces $g_{ij}$ by $z_{ij}$ and evaluates only active edges.  Equation
+\ref{eq:conditional-model} is a pseudolikelihood conditional; a globally normalized joint law
+requires compatible symmetric fields and a separate partition function.
+
+The reconstruction likelihood in Eq.~\ref{eq:conditional-model} observes only the effective
+coefficient
+\begin{equation}
+\kappa_{ij}^{\mathrm{eff}}=g_{ij}\rho_{ij}.
+\label{eq:effective-coefficient}
+\end{equation}
+Consequently, soft activity, polarity, and magnitude are not separately identified by conditional
+likelihood alone.  Their separation is imposed by the ternary prior, activity penalty, orientation,
+hard-state calibration, or independent supervision.  Any empirical claim about recovered support
+or polarity must therefore be evaluated against ground truth or held-out interventions rather than
+read directly from a fitted value of $g_{ij}$.
+
+\subsection{Mean gate is not latent-energy marginalization}
+
+For one edge write $\Phi_z(a)=z\rho\widehat G(a,x_j)$ and let $Z_z$ normalize across candidate
+residues.  If $z$ is a genuine latent physical regime, exact marginalization gives
+\begin{equation}
+P_{\mathrm{mix}}(a)
+=\sum_{z\in\{-1,0,+1\}}p^z
+\frac{\exp[h(a)+\Phi_z(a)]}{Z_z}.
+\label{eq:latent-energy-mixture}
+\end{equation}
+The soft model used in Eq.~\ref{eq:conditional-model} instead computes
+\begin{equation}
+P_{\mathrm{mean}}(a)
+=\frac{\exp[h(a)+\E[z]\rho\widehat G(a,x_j)]}
+{Z_{\E[z]}}.
+\label{eq:mean-gate-energy}
+\end{equation}
+In general $P_{\mathrm{mix}}\ne P_{\mathrm{mean}}$ because exponentiation and state-dependent
+normalization do not commute with expectation.  Equation~\ref{eq:mean-gate-energy} is therefore a
+differentiable mean-gate or mean-field relaxation.  A claim that $z$ is a fluctuating physical
+state requires Eq.~\ref{eq:latent-energy-mixture}, hard categorical sampling, or an explicitly
+justified approximation audit.
+
+\subsection{Exact activity--polarity factorization}
+
+\begin{proposition}[Ternary simplex coordinates]
+Every distribution $(p^-,p^0,p^+)$ on $\{-1,0,+1\}$ has the representation
+\begin{equation}
+p^0=1-m,\qquad
+p^+=\frac{m(1+s)}{2},\qquad
+p^-=\frac{m(1-s)}{2},
+\label{eq:simplex-factorization}
+\end{equation}
+with $m\in[0,1]$ and $s\in[-1,1]$.  It is unique for $m>0$, and the expected state is
+$\E[z]=ms$.
+\end{proposition}
+
+\begin{proof}
+Take $m=p^++p^-$ and $s=(p^+-p^-)/m$ for $m>0$.  The inverse formulas follow by solving their sum
+and difference.  When $m=0$, the edge is inactive and polarity is unidentifiable but irrelevant.
+\end{proof}
+
+This factorization prevents a common error: $g_{ij}\approx0$ can mean either a confidently absent
+edge ($m_{ij}\approx0$) or an active but polarity-uncertain edge
+($m_{ij}>0$, $s_{ij}\approx0$).  Sparsity must penalize $m_{ij}$, not $|g_{ij}|$.
+
+\subsection{A ternary associative potential}
+
+The unconstrained three-logit model is useful for relation inference but does not by itself define
+a state dynamics.  A more restrictive parameterization does.  Let $x_j\in\R^d$ be a stored
+memory, $\xi\in\R^d$ the current associative state, and $u_j=x_j^{\mathsf T}\xi$.  For threshold
+$\lambda_j\geq0$, constrain the three logits to
+\begin{equation}
+r_j^+=\beta(u_j-\lambda_j),\qquad
+r_j^0=0,\qquad
+r_j^-=\beta(-u_j-\lambda_j).
+\label{eq:associative-ternary-logits}
+\end{equation}
+Their partition function and signed mean are
+\begin{align}
+Z_j(u)&=1+2e^{-\beta\lambda_j}\cosh(\beta u),\nonumber\\
+g_{\lambda_j}(u)&=p_j^+(u)-p_j^-(u)
+=\frac{2e^{-\beta\lambda_j}\sinh(\beta u)}
+{1+2e^{-\beta\lambda_j}\cosh(\beta u)}.
+\label{eq:ternary-associative-gate}
+\end{align}
+Thus the zero state is controlled by an explicit similarity threshold rather than by a third
+arbitrary score.  Define the convex potential
+\begin{equation}
+\phi_{\lambda}(u)=\frac{1}{\beta}
+\log\!\left[1+2e^{-\beta\lambda}\cosh(\beta u)\right],
+\qquad \phi_{\lambda}'(u)=g_{\lambda}(u).
+\label{eq:ternary-associative-potential}
+\end{equation}
+In the hard limit $\beta\to\infty$ away from the thresholds,
+\begin{equation}
+g_{\lambda}(u)\longrightarrow
+\begin{cases}
++1,&u>\lambda,\\
+0,&|u|<\lambda,\\
+-1,&u<-\lambda,
+\end{cases}
+\label{eq:ternary-hard-threshold}
+\end{equation}
+so the construction retrieves aligned memories, suppresses weak matches, and subtracts
+anti-aligned memories.
+
+\begin{proposition}[Energy descent for tied ternary memories]
+\label{prop:ternary-hopfield-descent}
+For fixed memories $\{x_j\}_{j=1}^{N}$, fixed thresholds, and $\gamma>0$, let
+\begin{equation}
+E_{\mathrm{ter}}(\xi)=\frac12\|\xi\|_2^2
+-\frac{\gamma}{N}\sum_{j=1}^{N}
+\phi_{\lambda_j}(x_j^{\mathsf T}\xi).
+\label{eq:ternary-hopfield-energy}
+\end{equation}
+The update
+\begin{equation}
+\xi^{t+1}=\frac{\gamma}{N}\sum_{j=1}^{N}
+g_{\lambda_j}(x_j^{\mathsf T}\xi^t)x_j
+\label{eq:ternary-hopfield-update}
+\end{equation}
+is a concave--convex procedure step and satisfies
+$E_{\mathrm{ter}}(\xi^{t+1})\leq E_{\mathrm{ter}}(\xi^t)$.  Moreover,
+$E_{\mathrm{ter}}$ is bounded below and coercive.
+\end{proposition}
+
+\begin{proof}
+Each $\phi_{\lambda}$ is a log-sum-exp of affine functions and is therefore convex.  Hence
+Eq.~\ref{eq:ternary-hopfield-energy} is a difference of convex functions.  Linearizing the convex
+sum at $\xi^t$ gives a quadratic majorizer whose unique minimizer is
+Eq.~\ref{eq:ternary-hopfield-update}; the standard majorization inequality proves monotone descent.
+Finally, $\phi_{\lambda}(x_j^{\mathsf T}\xi)$ grows at most linearly in $\|\xi\|_2$, whereas the
+positive quadratic term grows quadratically, proving coercivity and a finite lower bound.
+\end{proof}
+
+This energy is a Lyapunov function for a hidden-state retrieval dynamics.  It is not the Potts or
+pseudolikelihood energy of an amino-acid sequence, and $-\log p_j^z$ is not a third equivalent
+energy.  Exponential-capacity results for modern Hopfield networks also cannot be transferred
+unchanged to correlated MSA rows; protein memories violate the random-pattern assumptions that
+make those bounds possible \cite{ramsauer2021}.
+
+\subsection{When the ternary sign is meaningful}
+
+\begin{proposition}[Sign redundancy]
+If every active edge carries an unrestricted field $G_{ij}$ from a class closed under negation,
+then replacing binary support by $z_{ij}\in\{-1,0,+1\}$ does not enlarge the represented function
+class: the nonzero sign can be absorbed into $\widetilde G_{ij}=z_{ij}G_{ij}$.
+\end{proposition}
+
+\begin{proof}
+For $z_{ij}=0$, delete the edge.  For $z_{ij}=\pm1$, closure under negation keeps
+$\widetilde G_{ij}$ in the original field class and leaves the effective interaction unchanged.
+\end{proof}
+
+Thus a physical or biological interpretation of $+/-$ requires an orientation convention.  One
+option is to select an anchor functional $\ell_{ij}$ and enforce
+\begin{equation}
+\ell_{ij}(\widehat G_{ij})>0.
+\label{eq:orientation}
+\end{equation}
+The ternary sign then denotes polarity relative to the declared anchor.  Possible anchors include
+a detached MSA teacher field, a fixed biochemical contrast, or a reproducibly chosen leading
+singular direction.  Edges with vanishing or unstable anchors must be reported as unoriented.  A
+scalar sign is not an intrinsic excitatory/inhibitory label for an unrestricted $q\times q$
+categorical interaction.
+
+\section{Reconstructing the MSA}
+
+Let $w_n\geq0$ be phylogenetic sequence weights with $\sum_nw_n=1$.  A masked or
+pseudolikelihood reconstruction objective is
+\begin{equation}
+\mathcal L_{\mathrm{rec}}
+=-\sum_{n=1}^{N}w_n\sum_{i=1}^{L}
+\log P_\theta(X_i^{(n)}\mid X_{-i}^{(n)}).
+\label{eq:reconstruction-loss}
+\end{equation}
+To make the zero state computationally and statistically substantive, use
+\begin{equation}
+\mathcal L
+=\mathcal L_{\mathrm{rec}}
++\lambda_0\sum_{i\ne j}m_{ij}
++\lambda_{\mathrm{sym}}\mathcal R_{\mathrm{sym}}
++\lambda_{\mathrm{cal}}\mathcal R_{\mathrm{cal}}.
+\label{eq:total-loss}
+\end{equation}
+Here $\mathcal R_{\mathrm{sym}}$ enforces any joint-model reciprocity convention, while
+$\mathcal R_{\mathrm{cal}}$ controls the soft-to-hard gap.  The expected active degree is
+\begin{equation}
+\bar k=\frac{1}{L}\sum_i\sum_{j\ne i}m_{ij},
+\label{eq:expected-degree}
+\end{equation}
+and the hard realized degree is measured after Eq.~\ref{eq:hard-state}.  A low expected degree is
+not a compute result unless the implementation actually skips zero edges.
+
+Three reconstruction targets should be kept distinct:
+\begin{enumerate}
+\item conditional likelihood of held-out MSA residues;
+\item recovery of known synthetic support, polarity, and categorical fields;
+\item reproduction of ensemble observables such as marginals, connected correlations, contacts,
+and mutational epistasis.
+\end{enumerate}
+Good masked likelihood alone does not establish interaction recovery.  Conversely, a field that
+recovers synthetic couplings may fail under finite-depth, phylogenetically correlated MSAs.
+
+\section{Two realizations of the ternary field}
+
+The same three-state variable can be used at two statistical scales.  They share state semantics
+and ablations, but they are not the same estimator.
+
+\subsection{Static family-level graph}
+
+In the family model, $r_{ij}^{z}$, $\rho_{ij}$, and $\widehat G_{ij}$ are parameters shared by all
+rows of one aligned protein family.  Equations~\ref{eq:conditional-model} and
+\ref{eq:reconstruction-loss} then define a sparse ternary pseudolikelihood model.  This branch is
+the controlled setting for support and polarity recovery: synthetic ground truth can be specified,
+MSA depth and phylogeny can be varied, and one position pair has a state comparable across all
+sequences in the family.
+
+Its limitation is scope.  The learned graph is tied to one alignment and does not by itself predict
+relations in a new family or an unaligned sequence.  It is a statistical model of an ensemble, not
+a replacement for a pretrained protein language model.
+
+\subsection{Energy-compatible and general ESM-style mixers}
+
+The strict associative version first projects source representations into memories
+$x_j=K_h^{(\ell)}H_j^{(\ell)}$ and uses the same $x_j$ both to compute similarity and to return the
+update in Eq.~\ref{eq:ternary-hopfield-update}.  If the memories, $\beta$, $\lambda_j$, and scaling
+remain fixed during an inner recurrence, Proposition~\ref{prop:ternary-hopfield-descent} applies to
+each target query.  This tied-memory head is the appropriate model for experiments that claim
+fixed points, retrieval basins, or Lyapunov descent.  A learned output map may be applied after the
+recurrence, but it is not itself part of the guaranteed descent dynamics.
+
+The more expressive engineering version need not obey those constraints.
+
+Let $H_i^{(\ell)}\in\R^d$ be the hidden state of residue $i$ at layer $\ell$.  For head $h$, an
+ESM-style model \cite{rives2021} predicts three logits for every candidate edge,
+\begin{equation}
+r_{ij,h}^{z,(\ell)}
+=f_{z,h}^{(\ell)}
+\!\left(H_i^{(\ell)},H_j^{(\ell)},c_{ij}\right),
+\qquad z\in\{-1,0,+1\},
+\label{eq:dynamic-state-logits}
+\end{equation}
+where $c_{ij}$ may include relative position or declared side information.  Applying
+Eq.~\ref{eq:state-softmax} on the state axis produces $m_{ij,h}^{(\ell)}$ and
+$g_{ij,h}^{(\ell)}$.  A variance-controlled signed mixer is
+\begin{align}
+A_{i,h}^{(\ell)}
+&=\sum_j m_{ij,h}^{(\ell)},\nonumber\\
+M_{i,h}^{(\ell)}
+&=\frac{\gamma_h}{\sqrt{\max\{1,A_{i,h}^{(\ell)}\}}}
+\sum_j g_{ij,h}^{(\ell)}V_h^{(\ell)}H_j^{(\ell)},
+\label{eq:dynamic-ternary-mixer}
+\end{align}
+followed by the usual output projection, residual update, normalization, and feed-forward block.
+The normalization is over active mass rather than a probability simplex over sources.  A hard
+version replaces the soft means by $z_{ij,h}^{(\ell)}$ and must use a sparse kernel to turn zero
+states into measured compute savings.
+
+Because Eq.~\ref{eq:dynamic-ternary-mixer} uses independent values $V_hH_j$, input-dependent
+unconstrained logits, and active-mass normalization, it is generally not the gradient update of
+Eq.~\ref{eq:ternary-hopfield-energy}.  Multi-head composition, residual connections, and changing
+memories further remove the strict Lyapunov guarantee.  The tied head and the general head must
+therefore be reported as two model variants rather than using an associative-memory proof to
+justify the full ESM architecture.
+
+The dynamic model is trained by
+\begin{equation}
+\mathcal L_{\mathrm{ESM}}
+=\mathcal L_{\mathrm{MLM}}
++\lambda_0\sum_{\ell,h,i,j}m_{ij,h}^{(\ell)}
++\lambda_{\mathrm{cal}}\mathcal R_{\mathrm{soft/hard}}.
+\label{eq:esm-objective}
+\end{equation}
+Unlike the family graph, its states are sequence- and layer-dependent.  Their scalar signs act on
+shared value directions and are operational routing polarities, not intrinsic signs of unrestricted
+amino-acid coupling tables.
+
+There are two interpretation levels.  If Eq.~\ref{eq:dynamic-state-logits} observes the endpoint
+representations, $z_{ij,h}^{(\ell)}$ is a dynamic routing decision.  A strict conditional
+interaction claim requires logits constructed from endpoint-deleted context and an intervention
+showing that gate parameters remain fixed while $X_i$ and $X_j$ vary.  Performance experiments may
+use the ordinary dynamic version, but they must not silently inherit the stronger semantics of the
+cavity version.
+
+\subsection{Family teacher, sequence student}
+
+The two branches can be connected without using an MSA at deployment.  Let $q_{ij}^{F}(z)$ and
+$G_{ij}^{F}$ be detached state and field teachers fitted from a leave-query-out family alignment.
+For an ESM student, add
+\begin{equation}
+\begin{split}
+\mathcal L_{\mathrm{distill}}
+={}&\sum_{i,j}\KL\!\left(
+q_{ij}^{F}(z)\,\|\,
+p_{ij}^{\theta}(z\mid X_{\setminus\{i,j\}})
+\right)\\
+&+\lambda_G\sum_{i,j}
+\|G_{ij}^{\theta}-G_{ij}^{F}\|_{u_i,u_j}^2.
+\end{split}
+\label{eq:family-student-distillation}
+\end{equation}
+The leave-query-out construction prevents the target sequence from being copied into its own
+teacher.  The field term requires the same categorical gauge on both sides.  At inference both
+teacher terms are absent; the model receives one sequence.  This tests whether family-level
+ternary organization is predictable from transferable sequence representations rather than tied
+permanently to an MSA.
+
+\section{Statistical-physics hypothesis}
+
+For a paper aimed at PRL or PRX, the contribution cannot be the three-way softmax itself.  The
+central testable hypothesis is a recovery transition controlled by sequence information and graph
+complexity.  In synthetic ensembles, vary
+\begin{equation}
+\alpha=\frac{N_{\mathrm{eff}}}{L},\qquad
+k,\qquad q,\qquad
+\beta\rho,\qquad
+\eta_{\mathrm{phy}},
+\label{eq:control-variables}
+\end{equation}
+where $N_{\mathrm{eff}}$ is effective MSA depth, $k$ is true degree, $\beta\rho$ is interaction
+strength, and $\eta_{\mathrm{phy}}$ controls phylogenetic distortion.  Measure support overlap,
+polarity accuracy on oriented edges, operator error, and held-out reconstruction.
+
+The associative branch has a separate phase diagram.  Sweep inverse temperature $\beta$, dead-zone
+threshold $\lambda$, and memory load $N/d$; then measure energy descent, fixed-point type, retrieval
+basin volume, and the transition between inactive, subset-composite, and single-memory retrieval.
+Repeat after introducing phylogenetic correlations among memories.  This experiment tests a
+hidden-state dynamical law and must not be conflated with the MSA sample-complexity variable
+$N_{\mathrm{eff}}/L$ in Eq.~\ref{eq:control-variables}.
+
+The PRL-level result would be a reproducible transition or scaling collapse, for example
+\begin{equation}
+\mathcal O_{\mathrm{support}}
+\simeq
+F\!\left(
+\frac{N_{\mathrm{eff}}}{Lk(q-1)^2},
+\beta\rho,
+\eta_{\mathrm{phy}}
+\right),
+\label{eq:scaling-hypothesis}
+\end{equation}
+with a ternary model occupying a different accuracy--sparsity frontier from binary support,
+continuous signed routing, and dense pair models.  Equation~\ref{eq:scaling-hypothesis} is a
+hypothesis to derive and test, not a result of the present draft.
+
+Because a continuous energy already contains negative, zero, and positive values, the strongest
+null is not ordinary nonnegative attention.  It is a spike-and-slab signed-energy model
+\begin{equation}
+\kappa_{ij}=b_{ij}a_{ij},
+\qquad b_{ij}\in\{0,1\},\quad a_{ij}\in\R,
+\label{eq:binary-support-signed-energy}
+\end{equation}
+which has exact support and unrestricted polarity without a three-class variable.  Ternarity is
+scientifically useful only if it improves calibrated mechanism recovery, optimization, or realized
+compute relative to this baseline at matched capacity.
+
+\section{Required experiments}
+
+\begin{table*}[t]
+\centering
+\small
+\begin{tabular}{p{0.17\textwidth}p{0.27\textwidth}p{0.28\textwidth}p{0.19\textwidth}}
+\toprule
+System & Intervention & Primary measurements & Essential baselines \\
+\midrule
+Sparse Potts ensembles & Sweep $N_{\mathrm{eff}}$, $L$, $k$, coupling strength, and alphabet &
+Support/polarity/operator recovery; likelihood; phase boundary & Dense Potts, $\ell_1$ Potts,
+binary support plus signed energy, NRI-style three-edge-type model \\
+Phylogenetic synthetic MSAs & Evolve identical equilibrium models on trees of varying depth &
+False-edge rate and transition shift & Sequence reweighting, phylogenetic nulls \\
+Higher-order controls & Add pure three-body terms at fixed pair statistics & Pairwise reconstruction
+floor and gate stability & Pairwise Potts, hypergraph extension \\
+Real protein families & Held-out families across length and MSA depth & Masked likelihood, contacts,
+DMS, double-mutant epistasis & Potts, Transformer, continuous signed and sparse nonnegative routing \\
+ESM-style pretraining & Replace source-softmax heads by Eq.~\ref{eq:dynamic-ternary-mixer}; sweep
+depth, heads, and active degree & MLM perplexity, transfer, gate calibration, and active-edge scaling
+& Standard ESM, binary gates, sparsemax/entmax \cite{martins2016,peters2019}, continuous signed mixer \\
+Family-to-ESM transfer & Train with and without Eq.~\ref{eq:family-student-distillation}; hold out
+families & Teacher-state prediction, operator response, DMS, and contact transfer & No teacher,
+shuffled-family teacher, endpoint-visible teacher \\
+Ternary associative dynamics & Sweep $(\beta,\lambda,N/d)$ and iterate tied-memory updates; add
+controlled memory correlations & Energy monotonicity, fixed-point classes, basin size, phase
+boundaries & Standard modern Hopfield averaging, untied-value mixer, continuous signed retrieval \\
+Execution study & Harden gates and vary target degree & FLOPs, peak memory, wall time, soft--hard gap
+& Dense implementation at matched parameters \\
+\bottomrule
+\end{tabular}
+\caption{Minimum validation program.  All comparisons require matched parameter or compute budgets,
+multiple seeds, uncertainty intervals, and held-out protein families.}
+\label{tab:experiments}
+\end{table*}
+
+The principal ablations are: remove the zero state; remove the sign; replace the edge-state
+softmax by a source-position softmax; absorb sign into an unrestricted field; fix versus learn the
+orientation; replace hard ternary states by continuous signed coefficients or
+Eq.~\ref{eq:binary-support-signed-energy}; and compare the mean gate with hard sampling and the
+proper latent mixture in Eq.~\ref{eq:latent-energy-mixture}.  These tests
+separate gains caused by sparsity, polarity, optimization, quantization, and typed edge capacity.
+The family and ESM branches must also be evaluated independently: success of a static family graph
+does not imply transferable single-sequence routing, while an ESM likelihood gain does not imply
+recovery of a stable family interaction graph.
+
+Real-MSA evaluation must use conservation-matched and phylogeny-aware null ensembles.  Otherwise a
+gate can reconstruct family entropy or clade structure and still be mislabeled as an epistatic
+relation.  Contact prediction is useful but insufficient: it compresses a typed categorical field
+to one scalar per position pair.  Double-mutant measurements or held-out conditional responses are
+more direct tests of reconstructed interaction functions.
+
+The APC hypothesis in Eq.~\ref{eq:apc-interpretation} requires a separate audit.  Measure
+$m_{ij}$, $g_{ij}$, $\rho_{ij}$, and $\|G_{ij}^{\mathrm{eff}}\|$ before and after scalar-score
+compression; fit endpoint propensities $a_i$ on training sequences; and compare $a_i a_j$ with the
+empirical APC term on held-out sequences and families.  The hypothesis predicts that the leading
+rank-one component is concentrated in activity or magnitude, that consistently oriented signed
+scores have a weaker separable background, and that subtracting the fitted activity null enriches
+pair-specific residuals for contacts or double-mutant epistasis.  Failure of these predictions
+would reject the ternary activity explanation even if conventional APC still improves ranking.
+
+\subsection{Go/no-go criteria}
+
+The two-scale program should proceed sequentially rather than treating model scale as evidence.
+First, on synthetic and family-level data, ternary states must either shift the recovery boundary,
+improve calibrated support or mechanism recovery, or achieve the same likelihood with a lower
+realized degree than Eq.~\ref{eq:binary-support-signed-energy}.  If none occurs, the ternary
+variable is an unnecessary reparameterization and is not a PRL/PRX result.
+
+Second, the ESM branch must preserve masked-token and downstream accuracy after hardening while
+reducing measured execution, or show that family supervision transfers to held-out families beyond
+shuffled-teacher and endpoint-visible controls.  Soft sparsity without skipped computation, or
+teacher agreement without held-out biological improvement, does not pass this criterion.
+
+Third, any claimed statistical-physics law must survive variation in $L$, $q$, family, phylogenetic
+tree shape, and effective depth.  A threshold observed at one architecture size or one Pfam family
+is a model-selection curve, not evidence of universality.
+
+\section{Discussion}
+
+The proposed model is best understood as a sparse signed categorical graphical model with a
+neural, differentiable state selector.  It is not obtained by replacing the amino-acid output
+softmax with the numbers $-1,0,+1$.  The output softmax defines conditional probabilities and hence
+an effective-energy coordinate; the ternary softmax instead places a distribution over the state
+of each candidate relation.  Neither softmax alone establishes a physical Hamiltonian.
+
+The inactive state is potentially the most consequential component because it couples a
+statistical decision to realizable sparse execution.  The sign can improve optimization or permit
+a compact polarity code when value directions are oriented or otherwise restricted.  With
+unrestricted categorical fields it is representationally redundant, so any claimed gain must be
+localized by ablation.  This limitation is useful: it makes the hypothesis falsifiable and avoids
+using a neuronal analogy as a substitute for an identified mechanism.
+
+There are therefore two defensible semantics.  Under a static-energy interpretation, ternarity is
+a quantized support controller layered on an otherwise continuous signed interaction, and the
+binary-support signed-energy model in Eq.~\ref{eq:binary-support-signed-energy} is the decisive
+baseline.  Under a latent-regime interpretation, $(p^-,p^0,p^+)$ represents uncertainty over three
+mechanisms and must be propagated by categorical sampling or probability-level marginalization.
+Using only $g=p^+-p^-$ is a useful relaxation but cannot by itself distinguish a physical mixture
+from one weaker effective coupling.
+
+A concise PRL manuscript should center on one derived and observed recovery transition, with the
+ESM branch serving as a decisive universality or transfer test rather than a second unrelated
+story.  A PRX manuscript could treat both scales symmetrically and would additionally require a
+broader phase diagram, analytical sample-complexity theory, phylogenetic perturbations,
+higher-order failure modes, multiple protein families, and a demonstrated compute frontier.  The
+general reference-centered operator theory remains in the separate framework manuscript and should
+be cited only for the definition of typed edge fields.
+
+\section{Conclusion}
+
+A ternary relation model can separate whether an edge is active from uncertainty about how an
+oriented active edge acts.  It does not create attraction and repulsion that are absent from a
+continuous signed energy, and its soft expected state is not exact marginalization over three
+Hamiltonians.  At family scale it defines a sparse conditional reconstruction model for an MSA;
+inside an ESM-style network it defines dynamic signed routing for single sequences.  Their
+connection can be tested by leave-query-out distillation without requiring an alignment at
+inference.  Its scientific value will be determined by calibrated recovery, transferable relation
+states, or a new accuracy--compute frontier over binary-support signed-energy and continuous
+baselines, not by the existence of three labels.
+
+\begin{thebibliography}{99}
+
+\bibitem{morcos2011}
+F.~Morcos et al., ``Direct-coupling analysis of residue coevolution captures native contacts
+across many protein families,'' \emph{PNAS} \textbf{108}, E1293--E1301 (2011).
+
+\bibitem{ekeberg2013}
+M.~Ekeberg et al., ``Improved contact prediction in proteins: Using pseudolikelihoods to infer
+Potts models,'' \emph{Physical Review E} \textbf{87}, 012707 (2013).
+
+\bibitem{dunn2008}
+S.~D. Dunn, L.~M. Wahl, and G.~B. Gloor, ``Mutual information without the influence of phylogeny or
+entropy dramatically improves residue contact prediction,'' \emph{Bioinformatics} \textbf{24},
+333--340 (2008).
+
+\bibitem{vaswani2017}
+A.~Vaswani et al., ``Attention Is All You Need,'' in \emph{Advances in Neural Information
+Processing Systems 30} (2017).
+
+\bibitem{ramsauer2021}
+H.~Ramsauer et al., ``Hopfield Networks Is All You Need,'' in \emph{Proceedings of ICLR} (2021).
+
+\bibitem{rives2021}
+A.~Rives et al., ``Biological Structure and Function Emerge from Scaling Unsupervised Learning to
+250 Million Protein Sequences,'' \emph{PNAS} \textbf{118}, e2016239118 (2021).
+
+\bibitem{rao2021}
+R.~Rao, J.~Liu, R.~Verkuil, J.~Meier, J.~F. Canny, P.~Abbeel, T.~Sercu, and A.~Rives,
+``MSA Transformer,'' in \emph{Proceedings of ICML}, PMLR \textbf{139}, 8844--8856 (2021).
+
+\bibitem{dauparas2019}
+J.~Dauparas, H.~Wang, A.~Swartz, P.~Koo, M.~Nitzan, and S.~Ovchinnikov,
+``Unified Framework for Modeling Multivariate Distributions in Biological Sequences,''
+ICML Workshop on Computational Biology, arXiv:1906.02598 (2019).
+
+\bibitem{jang2017}
+E.~Jang, S.~Gu, and B.~Poole, ``Categorical Reparameterization with Gumbel--Softmax,'' in
+\emph{Proceedings of ICLR} (2017).
+
+\bibitem{maddison2017}
+C.~J. Maddison, A.~Mnih, and Y.~W. Teh, ``The Concrete Distribution: A Continuous Relaxation of
+Discrete Random Variables,'' in \emph{Proceedings of ICLR} (2017).
+
+\bibitem{li2016}
+F.~Li, B.~Liu, X.~Wang, B.~Zhang, and J.~Yan, ``Ternary Weight Networks,''
+arXiv:1605.04711 (2016).
+
+\bibitem{martins2016}
+A.~F. T. Martins and R.~F. Astudillo, ``From Softmax to Sparsemax: A Sparse Model of Attention and
+Multi-Label Classification,'' in \emph{Proceedings of ICML}, PMLR \textbf{48}, 1614--1623 (2016).
+
+\bibitem{peters2019}
+B.~Peters, V.~Niculae, and A.~F. T. Martins, ``Sparse Sequence-to-Sequence Models,'' in
+\emph{Proceedings of ACL}, 1504--1519 (2019).
+
+\bibitem{kipf2018}
+T.~N. Kipf, E.~Fetaya, K.-C. Wang, M.~Welling, and R.~S. Zemel, ``Neural Relational Inference for
+Interacting Systems,'' in \emph{Proceedings of ICML}, PMLR \textbf{80}, 2688--2697 (2018).
+
+\bibitem{ye2024}
+T.~Ye, L.~Dong, Y.~Xia, Y.~Sun, Y.~Zhu, G.~Huang, and F.~Wei, ``Differential Transformer,''
+arXiv:2410.05258 (2024).
+
+\bibitem{chen2026}
+J.~Chen, G.~Li, J.~E. Hopcroft, and K.~He, ``SignGT: Signed Attention-Based Graph Transformer for
+Graph Representation Learning,'' \emph{Knowledge and Information Systems} \textbf{68}, 221
+(2026).
+
+\end{thebibliography}
+
+\end{document}
