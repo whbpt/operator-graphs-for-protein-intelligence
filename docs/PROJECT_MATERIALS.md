@@ -16,6 +16,8 @@ This project directory is the authoritative home for the Transformer disentangle
   provisional.
 - `docs/`: mathematical notes, architecture decisions, prior-art reviews, and reviewer rounds.
 - `docs/reviewer_round_1.md` through `docs/reviewer_round_9.md`: independent review record.
+- `docs/typed_relational_workspace_llm.md`: cross-domain architecture proposal for transferring
+  typed, multiscale, relational inductive biases from protein models to efficient language models.
 
 ## Raw data
 
