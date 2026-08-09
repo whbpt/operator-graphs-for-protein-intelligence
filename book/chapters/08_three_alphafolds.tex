@@ -340,6 +340,163 @@ than in AF2, not more interpretable.  Evolutionary evidence, templates, chemical
 relations, recycling information, interface geometry, and confidence-relevant signals can coexist
 inside the same vector.
 
+\subsection{OpenDDE: lifting pair memory to structural roles}
+
+The AF3 pair track stores heterogeneous relational evidence at token resolution.  OpenDDE offers a
+useful architectural case in which this memory is refined once more before it conditions all-atom
+generation \cite{opendde2026}.  A residue Pairformer first produces a single state
+$s_i^{r}\in\mathbb R^{d_s}$ and a pair state $z_{ij}^{r}\in\mathbb R^{d_p}$.  These states summarize
+sequence, MSA, template, bond, and relative-position evidence at the residue level.  A structural
+refiner then expands each residue into a small set of role-labelled structural tokens, updates the
+resulting single and pair tracks, and supplies the refined states to an atom-coordinate denoiser.
+The architecture therefore inserts an intermediate relational scale:
+\begin{equation}
+\text{residue context}
+\longrightarrow
+\text{structural-role context}
+\longrightarrow
+\text{all-atom coordinates}.
+\label{eq:book-opendde-resolution-chain}
+\end{equation}
+The comparison developed here concerns the organization of state and computation.  Historical
+design lineage and empirical superiority require their own evidence.
+
+Let $V_r=[L]$ be the residue-token set.  For residue $i$, let
+$\mathcal R_i$ contain its instantiated structural roles, such as a protein-backbone role and,
+where present, a side-chain role.  The expanded node set is
+\begin{equation}
+V_s=\{(i,\rho):i\in V_r,\ \rho\in\mathcal R_i\}.
+\end{equation}
+It carries a parent map and a role map,
+\begin{equation}
+\pi:V_s\longrightarrow V_r,\qquad
+\pi(i,\rho)=i,
+\qquad
+\varrho:V_s\longrightarrow\mathcal R,\qquad
+\varrho(i,\rho)=\rho.
+\label{eq:book-opendde-parent-map}
+\end{equation}
+The cardinality $M=|V_s|$ may vary with molecular composition because different parents instantiate
+different role sets.  An atom-owner map
+$\omega:[N_{\mathrm{atom}}]\to V_s$ subsequently assigns each represented atom to one structural
+token.  Together, $\omega$ and $\pi$ define the hierarchy
+\[
+\text{atom}\xrightarrow{\ \omega\ }\text{structural token}
+\xrightarrow{\ \pi\ }\text{residue token}.
+\]
+This construction refines the graph base.  The reference-centered categorical feature fibers used
+elsewhere in this book remain a separate mathematical coordinate.
+
+The single-state expansion is a parent pullback followed by role-dependent symmetry breaking.  If
+$f_{\mathrm{split}}$ is the learned residue transformation and $e_\rho$ is a role embedding, then
+the initial structural single state has the schematic form
+\begin{align}
+c_i&=s_i^r+f_{\mathrm{split}}(s_i^r),\\
+s_u^{s,0}&=c_{\pi(u)}+e_{\varrho(u)},
+\qquad u\in V_s.
+\label{eq:book-opendde-single-lift}
+\end{align}
+Structural tokens with the same parent initially inherit the same residue context.  Their role
+embeddings break the within-parent exchange symmetry and allow subsequent layers to specialize
+backbone, side-chain, and other structural functions.  At this stage the distinction is
+representational: the role label declares how the tokenizer groups atoms and which shared
+parameters become available.
+
+The pair expansion applies the same parent map to both pair axes.  For structural tokens $u,v$, a
+schematic update is
+\begin{equation}
+z_{uv}^{s,0}
+=z_{\pi(u)\pi(v)}^r
++W_{\varrho(u)\to\varrho(v)}
+  \!\left(z_{\pi(u)\pi(v)}^r\right)
++e_{\phi(u,v)}.
+\label{eq:book-opendde-pair-lift}
+\end{equation}
+The first term is the pullback $(\pi\times\pi)^*z^r$ of residue-pair memory.  The second term permits
+directed role-pair specialization, so backbone-to-side-chain and side-chain-to-backbone records may
+differ.  The relation code $\phi(u,v)$ can record shared parentage, paired roles within one residue,
+backbone precedence, and other declared structural relations.  Equation
+\ref{eq:book-opendde-pair-lift} separates three information sources: inherited global context,
+role-conditioned correction, and explicit relational metadata.
+
+The resulting $z_{uv}^{s,0}$ is a persistent edge record in the neural computation.  Its status
+differs from the reference-centered categorical operator $\mathcal K_{u\leftarrow v}$ developed
+elsewhere in this book.  Pair-biased attention turns the record into a computational route or
+message modifier.  A categorical interaction claim requires an output intervention audit, a
+declared reference geometry, and the corresponding lower-order projection.  Pair indexing supplies
+a common address for these objects while preserving their distinct semantics.
+
+The structural refiner updates the expanded pair track through triangle multiplication, triangle
+attention, and pair transitions.  It then uses the updated pair state as a bias for structural-token
+attention.  A representative triangle contribution has the form
+\begin{equation}
+\Delta z_{uv}^{s}
+\propto
+\sum_{k\in V_s}
+A(z_{uk}^{s})\odot B(z_{vk}^{s}),
+\label{eq:book-opendde-triangle-update}
+\end{equation}
+with incoming and endpoint-attention variants using related orientations.  This equation exposes
+two kinds of order.  The state cell $z_{uv}^{s}$ has address order two because two token indices
+identify its storage location.  Its update has computational dependency order three because a
+third token $k$ participates in every composed path.  Repeated refinement can mix information from
+still larger neighborhoods.  Statistical interaction order begins with a functional decomposition
+of an audited input--output map.  Physical many-body order additionally requires a justified
+energy or intervention endpoint.  Triangle computation alone licenses the architectural statement
+that pair memory is updated through composed relational paths.
+
+After refinement, write
+\begin{equation}
+(s^{s,*},z^{s,*})
+=F_{\mathrm{refine}}(s^{s,0},z^{s,0}).
+\end{equation}
+A channel projection of $z^{s,*}$ and additional structural relative-position features form the
+pair condition $\widetilde z^{s}$.  One coordinate update can then be summarized by
+\begin{equation}
+x_{t-1}
+=D_\theta\!\left(
+x_t,t;\,
+s^{s,*},\widetilde z^{s}
+\right),
+\label{eq:book-opendde-conditioned-denoising}
+\end{equation}
+where $x_t\in\mathbb R^{N_{\mathrm{atom}}\times3}$ changes across denoising steps while, in the
+reported schematic, the refined single and pair conditions remain fixed for the sampled trajectory.
+Local atom processing can query $\widetilde z^s_{\omega(a)\omega(b)}$ through the owner map, global
+communication occurs among the $M$ structural tokens, and decoded token states return coordinate
+corrections to their owned atoms.  The persistent global pair tensor therefore lives at
+structural-token resolution.
+
+This placement of computation has an explicit resource cost.  A dense structural pair track uses
+\begin{equation}
+M_{\mathrm{pair}}=O(M^2d_p)
+\end{equation}
+memory.  A direct triangle implementation evaluates a third structural-token axis and has leading
+work of order $O(M^3d_\triangle)$, up to channel factorizations and kernel details.  If
+$M=rL$, expansion multiplies dense pair storage by approximately $r^2$ relative to the residue pair
+track and multiplies naive triangle work by approximately $r^3$.  The atom-owner hierarchy avoids
+placing the persistent global relation state on an $N_{\mathrm{atom}}\times N_{\mathrm{atom}}$ grid.
+Local atom neighborhoods, global token attention, repeated denoising, and gather--scatter
+operations contribute additional terms.  Cached conditioning saves repeated refiner evaluation;
+each denoising step still incurs its own atom and token computation.  FLOP counts provide an
+accounting model, while latency, peak memory, communication, and kernel utilization determine
+realized systems performance.
+
+The evidence boundaries follow from these types.  The architecture demonstrates a coherent
+multiscale conditioning scheme and a reusable parent--role decomposition.  Learned pair records
+gain scientific meaning through endpoint-matched validation.  Structural roles encode a chosen
+computational partition; chemical ontology requires correspondence with molecular entities and
+interventions.  Triangle paths establish higher-order computation; statistical and physical
+many-body claims require additional audits.  The denoising clock indexes corruption scale and
+numerical transport.  Molecular time, equilibrium populations, and calibrated conformational
+weights require independent physical calibration.  Reported channel widths, role inventories,
+block counts, and sampling schedules are implementation coordinates tied to a cited model version.
+
+OpenDDE consequently sharpens the role of pair memory in all-atom generation.  A residue-level
+relation can be inherited across a finer node set, differentiated by directed structural roles,
+composed through triangle paths, and consumed as a cached condition by coordinate transport.  The
+next interlude identifies the probability law and path semantics of that final transport stage.
+
 \subsection{Mathematical interlude: one probability flow, two path laws}
 
 AF3 replaces the AF2 structure module with a diffusion model over all-atom coordinates.  The

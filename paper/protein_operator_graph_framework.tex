@@ -46,8 +46,8 @@ A Reference-Centered Operator Framework for Sequence Interactions}
 \begin{abstract}
 Protein sequence models use the same words---coupling, memory, attention, message, and
 interaction---for objects with different sample spaces and probabilistic meanings.  We introduce a
-typed framework that compares these objects without identifying a computational route with a
-statistical or physical interaction.  Each residue position carries a centered feature fiber, and
+typed framework that compares these objects while preserving their distinct computational,
+statistical, and physical meanings.  Each residue position carries a centered feature fiber, and
 each directed edge carries a context-measurable operator between fibers.  The complete audit object
 also records support, interaction order, state dynamics, normalization, estimation, nuisance
 assumptions, and validation endpoint.  In the categorical case, weighted double projection selects
@@ -55,26 +55,39 @@ the unique reference-centered bivariate representative of a Potts pair-table par
 derive the transformation law between reference choices and show that exact marginal-preserving
 matrix scaling factors through the same quotient.
 
-Potts models and protein language models provide the principal worked example.  A projected
+Potts models and protein language models provide the principal analytic comparison.  A projected
 substitution audit exactly recovers an additive Potts coupling.  Applied to a nonlinear sequence
 model, it gives a background-dependent effective operator whose mean is the best static
 approximation and whose orthogonal fluctuation measures dynamic context dependence.  Under a fixed
 product reference, functional ANOVA identifies this fluctuation exactly with higher-order
 source-coordinate components valued in the target contrast fiber.  Reciprocity supplies the additional compatibility
-condition for directed additive responses to define a joint Potts energy.  We then distinguish this
-response object from attention routes, latent memories, scalar contact shadows, MSA estimators, and
-biological epistasis.  Phylogeny is represented separately as tree-constrained categorical
+condition for directed additive responses to define a joint Potts energy.  We locate this response
+object alongside attention routes, latent memories, scalar contact shadows, MSA estimators, and
+biological epistasis.  Sequence order is treated as a separate architectural coordinate: it may
+enter through an explicit coordinate phase, asymmetric support, a local ordered filter, or a
+time-ordered state transition.  For affine recurrent attention we derive the resulting
+path-dependent transport kernel, its cross-cut rank bound, and the full state-response variation.
+These objects are typed independently from a normalized route and an interventional response.  An
+encoder--transport--readout decomposition connects the exact nonlinear
+finite-substitution table to internal computation.  At a declared simplex anchor, its local,
+extension-dependent differential factors into injection, full latent transport, and readout maps,
+exposing rank bottlenecks while keeping the finite vertex audit exact.  This typing suggests a
+parameter-efficiency hypothesis: reuse a small algebra of channel operators, let sparse
+context-dependent routes select their coefficients, and obtain depth-specific maps through ordered
+composition.  We also give an exact factorized sparse-execution schedule and expose support
+discovery, recurrent depth, and feed-forward evaluation as separate computational costs.  Phylogeny is
+represented separately as tree-constrained categorical
 transport through latent ancestors on the MSA sequence axis; this makes explicit why an MSA
-attention route may exploit ancestry without thereby identifying a tree.  For row-stochastic
+attention route may exploit ancestry, while tree identification requires dedicated evidence.  For row-stochastic
 routes, a stationary-measure adjoint further separates
 reversible transport from directed circulation; an undirected Laplacian is then an explicit lossy
-shadow rather than the native Transformer graph.  Scalar, signed, and connection Laplacians further
+projection of the native Transformer graph.  Scalar, signed, and connection Laplacians further
 separate positional smoothness from transported categorical coherence.  The result is a mathematical coordinate
 system for translating among
 statistical physics, probability, and neural computation while keeping identification, execution,
 estimation, and validation as separate claims.  In this view, graph structure is a relational
-inductive bias: it specifies how typed entities may exchange shared computations, but does not by
-itself identify what the resulting edges mean scientifically.
+inductive bias: it specifies how typed entities may exchange shared computations.  Scientific edge
+meaning enters through the estimation and validation coordinates.
 \end{abstract}
 \fi
 
@@ -90,16 +103,16 @@ objects.  Direct-coupling analysis assigns a $q\times q$ Potts table to a pair o
 positions.  A graph neural network assigns a message map.  Transformer attention assigns a
 normalized scalar route, while a protein language model can be probed by the change in its output
 under a categorical substitution.  All four objects are indexed by positions $(i,j)$ and may
-predict contacts, but they do not share a sample space, invariance class, or probabilistic meaning.
-Pair indexing alone is therefore not a definition of interaction.
+predict contacts.  Their sample spaces, invariance classes, and probabilistic meanings differ.
+Pair indexing therefore supplies only a common address for comparison.
 
 The ambiguity is visible in the shared use of softmax.  A Potts conditional normalizes over the
 $q$ residue identities at one site, attention normalizes over source positions, and modern
 Hopfield retrieval normalizes over stored memories.  These operations use the same numerical
 kernel but define distributions on different variables.  Likewise, a Potts Hamiltonian scores a
 complete sequence, a Hopfield Lyapunov function controls a retrieval state, and an attention score
-usually controls only a computational route.  A useful unification must preserve these types; it
-cannot declare every matrix an energy or every route a statistical coupling.
+usually controls only a computational route.  A useful unification preserves the variable and
+normalization attached to each operation.
 
 There is a second, categorical ambiguity.  A raw table $T_{ij}(a,b)$ can contain a constant, a
 function of $a$ alone, a function of $b$ alone, and a genuinely bivariate term.  These pieces are
@@ -111,8 +124,8 @@ and column terms, but does not prove that the result is one fixed conditional in
 We resolve these ambiguities by taking a \emph{reference-centered operator-valued graph} as the
 common mathematical carrier.  Residue positions form the base graph.  Position $i$ carries a
 reference-centered categorical fiber $\mathcal H_i^0$, and an edge $j\to i$ carries a map from
-categorical contrasts at $j$ to contrasts at $i$.  The framework does not assert one universal
-energy or architecture.  Instead, it locates each model in a set of typed audit coordinates:
+categorical contrasts at $j$ to contrasts at $i$.  The framework accommodates multiple energies and
+architectures by locating each model in a set of typed audit coordinates:
 \begin{center}
 \fbox{\begin{minipage}{0.92\linewidth}
 \small
@@ -144,14 +157,13 @@ assumption is the relational inductive bias emphasized by Battaglia et al. as a 
 combinatorial generalization \cite{battaglia2018relational}.  It is stronger than supplying pair
 features to an otherwise unstructured predictor: the representation identifies nodes and edges,
 the computation shares update maps across them, and the aggregation respects the irrelevant
-ordering of incident edges.  It does not guarantee that a learned relation is causal, physical, or
-even distributionally direct.  Those stronger meanings require the additional audit coordinates
-introduced here.
+ordering of incident edges.  Causal, physical, and distributionally direct meanings require the
+additional audit coordinates introduced here.
 
-The relation between Potts models and protein Transformers is the principal worked example of this
-general framework, not a second definition of the framework.  A Potts coupling induces a
+The relation between Potts models and protein Transformers is the principal worked example within
+this general framework.  A Potts coupling induces a
 background-independent categorical response shared by a protein family.  A protein language model
-instead generates an effective response for each sequence background $C$.  Once both are placed in
+generates an effective response for each sequence background $C$.  Once both are placed in
 the same reference geometry, the latter admits the decomposition
 \begin{equation}
 \boxed{
@@ -161,11 +173,11 @@ G_{i\leftarrow j}(C)
 \end{equation}
 The additive Potts limit has zero dynamic residual.  A nonlinear pLM generally has a nonzero
 residual; under a fixed product reference it equals higher-order functional mass, while correlated
-backgrounds can add nonorthogonal cross terms.  Here the target category is an output-fiber
-coordinate, not an assumed model input.  Moreover, a directed response defines a joint
+backgrounds can add nonorthogonal cross terms.  The construction treats the target category solely
+as an output-fiber coordinate.  Moreover, a directed response defines a joint
 Potts energy only when the two directions satisfy a reciprocity condition.  Thus the comparison is
-made in common operator coordinates without asserting equal parameters, equal training laws, or a
-universal physical Hamiltonian.
+made in common operator coordinates while allowing distinct parameters, training laws, and physical
+interpretations.
 
 This perspective builds on two direct precedents.  Dauparas et al. placed PSSMs,
 pseudolikelihood Potts models, multivariate Gaussian models, and autoencoders in a unified
@@ -177,13 +189,13 @@ we specify which part of a pair table is an interaction, which model properties 
 and which additional assumptions are required for conditional, probabilistic, physical, or
 biological interpretation.
 
-The framework also connects several adjacent lines of work without merging their claims.  Inverse
+The framework also connects several adjacent lines of work while preserving their claim scopes.  Inverse
 statistical physics estimates family-level Potts fields from homologous sequences
 \cite{morcos2011,ekeberg2013,cocco2018}; Hopfield and RBM models express distributed patterns or
 latent motifs \cite{hopfield1982,tubiana2019}; and attention or message passing implements
 input-dependent computation \cite{gilmer2017,vaswani2017,ramsauer2021}.  Their common algebraic
-primitives do not by themselves establish a common probability law.  Our comparison therefore
-occurs after each model has been mapped into declared audit coordinates.
+primitives support a shared coordinate description.  A common probability law requires an
+additional compatibility argument.
 
 Recent attention-specific results make directionality a testable coordinate rather than only a
 graph metaphor.  Bidirectional and autoregressive objectives have been associated respectively
@@ -194,8 +206,8 @@ route \cite{sander2022,shahbazi2025}.  Markov-chain and interacting-particle ana
 context-conditioned transitions, winner-token behavior, and clustering
 \cite{ildiz2024,geshkovski2023}.  These results concern different mathematical objects.  The
 framework below distinguishes symmetry of the query--key parameter kernel, symmetry of token
-logits, reversibility of the normalized route, and reciprocity of the output response.  None can be
-substituted for another without an additional argument.
+logits, reversibility of the normalized route, and reciprocity of the output response.  Each has its
+own observable and validation test.
 
 The book develops the framework in four stages.  First, we define a typed interaction system and its
 Potts parameter-gauge quotient, including an exact reference-transport law.  Second, we establish the
@@ -209,11 +221,12 @@ measurability, and falsification audits that state what additional evidence is r
 semantic level.  Functional ANOVA, Gaussian covariance selection, matrix scaling, and Bayes risk
 are classical ingredients; their role here is explicit and delimited.
 
-The scope is a framework rather than a universal equivalence theorem.  We do not claim that every
-response operator is a physical contact, that every attention head stores a Potts table, or that a
-family MSA is unnecessary for family-specific inference.  The goal is a mathematical coordinate
-system in which these claims can be stated, related, and falsified without changing meaning between
-statistical physics and machine learning.
+The scope is a framework for typed comparison and hypothesis design.  Its formal claims concern
+coordinate maps, invariances, decompositions, compatibility, and realizability.  Physical contact,
+internal motif storage, and family-specific sufficiency enter as empirical hypotheses with matched
+endpoints.  The present evidence is theoretical: family-scale response estimates, biological
+interventions, and matched-compute architecture benchmarks remain planned evaluations specified in
+the falsification program.
 
 The development proceeds from translation rules and the master operator-valued graph to static and
 dynamic responses, higher-order and probability geometry, and model correspondences.  A separate
@@ -316,7 +329,7 @@ energetic, kinetic, or intervention criterion.
 \end{enumerate}
 The first graph specifies executable communication, the second specifies model factorization, the
 third specifies how substitutions act, and the fourth specifies an empirical relation.  Agreement
-between them is a hypothesis to test, not a consequence of sharing the same vertex set.
+between them is a hypothesis tested with evidence beyond the shared vertex set.
 
 A graph combines support, topology, and the objects carried on its edges.  Its support declares
 which effects are treated as direct and which must be mediated by paths; its topology controls degree,
@@ -324,9 +337,10 @@ components, cycles, bottlenecks, frustration, and spectral modes.  These collect
 not belong to any isolated edge.  Conversely, topology alone is incomplete for categorical
 systems: two graphs with identical support and scalar edge norms can carry different singular
 directions and make different mutational predictions.  The scalar position graph is consequently
-a shadow of the operator-valued graph, not a sufficient physical description.
+a topology-and-strength projection of the operator-valued graph; categorical physical claims retain
+the edge operators and their validation endpoints.
 
-\BookSection{Softmax is an operation, not a semantics}
+\BookSection{The typed semantics of softmax}
 
 Several models use
 \begin{equation}
@@ -336,8 +350,8 @@ Several models use
 \end{equation}
 but the index $u$ names different sample spaces.  A Gibbs law may normalize over complete
 configurations; a Potts conditional over residue identities at one site; attention over source
-positions; and a modern Hopfield update over stored memories.  Reusing the numerical kernel does
-not align the corresponding random variables, energies, or graph semantics.
+positions; and a modern Hopfield update over stored memories.  The normalized index and surrounding
+model determine the associated random variable, energy coordinate, and graph semantics.
 
 Nevertheless, once the normalized variable has been named, softmax has an exact local
 thermodynamic geometry.  For a categorical state $z\in\mathcal Z$, scores $r_z$, and temperature
@@ -367,8 +381,8 @@ Independent edge-state softmaxes define the factorized graph distribution
 Q(G\mid x)=\prod_{e\in E_c}q_e(z_e\mid x).
 \label{eq:factorized-graph-law}
 \end{equation}
-This is a collection of local Gibbs coordinates, or a mean-field graph posterior, but not in
-general a coupled Gibbs ensemble over graphs.  A global graph law instead has the form
+This is a collection of local Gibbs coordinates, or a mean-field graph posterior.  A coupled Gibbs
+ensemble over graphs has the form
 \begin{equation}
 P(G\mid x)
 =\frac{\exp[-\mathcal H_{\mathrm{graph}}(G;x)/\tau]}
@@ -438,9 +452,10 @@ $\mathcal H_i^0\subseteq L_0^2(p_i)$ is the chosen centered feature fiber; $\mat
 context sigma-algebra; $E(C)\subseteq V\times V$ is measurable support; $h(C)\in\bigoplus_i
 \mathcal H_i^0$ is the one-body field; and
 $\mathcal K_{i\leftarrow j}(C):\mathcal H_j^0\to\mathcal H_i^0$ is the edge map.  The coordinate
-$\mathcal O$ records any higher-order maps, $\mathcal D$ the represented state and update rule,
-$\mathcal N$ the normalization or Lyapunov functional, $\mathcal E_{\mathrm{st}}$ the estimator and
-nuisance model, and $\mathcal V_{\!\mathrm{ld}}$ the independent validation endpoint.
+$\mathcal O$ records any higher-order maps; $\mathcal D$ records the represented latent and
+persistent state together with its input injection, update or transport, and output readout;
+$\mathcal N$ records the normalization or Lyapunov functional, $\mathcal E_{\mathrm{st}}$ the
+estimator and nuisance model, and $\mathcal V_{\!\mathrm{ld}}$ the independent validation endpoint.
 \end{definition}
 
 A model audit is a typed extraction map from model parameters, data, and interventions to
@@ -469,9 +484,9 @@ v'_i=\phi^v(v_i,\bar e'_i,\mathbf u),
 The learnable maps $\phi$ specify relation, node, and global updates.  The reducers $\rho$ are
 invariant to an arbitrary enumeration of their input sets, making the complete block equivariant
 to node relabeling when the graph and features are relabeled together.  Parameter sharing permits
-the same local rule to act on new graph sizes and new combinations of entities.  This is the
-architectural basis for combinatorial generalization, not a theorem that such generalization will
-occur outside the training distribution.
+the same local rule to act on new graph sizes and new combinations of entities.  This creates an
+architectural basis for combinatorial generalization.  Out-of-distribution generalization remains
+an empirical property of the trained system.
 
 The typed system in Eq.~\ref{eq:typed-system} refines this interface.  Its support $E(C)$ records
 the admissible senders and receivers; $\mathcal K_{i\leftarrow j}(C)$ types the edge update as a
@@ -482,7 +497,7 @@ joint probability law, which parameter redundancies preserve observables, how th
 estimated, and what endpoint validates it.  Message-passing networks, Potts fields, and
 Transformers can therefore share a relational computation diagram while occupying different
 probabilistic and inferential coordinates.  The unification is an interface with typed
-translations, not an assertion of semantic identity.
+translations; semantic identity requires agreement across the complete coordinate system.
 
 \BookSection{Node fibers and reference geometry}
 
@@ -528,10 +543,53 @@ Q_i=D_i^{1/2}P_iD_i^{-1/2}
 \label{eq:whitened-projector}
 \end{equation}
 Thus the removed constant direction depends on the declared categorical reference.  A uniform
-reference, a family marginal, and a model marginal define different geometries and should not be
-interchanged silently.  Operationally, $P_i$ takes any residue score vector and subtracts its
+reference, a family marginal, and a model marginal define different geometries; every audit keeps
+this choice explicit.  Operationally, $P_i$ takes any residue score vector and subtracts its
 $p_i$-weighted mean.  It computes a centered contrast.  Interaction estimation, biological choice
 of reference, and physical calibration enter at later stages.
+
+\BookSubsection{Choosing the endpoint anchor and background law}
+
+A response audit contains two distributional choices.  The endpoint anchors $(p_i,p_j)$ define the
+categorical contrasts, block norm, and singular directions.  The background law $\mu_{ij}$ weights
+the contexts used for the static--dynamic decomposition.  These choices answer different
+questions: an endpoint anchor fixes the coordinate system, while a background law fixes the
+population over which persistence and variation are measured.  Table~\ref{tab:reference-choice}
+gives an operational default for common audit objectives.
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.21\linewidth}
+                >{\raggedright\arraybackslash}p{0.25\linewidth}
+                >{\raggedright\arraybackslash}p{0.43\linewidth}@{}}
+\toprule
+Audit objective & Primary endpoint anchor & Background law and required control \\
+\midrule
+Exact algebraic calibration & Uniform or designed full-support reference & Designed product law;
+verify the exact identities under at least one additional full-support anchor. \\
+Within-family static comparison & Smoothed family marginals estimated from the training MSA &
+Clade-held-out empirical contexts; report sequence weighting and a phylogeny-aware null. \\
+Model-centered response audit & Detached model marginals from a fixed checkpoint and prompt
+population & Declared natural or mutational contexts; repeat across checkpoints when model drift is
+part of the question. \\
+Cross-family or assay comparison & One common pooled, assay-defined, or design-defined anchor &
+Family-balanced or held-out assay contexts; report support overlap and transport sensitivity before
+pooling blocks or rankings. \\
+\bottomrule
+\end{tabular}
+\caption{Reference choices follow the estimand.  The anchor fixes endpoint geometry; the background
+law fixes the evaluation population.}
+\label{tab:reference-choice}
+\end{table}
+
+The anchor is fixed before evaluating interaction scores and estimated from the training partition
+when data determine it.  Small probabilities require a declared smoothing floor.  Cross-family
+averages first transport every block to one common anchor.  A primary anchor, one scientifically
+plausible alternative, and the resulting change in norms or rankings form the minimum sensitivity
+report.  Product-reference and empirical-background dynamic fractions are reported together with
+the geometry gap in Eq.~\ref{eq:dynamic-geometry-gap}; the first supports interaction-order
+identification, and the second describes variation on the evaluated sequence population.
 
 \BookSection{The canonical bivariate component}
 
@@ -1384,7 +1442,7 @@ Gaussian precision & linear-feature fiber and precision blocks & family-static; 
 RBM & visible--hidden factors & static parameters; generally all visible orders & Gibbs law and latent free energy & likelihood or contrastive methods; hidden motif is not a set of direct contacts \\
 Message-passing GNN & declared or input-dependent support with shared messages & computation becomes higher order with depth & one-pass or iterated state; no required global normalization & supervised or self-supervised loss; route is not an identified coupling \\
 Modern Hopfield & maps between state and stored-memory fibers & state-dependent retrieval & iterative update with Lyapunov function under stated assumptions & learned or prescribed memories; Lyapunov energy is not a Potts sequence energy \\
-Transformer / pLM & dense routes plus audited categorical output response & input-dependent; generally all orders & layered hidden state; positional softmax, usually no global sequence energy & corpus pretraining plus intervention audit; attention coefficients are not response tables \\
+Transformer / pLM & dense or masked routes, optional recurrent state, plus audited categorical response & input-dependent; order may enter coordinates, support, local filters, or dynamics & layered or recurrent hidden state; route normalization is model-specific; usually no global sequence energy & corpus pretraining plus intervention audit; internal transport coefficients are not response tables \\
 MSA Transformer & tied position routes plus sequence-axis routes & current-family conditioned with a cross-family amortized prior & axial updates on an $R\times L$ state; no required joint energy & MSA masked reconstruction; routes mix constraint, phylogeny, gaps, and sampling \\
 Pallatom & residue and atom-slot nodes with persistent pair state & coordinate-conditioned, multiscale, and higher order & iterative all-atom denoising with coordinate--pair recycling & composite geometric supervision; atom14 slots and aligned loss are biases, not chemical ontology or exact equivariance \\
 \bottomrule
@@ -1509,11 +1567,532 @@ operator family across its edges.
 \end{proposition}
 
 The complete input--output response also contains derivatives or finite differences through
-queries, keys, earlier layers, residual paths, and nonlinear blocks.  This is why the categorical
-output audit in Eq.~\ref{eq:dynamic-response} is the proper model-level object for comparison with
-a Potts block.  The attention map supplies the route graph.  Route and response graphs should
-therefore be reported separately: the first describes where a layer reads, while the second
-describes how a source substitution changes the model's categorical prediction.
+queries, keys, earlier layers, residual paths, recurrent state, and nonlinear blocks.  This is why
+the categorical output audit in Eq.~\ref{eq:dynamic-response} is the proper model-level object for
+comparison with a Potts block.  The attention map supplies an instantaneous route graph, while a
+state transition describes how stored information is transported between steps.  Route, state
+transport, and response should therefore be reported separately.
+
+\BookSubsection{Encoder--transport--readout closes the type system}
+
+The categorical edge operator and the internal neural operators live in different fibers.  A
+complete architectural realization therefore includes an augmented latent state space
+\begin{equation}
+\mathscr Z^{(n)}
+=\left(\bigoplus_{i=1}^{L}\mathscr Z_i^{(n)}\right)\oplus\mathscr S^{(n)},
+\label{eq:augmented-latent-state}
+\end{equation}
+where $\mathscr Z_i^{(n)}$ is a token or residue fiber and $\mathscr S^{(n)}$ contains any recurrent,
+pair, or global state.  Fix an ordered audit pair $i\leftarrow j$, an endpoint-removable context
+$C=C_{ij}$, and the complete target protocol, and write $q_k=|\Omega_k|$.  Let
+\begin{equation}
+\iota_{i\leftarrow j,C}:\Omega_j\longrightarrow\mathscr Z^{(0)},
+\qquad
+\Phi_{i,C}:\mathscr Z^{(0)}\longrightarrow\mathscr Z^{(N)},
+\qquad
+\varrho_i:\mathscr Z^{(N)}\longrightarrow\mathbb R^{q_i}
+\label{eq:encoder-transport-readout-maps}
+\end{equation}
+denote source-category injection, the complete latent computation, and the target-logit readout.
+The pair and target indices record the audit intervention: for masked prediction, the input at $i$
+is withheld before any latent state or route is formed.  They do not introduce learned parameters
+specific to the pair.  The exact nonlinear table already used in
+Eq.~\ref{eq:conditional-logit-table} is written columnwise as
+\begin{equation}
+T_{i\leftarrow j}^{C}(:,b)
+=\varrho_i\!\left(\Phi_{i,C}(\iota_{i\leftarrow j,C}(b))\right),
+\qquad b\in\Omega_j,
+\label{eq:exact-encoder-transport-readout-table}
+\end{equation}
+and its external categorical response remains
+\begin{equation}
+G_{i\leftarrow j}(C)
+=P_iT_{i\leftarrow j}^{C}P_j^{\mathsf T}.
+\label{eq:exact-etr-response}
+\end{equation}
+This factorization is exact for finite categorical substitutions and requires no differentiability.
+It also makes endpoint exclusion operational: the injection, latent computation, route decisions,
+stored state, and readout used for this table must all obey the same targetwise context protocol.
+
+The local linear bridge requires one additional declaration.  Choose a differentiable extension
+\begin{equation}
+\bar\iota_{i\leftarrow j,C}:\Delta_{q_j-1}\longrightarrow\mathscr Z^{(0)}
+\label{eq:differentiable-categorical-extension}
+\end{equation}
+that agrees with $\iota_{i\leftarrow j,C}$ at the simplex vertices, and use $p_j$ as the local
+anchor.  Assume that this extension, $\Phi_{i,C}$, and $\varrho_i$ are differentiable along the
+resulting forward orbit.  The extension is part of the local audit and is not determined by the
+vertex table.  Hard routing boundaries require a regionwise derivative or the finite audit above.
+A source contrast $f\in\mathcal H_j^0$ determines the zero-mass simplex tangent $D_jf$ because
+$\mathbf1^{\mathsf T}D_jf=p_j^{\mathsf T}f=0$.  Set
+\begin{equation}
+z_{i\leftarrow j,C}^{(0)}
+=\bar\iota_{i\leftarrow j,C}(p_j),
+\qquad
+z_{i\leftarrow j,C}^{(N)}
+=\Phi_{i,C}(z_{i\leftarrow j,C}^{(0)}).
+\label{eq:etr-anchor-states}
+\end{equation}
+The source injection, latent Jacobian, and centered target readout have the explicit types
+\begin{align}
+\mathsf E_{i\leftarrow j,C}:\mathcal H_j^0
+&\longrightarrow T_{z_{i\leftarrow j,C}^{(0)}}\mathscr Z^{(0)},
+&\mathsf E_{i\leftarrow j,C}f
+&=D\bar\iota_{i\leftarrow j,C}(p_j)[D_jf],
+\label{eq:typed-source-injection}\\
+\mathbb J_{i\leftarrow j,C}^{\mathrm{lat}}:
+T_{z_{i\leftarrow j,C}^{(0)}}\mathscr Z^{(0)}
+&\longrightarrow T_{z_{i\leftarrow j,C}^{(N)}}\mathscr Z^{(N)},
+&\mathbb J_{i\leftarrow j,C}^{\mathrm{lat}}
+&=D\Phi_{i,C}(z_{i\leftarrow j,C}^{(0)}),
+\label{eq:complete-latent-jacobian}\\
+\mathsf R_{i\leftarrow j,C}:
+T_{z_{i\leftarrow j,C}^{(N)}}\mathscr Z^{(N)}
+&\longrightarrow\mathcal H_i^0,
+&\mathsf R_{i\leftarrow j,C}
+&=P_iD\varrho_i(z_{i\leftarrow j,C}^{(N)}).
+\label{eq:centered-target-readout}
+\end{align}
+Define the anchor-dependent local categorical response by
+\begin{equation}
+\mathcal K_{i\leftarrow j}^{\mathrm{lin}}(C)f
+=P_iD\!\left[
+\varrho_i\circ\Phi_{i,C}\circ\bar\iota_{i\leftarrow j,C}
+\right](p_j)[D_jf].
+\label{eq:local-categorical-response-definition}
+\end{equation}
+
+\begin{proposition}[Encoder--transport--readout factorization]
+\label{prop:encoder-transport-readout}
+The local categorical edge operator factors as
+\begin{equation}
+\boxed{
+\mathcal K_{i\leftarrow j}^{\mathrm{lin}}(C)
+=\mathsf R_{i\leftarrow j,C}\,
+\mathbb J_{i\leftarrow j,C}^{\mathrm{lat}}\,
+\mathsf E_{i\leftarrow j,C}:
+\mathcal H_j^0\longrightarrow\mathcal H_i^0.}
+\label{eq:local-etr-factorization}
+\end{equation}
+Consequently,
+\begin{equation}
+\operatorname{rank}\mathcal K_{i\leftarrow j}^{\mathrm{lin}}(C)
+\leq
+\min\left\{
+\operatorname{rank}\mathsf E_{i\leftarrow j,C},
+\operatorname{rank}\mathbb J_{i\leftarrow j,C}^{\mathrm{lat}},
+\operatorname{rank}\mathsf R_{i\leftarrow j,C},q_j-1,q_i-1
+\right\}.
+\label{eq:etr-rank-bound}
+\end{equation}
+If the composite map
+$u\mapsto\varrho_i(\Phi_{i,C}(\bar\iota_{i\leftarrow j,C}(u)))$ is affine on
+$\Delta_{q_j-1}$, then
+$\mathcal K_{i\leftarrow j}^{\mathrm{lin}}(C)$ equals the finite categorical operator induced by
+$G_{i\leftarrow j}(C)$ through Eq.~\ref{eq:edge-operator}.
+\end{proposition}
+
+\begin{proof}
+The chain rule gives Eq.~\ref{eq:local-etr-factorization}; $P_i$ centers its range and the source
+map is defined only on $\mathcal H_j^0$.  The rank of a composition cannot exceed the rank of any
+factor.  Let $g$ denote the composite map in the affine case.  Barycentric coordinates on the
+simplex give $g(u)=\sum_bu_b g(e_b)=T_{i\leftarrow j}^{C}u$, so
+$Dg(u)[\delta u]=T_{i\leftarrow j}^{C}\delta u$ for every zero-mass tangent $\delta u$.  For
+$f\in\mathcal H_j^0$,
+$P_j^{\mathsf T}D_jf=D_jP_jf=D_jf$, so the resulting action is
+$P_iT_{i\leftarrow j}^{C}P_j^{\mathsf T}D_jf=G_{i\leftarrow j}(C)D_jf$.
+\end{proof}
+
+When all sources and targets are audited at one base point of a joint differentiable encoder and a
+common forward map, the factors assemble over
+$\mathcal H^0=\bigoplus_i\mathcal H_i^0$.  More precisely, let
+\begin{equation}
+\bar\iota_C:\prod_j\Delta_{q_j-1}\longrightarrow\mathscr Z^{(0)},
+\qquad
+p=(p_1,\ldots,p_L),
+\qquad
+z_C^{(0)}=\bar\iota_C(p),
+\qquad
+z_C^{(N)}=\Phi_C(z_C^{(0)})
+\label{eq:joint-etr-anchor}
+\end{equation}
+be the joint encoder and common orbit, let $\varrho=(\varrho_1,\ldots,\varrho_L)$, and define
+$\mathbb D_p(f_i)_i=(D_if_i)_i$ and $\mathbb P=\bigoplus_iP_i$.  Then
+\begin{align}
+\mathbb E_C
+&=D\bar\iota_C(p)\mathbb D_p:
+\mathcal H^0\longrightarrow T_{z_C^{(0)}}\mathscr Z^{(0)},\\
+\mathbb J_C^{\mathrm{lat}}
+&=D\Phi_C(z_C^{(0)}):
+T_{z_C^{(0)}}\mathscr Z^{(0)}\longrightarrow T_{z_C^{(N)}}\mathscr Z^{(N)},\\
+\mathbb R_C
+&=\mathbb P D\varrho(z_C^{(N)}):
+T_{z_C^{(N)}}\mathscr Z^{(N)}\longrightarrow\mathcal H^0.
+\label{eq:global-etr-types}
+\end{align}
+The complete local response Jacobian has the compact realization
+\begin{equation}
+\boxed{
+\mathbb K_C^{\mathrm{lin}}
+=\mathbb R_C\,\mathbb J_C^{\mathrm{lat}}\,\mathbb E_C.}
+\label{eq:global-etr-factorization}
+\end{equation}
+Its declared off-diagonal blocks form the operator graph.  Target-specific masking or pair-specific
+endpoint removal gives the factors in Eq.~\ref{eq:local-etr-factorization}; their block assembly is
+useful bookkeeping but represents a collection of audit runs, not one physical forward pass.
+
+The latent Jacobian itself is an ordered network object.  Suppress the pair indices for one audit
+run.  If $\Phi_C=F_{N-1,C}\circ\cdots\circ F_{0,C}$ and
+$z_C^{(n+1)}=F_{n,C}(z_C^{(n)})$, then
+\begin{equation}
+\mathbb J_C^{\mathrm{lat}}
+=DF_{N-1,C}(z_C^{(N-1)})\cdots DF_{0,C}(z_C^{(0)}).
+\label{eq:latent-jacobian-product}
+\end{equation}
+For an additive residual block, its derivative can be grouped into identity, frozen value or
+dictionary transport, route derivatives, state derivatives, and nonlinear channel derivatives.
+For ordinary attention, the frozen value contribution on the token-state subspace is exactly
+\begin{equation}
+\mathbb J_{n,C}^{\mathrm{value}}
+=\sum_h B_h\otimes P_h(C)
+\label{eq:attention-latent-jacobian-factor}
+\end{equation}
+under column-stacking vectorization.  Expanding Eq.~\ref{eq:latent-jacobian-product} gives the
+end-to-end computational path sum.  Equation~\ref{eq:attention-latent-jacobian-factor} is the
+token-to-token value-path block and is embedded into the larger augmented-state Jacobian when
+$\mathscr S^{(n)}$ is present.  Applying $\mathbb R_C$ and $\mathbb E_C$ converts internal transport
+into the external categorical operator.
+
+This closes the operator hierarchy without identifying its levels.  A Potts block is a static
+categorical realization with no latent routing requirement.  Attention, operator dictionaries, and
+state propagators are internal factors of $\mathbb J_C^{\mathrm{lat}}$.  Scalar, signed, and
+connection Laplacians are downstream contractions or transports built from a declared categorical
+or route operator.  Phylogeny enters the context and estimator coordinates, or enters
+$\mathbb J_C^{\mathrm{lat}}$ only when tree messages are actually executed.  Diffusion belongs to
+the state-update coordinate and reaches a sequence interaction claim through the same readout and
+validation ladder.  The finite table in Eq.~\ref{eq:exact-encoder-transport-readout-table} is exact
+at the categorical vertices; the Jacobian factorization is local, anchor dependent, and contingent
+on the chosen simplex extension.
+
+\BookSection{Where position lives: coordinates, support, and dynamics}
+
+An integer token index is only one realization of sequence order.  A model may carry positional
+information in a token coordinate, an edge score, the allowed support, a local ordered filter, a
+persistent state, or the order in which updates are composed.  These mechanisms break different
+symmetries and impose different memory geometries.  It is useful to separate three questions:
+whether a computation can distinguish an ordering, where that distinction is represented, and
+whether the training task forces the representation to use it.
+
+\BookSubsection{Support symmetry before positional coordinates}
+
+Let $A\in\{0,1\}^{L\times L}$ declare the directed support of a shared message-passing rule and let
+$\Pi$ be a permutation matrix.  Write
+\begin{equation}
+\operatorname{Aut}(A)
+=\{\Pi:\Pi A\Pi^{\mathsf T}=A\}.
+\label{eq:support-automorphism-group}
+\end{equation}
+
+\begin{proposition}[Support automorphisms bound positional identifiability]
+\label{prop:support-position-identifiability}
+Suppose an architecture has no coordinate-labelled input, uses shared node maps, and aggregates each
+allowed neighborhood by a permutation-symmetric rule.  Then, for every
+$\Pi\in\operatorname{Aut}(A)$,
+\begin{equation}
+F_A(\Pi H)=\Pi F_A(H).
+\label{eq:support-automorphism-equivariance}
+\end{equation}
+For complete bidirectional support, $\operatorname{Aut}(A)$ is the full symmetric group $S_L$, so
+a token permutation only relabels the outputs; the architecture cannot attach meaning to the order
+itself without another symmetry-breaking input.
+For the finite causal support $A_{ts}=\mathbf 1\{s\leq t\}$, the automorphism group is trivial.
+\end{proposition}
+
+\begin{proof}
+Relabelling nodes by an automorphism preserves every allowed neighborhood.  Shared node maps commute
+with the relabelling, and symmetric aggregation removes the ordering of messages within each
+neighborhood, which gives Eq.~\ref{eq:support-automorphism-equivariance}.  Every permutation preserves
+complete support.  Under causal support, node $t$ has in-degree $t$; these degrees are all distinct,
+so every support automorphism fixes every node.
+\end{proof}
+
+Trivial support symmetry makes position structurally available, but it does not guarantee that a
+particular computation reads it.  A single content-only causal attention layer has
+\begin{equation}
+\operatorname{Attn}_t(H)
+=\frac{\sum_{s\leq t}\exp(q(h_t)^{\mathsf T}k(h_s))v(h_s)}
+{\sum_{s\leq t}\exp(q(h_t)^{\mathsf T}k(h_s))}.
+\label{eq:nope-causal-multiset}
+\end{equation}
+At fixed target state, this expression depends on the prefix source states only through their
+multiset.  Its target output therefore agrees on $(a,b,c)$ and $(b,a,c)$ when the target $c$ and the
+source embeddings are otherwise unchanged.  Later layers can distinguish the two sequences once
+the source states themselves contain different prefix histories.  Boundary tokens, causal local
+convolutions, and recurrent updates provide additional carriers.  Conversely, a composition of
+fully $S_L$-equivariant layers remains $S_L$-equivariant; a noncommuting product across depth
+transports order only after some coordinate, support, boundary, or state update has broken that
+symmetry.
+
+Explicit relative coordinates provide a different construction.  Rotary position embedding writes
+the displacement directly into the query--key bilinear form,
+\begin{equation}
+s_{t s}^{\mathrm{RoPE}}
+=q_t^{\mathsf T}R_{t-s}k_s,
+\label{eq:rope-edge-transport}
+\end{equation}
+where $R_{t-s}$ is a prescribed orthogonal transport depending on relative index
+\cite{su2024roformer}.  The causal mask supplies precedence, while Eq.~\ref{eq:rope-edge-transport}
+supplies an explicit relative coordinate.
+
+\BookSubsection{Time-ordered affine state transport}
+
+Recurrent linear attention places order in a state transition.  Kimi Delta Attention provides a
+concrete example.  For one head, let $q_t,k_t\in\R^{d_k}$, $v_t\in\R^{d_v}$, and
+$S_t\in\R^{d_k\times d_v}$.  KDA applies $\ell_2$ normalization to queries and keys; write
+$\|q_t\|_2=\|k_t\|_2=1$.  Its recurrent core is
+\begin{equation}
+S_t=M_tS_{t-1}+B_t,
+\qquad
+M_t=(I-\beta_tk_tk_t^{\mathsf T})\diag(\alpha_t),
+\qquad
+B_t=\beta_tk_tv_t^{\mathsf T},
+\qquad
+\widetilde o_t=S_t^{\mathsf T}q_t.
+\label{eq:kda-affine-state}
+\end{equation}
+Here $\alpha_t\in(0,1)^{d_k}$ controls channelwise retention and
+$\beta_t\in(0,1)$ controls write strength \cite{kimilinear2025,kimik3}.  Key normalization gives
+\begin{equation}
+\left\|I-\beta_tk_tk_t^{\mathsf T}\right\|_2\leq1,
+\qquad
+\|M_t\|_2\leq\|\alpha_t\|_\infty<1,
+\label{eq:kda-one-step-contraction}
+\end{equation}
+which supplies the contraction assumption used below.  Without a norm bound on $k_t$, the interval
+$0<\beta_t<1$ alone does not imply stability.  With
+$\overline S_{t-1}=\diag(\alpha_t)S_{t-1}$, the same update is
+\begin{equation}
+S_t=\overline S_{t-1}
++\beta_tk_t\bigl(v_t-\overline S_{t-1}^{\mathsf T}k_t\bigr)^{\mathsf T}.
+\label{eq:kda-delta-correction}
+\end{equation}
+Thus retention first attenuates the previous state, after which the rank-one delta rule corrects the
+value associated with the current key.  This correction is one online-gradient step for
+\begin{equation}
+\mathcal L_t(S)
+=\frac12\left\|v_t-S^{\mathsf T}k_t\right\|_2^2,
+\qquad
+-\nabla_S\mathcal L_t(\overline S_{t-1})
+=k_t\left(v_t-\overline S_{t-1}^{\mathsf T}k_t\right)^{\mathsf T}.
+\label{eq:kda-online-regression}
+\end{equation}
+For a unit key, the write reduces its current-key residual exactly:
+\begin{equation}
+v_t-S_t^{\mathsf T}k_t
+=(1-\beta_t)\left(v_t-\overline S_{t-1}^{\mathsf T}k_t\right).
+\label{eq:kda-current-key-error}
+\end{equation}
+The state is therefore a compressed online associative memory with retention and interference
+between nonorthogonal keys.
+
+Define the path-ordered propagator
+\begin{equation}
+\Phi_{t:s+1}=M_tM_{t-1}\cdots M_{s+1},
+\qquad \Phi_{t:t+1}=I.
+\label{eq:kda-propagator}
+\end{equation}
+Unrolling Eq.~\ref{eq:kda-affine-state} gives
+\begin{equation}
+S_t=\Phi_{t:1}S_0+\sum_{s=1}^{t}\Phi_{t:s+1}B_s,
+\label{eq:kda-unrolled-state}
+\end{equation}
+and therefore
+\begin{equation}
+\widetilde o_t
+=S_0^{\mathsf T}\Phi_{t:1}^{\mathsf T}q_t
++\sum_{s=1}^{t}w_{t\leftarrow s}(x)v_s,
+\qquad
+w_{t\leftarrow s}(x)
+=\beta_s q_t^{\mathsf T}\Phi_{t:s+1}k_s.
+\label{eq:kda-effective-kernel}
+\end{equation}
+The matrix $W(x)=(w_{t\leftarrow s}(x))$ is a lower-triangular effective transport kernel.  Its
+entries may be signed, need not sum to one, and depend on every intervening transition between $s$
+and $t$.  It is an implicit finite-state Green kernel rather than a softmax route.  At frozen gates
+Eq.~\ref{eq:kda-effective-kernel} is an exact algebraic contribution of each write.  A substitution
+of $x_s$ also changes local convolutions, gates, keys, queries, and later transitions; that complete
+effect belongs to the audited response $G_{t\leftarrow s}(C)$.
+
+The fixed state dimension imposes a precise capacity constraint even though $W(x)$ can be dense.
+
+\begin{proposition}[Cross-cut rank of recurrent transport]
+\label{prop:kda-cross-cut-rank}
+Fix the gates, keys, and queries in Eq.~\ref{eq:kda-effective-kernel}.  For every cut
+$1\leq u<T$, the strictly past-to-future block factors as
+\begin{equation}
+W_{u+1:T,\,1:u}=\mathcal O_u\mathcal C_u,
+\qquad
+[\mathcal O_u]_{t,:}=q_t^{\mathsf T}\Phi_{t:u+1},
+\qquad
+[\mathcal C_u]_{:,s}=\beta_s\Phi_{u:s+1}k_s,
+\label{eq:kda-cross-cut-factorization}
+\end{equation}
+where rows of $\mathcal O_u$ are indexed by $t>u$ and columns of $\mathcal C_u$ by $s\leq u$.
+Consequently,
+\begin{equation}
+\operatorname{rank}W_{u+1:T,\,1:u}\leq d_k.
+\label{eq:kda-cross-cut-rank}
+\end{equation}
+The corresponding linear map from past value arrays to future outputs has rank at most $d_kd_v$.
+\end{proposition}
+
+\begin{proof}
+For $t>u\geq s$, path ordering gives
+$\Phi_{t:s+1}=\Phi_{t:u+1}\Phi_{u:s+1}$.  Substitution into
+Eq.~\ref{eq:kda-effective-kernel} yields Eq.~\ref{eq:kda-cross-cut-factorization}.  The scalar
+kernel block has inner dimension $d_k$; the value-array map is its Kronecker product with
+$I_{d_v}$.
+\end{proof}
+
+Thus constant recurrent state and dense effective support coexist with a bounded communication
+rank across every time cut.  Direct token memory, additional heads, or periodic global attention
+can add channels beyond this bottleneck.
+
+The complete local response follows from the differential of the recurrence, rather than from the
+frozen kernel alone.  For an arbitrary input perturbation, define
+$\Xi_r=(\delta M_r)S_{r-1}+\delta B_r$.  Then
+\begin{align}
+\delta S_t
+&=M_t\delta S_{t-1}+\Xi_t
+=\Phi_{t:1}\delta S_0+
+\sum_{r=1}^{t}\Phi_{t:r+1}\Xi_r,
+\label{eq:kda-state-variation}\\
+\delta\widetilde o_t
+&=(\delta S_t)^{\mathsf T}q_t+S_t^{\mathsf T}\delta q_t.
+\label{eq:kda-output-variation}
+\end{align}
+The $\delta B_r$ terms include value and write changes, the $\delta M_r$ terms include retention and
+key changes, and the last term includes query changes.  Local convolutions and upstream token maps
+enter through these variations.  Equations~\ref{eq:kda-state-variation}--\ref{eq:kda-output-variation}
+are the KDA block inside $\mathbb J_C^{\mathrm{lat}}$; composing them with
+$\mathsf E_{i\leftarrow j,C}$ and $\mathsf R_{i\leftarrow j,C}$ gives the local categorical response
+in Eq.~\ref{eq:local-etr-factorization}.
+
+The affine form also identifies the precise source of order sensitivity.  If token $x$ induces
+$F_x(S)=M_xS+B_x$, then
+\begin{equation}
+(M_2,B_2)\circ(M_1,B_1)
+=\left(M_2M_1,\,M_2B_1+B_2\right).
+\label{eq:affine-state-composition}
+\end{equation}
+This composition is associative.  When every $(M_t,B_t)$ is available before the recurrence is
+evaluated, it supports a parallel prefix or chunk scan; state-dependent transition generation
+removes that guarantee.  Reversing two input-conditioned transitions gives
+\begin{equation}
+F_b(F_a(S))-F_a(F_b(S))
+=[M_b,M_a]S+(M_b-I)B_a-(M_a-I)B_b.
+\label{eq:affine-order-defect}
+\end{equation}
+The first term is a linear commutator.  The remaining terms record the order in which writing and
+forgetting occur.  Affine transitions can consequently distinguish order even when a particular
+pair of linear factors commutes.  The native object is the time-ordered affine semigroup in
+Eq.~\ref{eq:affine-state-composition}.
+
+Equations~\ref{eq:rope-edge-transport} and \ref{eq:kda-effective-kernel} expose two realizations of
+relative transport:
+\begin{equation}
+q_t^{\mathsf T}R_{t-s}k_s
+\quad\longleftrightarrow\quad
+q_t^{\mathsf T}\mathcal P\!\prod_{r=s+1}^{t}M_r k_s.
+\label{eq:coordinate-state-transport-comparison}
+\end{equation}
+The left side is a fixed, stationary, orthogonal coordinate transport.  The right side is
+content-dependent, dissipative, and path ordered.  In the special case $M_r=\alpha I$,
+\begin{equation}
+w_{t\leftarrow s}=\beta_s\alpha^{t-s}q_t^{\mathsf T}k_s,
+\label{eq:kda-exponential-distance}
+\end{equation}
+so the recurrent construction reduces to an exponential relative-distance kernel.  For variable
+$M_r$, finite-horizon memory is governed by singular values of $\Phi_{t:s}$ and by nonnormal
+transients; under a stated stochastic law and existence assumptions, asymptotic behavior may be
+summarized by Lyapunov exponents.  These are spectra in channel-state space.  They must be kept
+distinct from a Laplacian spectrum on residue positions and from singular spectra of categorical
+response blocks.
+
+\BookSubsection{What NoPE establishes}
+
+Kimi K3 uses three KDA layers for each periodic Gated MLA layer and applies no explicit positional
+embedding to the MLA queries or keys; its reported 93-layer backbone contains 69 KDA and 24 Gated
+MLA layers.  The KDA projections include a causal short convolution, and the recurrence contributes
+causal support, cumulative retention, content-dependent correction, and boundary sensitivity.  The
+later MLA layers therefore receive position-sensitive hidden states while retaining unrestricted
+global content interaction \cite{kimik3}.  KDA holds a fixed-size $d_k\times d_v$ state per head and
+supplies compressed historical memory.  Periodic MLA retains length-dependent key--value memory and
+direct global token access.  The hybrid separates compressed state transport from explicitly
+addressable token memory; its global layers also provide paths outside the single-state cross-cut
+rank bound in Proposition~\ref{prop:kda-cross-cut-rank}.
+
+K3 parameterizes the per-head log retention by
+\begin{equation}
+g_t^h=g_{\min}\operatorname{Sigmoid}(e^{A_h}z_t^h),
+\qquad
+\alpha_t^h=\exp(g_t^h),
+\qquad
+g_{\min}=-5,
+\label{eq:k3-log-retention}
+\end{equation}
+so each one-step factor lies in $(e^{-5},1)$.  The lower bound controls reciprocal cumulative-decay
+rescaling in finite-precision chunkwise computation.  Long-term retention still depends on products
+of many factors and on the complete propagator in Eq.~\ref{eq:kda-propagator}.
+
+Position use should be audited at three levels:
+\begin{equation}
+\begin{aligned}
+\text{structural identifiability}&:\quad \operatorname{Aut}(A)\text{ and other exact symmetries},\\
+\text{representational observability}&:\quad \text{whether order or displacement is decodable from hidden state},\\
+\text{task identifiability}&:\quad \text{whether data and loss distinguish order-sensitive alternatives}.
+\end{aligned}
+\label{eq:position-identifiability-levels}
+\end{equation}
+Kimi K3 supplies an existence example in which NoPE coexists with frontier-scale long-context
+performance.  Its report uses a progressive $8$K, $64$K, $256$K, and $1$M context curriculum and
+specialized long-context data; direct extrapolation there means that no positional-encoding
+rescaling or interpolation is required.  The report does not contain a matched, single-variable
+RoPE--NoPE ablation at K3 scale.  KDA, Gated MLA, attention residuals, model scale, training data, and
+optimization change together, so their separate causal contributions remain open.
+
+Earlier controlled studies had already shown that causal Transformers without explicit positional
+embeddings can recover position information from their computation and can exhibit competitive
+length generalization on selected tasks \cite{haviv2022nope,kazemnejad2023positional}.  K3 extends
+the existence evidence to a hybrid frontier-scale system; it does not isolate one universal NoPE
+mechanism.
+
+\BookSubsection{Protein sequences and MSA axes}
+
+The symmetry audit transfers directly to protein models.  A bidirectional, fully connected NoPE
+model satisfying the hypotheses of Proposition~\ref{prop:support-position-identifiability} remains
+$S_L$-equivariant and therefore lacks a carrier of residue order.  Protein architectures may supply that carrier through relative chain
+coordinates, local sequence neighborhoods, bidirectional state propagation, backbone adjacency, or
+three-dimensional geometry.  These choices encode different invariances and should be compared by
+matched training and intervention.  The recurrence index is an aligned token coordinate, not
+evolutionary time or physical distance; gaps and indels can change the coordinate path length across
+homologs and therefore belong to the MSA alignment and phylogeny audit.
+
+An MSA has two base geometries.  The residue-column axis is ordered along the chain.  The homolog-row
+axis has no meaningful file order: an exchangeable family model should be equivariant to arbitrary
+row permutations, while a phylogeny-aware model may replace that symmetry by tree-constrained
+transport.  Removing arbitrary row coordinates can therefore be a correct inductive bias even when
+the column axis still requires chain geometry.  The unified architectural record becomes
+\begin{equation}
+\boxed{
+\text{support geometry}
++\text{edge transport}
++\text{state propagator}
++\text{interventional response}.}
+\label{eq:position-state-response-record}
+\end{equation}
+Instantaneous attention, recurrent memory, and categorical substitution effects occupy separate
+coordinates of this record.
 
 \BookSection{MSA Transformer as amortized family inference}
 
@@ -1777,7 +2356,7 @@ the product at $u$ combines conditionally independent descendant evidence.  This
 Network on an augmented vertex set with latent nodes, but it is not a residue interaction graph
 and not a message-passing layer over only the observed MSA rows.
 
-\BookSection{Inference on a tree is not inference of a tree}
+\BookSection{Tree-conditioned inference and tree identification}
 
 Two computational problems are often compressed into the phrase "phylogenetic inference":
 \begin{equation}
@@ -2475,8 +3054,31 @@ The operator coordinates distinguish a semantic interaction object from an imple
 computes it.  Support selection, routing normalization, persistent state, endpoint measurability,
 and update dynamics are independent architectural decisions.  Endpoint measurability, support
 invariance, and state--energy compatibility below are semantic requirements.  Signed routing,
-affine deletion, persistent pair tracks, and optional-MSA supervision are constructive examples,
-not required components of the master object.
+affine deletion, persistent pair tracks, and optional-MSA supervision form a menu of constructive
+realizations.  Other realizations can satisfy the same semantic requirements.
+
+This chapter uses three evidence levels:
+\begin{center}
+\small
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.18\linewidth}
+                >{\raggedright\arraybackslash}p{0.35\linewidth}
+                >{\raggedright\arraybackslash}p{0.37\linewidth}@{}}
+\toprule
+Evidence level & Established in this chapter & Remaining evaluation \\
+\midrule
+Exact result & Algebraic identities, rank and coverage bounds, deletion conditions, and operation
+counts under their stated assumptions & Assumption checks on each implementation and numerical
+agreement with the identities \\
+Constructive design & Executable recurrences, routing rules, state updates, and sparse schedules &
+Optimization stability, approximation error, and compatibility with efficient kernels \\
+Empirical hypothesis & Operator reuse and context-dependent routing may improve quality per stored
+parameter or per unit of measured compute & Matched-data, matched-parameter, and matched-compute
+comparisons with confidence intervals and ablations \\
+\bottomrule
+\end{tabular}
+\end{center}
+The labels apply locally: a proposition about a frozen route establishes an identity for that
+route, while model quality and systems performance remain empirical quantities.
 
 \BookSection{Routing geometry and persistent relational state}
 
@@ -2502,8 +3104,9 @@ w_{ij}=\operatorname{sign}(z_{ij})(|z_{ij}|-\lambda)_+,
 a_{ij}=\frac{w_{ij}}{\epsilon+\sum_k|w_{ik}|}.
 \label{eq:signed-threshold-routing}
 \end{equation}
-It has exact zeros and bounded total variation, but superiority to softmax, sparsemax, entmax, or
-other signed attention rules is an empirical question \cite{martins2016,peters2019,ye2024}.
+It has exact zeros and bounded total variation.  Its relative performance against softmax,
+sparsemax, entmax, and other signed attention rules is an empirical question
+\cite{martins2016,peters2019,ye2024}.
 
 Routing geometry is separate from edge-value capacity.  A node-only message-passing layer retains
 $O(Ld)$ persistent states even if it evaluates dense transient connectivity.  A dense pair track
@@ -2514,6 +3117,542 @@ known.  Categorical rank and interaction order are independent capacity coordina
 State dynamics is another coordinate.  The same $\mathbb K_z$ may define a one-pass readout,
 an iterated map, or part of a descent dynamics.  A Hopfield claim combines a specified state space,
 fixed memories, update schedule, and Lyapunov decrease in addition to graph support.
+
+\BookSection{Parameter efficiency from operator reuse}
+
+Parameter efficiency has several inequivalent meanings.  For a width-$d$ Transformer block with
+feed-forward width $d_{\mathrm{ff}}$, square query, key, value, and output projections give the
+leading parameter count
+\begin{equation}
+P_{\mathrm{block}}
+\simeq 4d^2+\nu d d_{\mathrm{ff}},
+\qquad
+\nu=
+\begin{cases}
+2,&\text{ordinary two-matrix feed-forward block},\\
+3,&\text{gated three-matrix feed-forward block},
+\end{cases}
+\label{eq:transformer-block-parameters}
+\end{equation}
+up to biases and normalization parameters.  Grouped or multi-query attention changes the
+key--value part of the first term.  A useful resource ledger is the typed tuple
+\begin{equation}
+\mathscr R(B,L,p,\mathcal H)
+=
+\left(
+P_{\mathrm{total}},P_{\mathrm{active}},F,T_{\mathrm{latency}},
+M_{\mathrm{context}},M_{\mathrm{train}},B_{\mathrm{storage}},C_{\mathrm{comm}}
+\right),
+\label{eq:resource-ledger}
+\end{equation}
+recording total and active parameters, arithmetic work, latency, inference-time context memory,
+training activations, stored bytes, and communication.  These quantities require a declared batch
+size $B$, sequence length $L$, numerical precision $p$, and hardware--kernel protocol $\mathcal H$;
+$P_{\mathrm{active}}$ also requires a per-token, per-example, or per-batch convention.  Sparse
+routing primarily changes sequence-dependent computation and activations.  Mixture-of-experts
+routing can increase $P_{\mathrm{total}}$ while controlling tokenwise $P_{\mathrm{active}}$ and
+$F$, although batchwise expert coverage can be much larger.  A recurrent state can make
+$M_{\mathrm{context}}$ constant in $L$ for its recurrent layers, while training activations can
+still grow with $L$ and a hybrid attention layer retains a length-dependent key--value cache.
+Quantization changes $B_{\mathrm{storage}}$ and usually leaves the number of scalar parameters
+unchanged.  Cross-depth sharing directly changes $P_{\mathrm{total}}$ and may retain essentially
+the same number of sequential update steps.  Claims of ``efficiency'' should therefore name the
+coordinates and protocol of Eq.~\ref{eq:resource-ledger}.
+
+\paragraph{Architecture hypothesis and failure criteria.}
+The proposed dictionary tests whether a small set of reusable channel maps, combined through
+state-dependent coefficients and ordered depth, can preserve task quality while reducing
+$P_{\mathrm{total}}$ or a declared systems cost.  A matched evaluation varies dictionary size,
+factor rank, routing sparsity, and recurrent depth while holding training data, optimization budget,
+and output head fixed.  It reports held-out likelihood and task endpoints together with measured
+forward and backward latency, peak memory, communication, and support-discovery cost.  Static
+coefficients, untied depth, dense routing, and a conventional Transformer provide the required
+ablations.  The hypothesis fails in a tested regime when the tied dictionary loses held-out quality
+at matched resources, when state-dependent coefficients add no reproducible gain over the static
+control, or when routing and kernel overhead erase the predicted systems advantage.
+
+\BookSubsection{Attention as a separated operator}
+
+Let $H\in\mathbb R^{L\times d}$ store token states by row.  In the column-state convention of
+Eq.~\ref{eq:frozen-attention-map}, absorb the value projection and the corresponding output block
+of head $h$ into
+$B_h=W_{O,h}W_V^{(h)}\in\mathbb R^{d\times d}$, for which
+$\operatorname{rank}(B_h)\leq d_v$.  Write its position-space route as
+$P_h(H)\in\mathbb R^{L\times L}$.  For ordinary multihead attention with value bias, dropout, and
+value-side positional modulation omitted, the value path is
+\begin{equation}
+Y=\sum_{h=1}^{H_{\mathrm{head}}}P_h(H)HB_h^{\mathsf T}.
+\label{eq:attention-separated-evaluation}
+\end{equation}
+For a fixed routing state $H_0$, define the linear map
+\begin{equation}
+\mathcal V_{H_0}(X)
+=\sum_{h=1}^{H_{\mathrm{head}}}P_h(H_0)XB_h^{\mathsf T}.
+\label{eq:frozen-value-operator}
+\end{equation}
+Using column-stacking vectorization,
+\begin{equation}
+\operatorname{vec}\!\left(\mathcal V_{H_0}(X)\right)
+=\left[
+\sum_{h=1}^{H_{\mathrm{head}}}
+B_h\otimes P_h(H_0)
+\right]\operatorname{vec}(X).
+\label{eq:attention-kronecker-sum}
+\end{equation}
+For a linear map on position--channel arrays, define its operator-Schmidt rank as the smallest $s$
+for which it can be written $\mathcal L(X)=\sum_{r=1}^{s}A_rXC_r^{\mathsf T}$ with separate
+position maps $A_r$ and channel maps $C_r$.  This is a tensor separation rank, distinct from the
+ordinary matrix rank of $\mathcal L$ on $\mathbb R^{Ld}$.
+
+\begin{proposition}[Frozen-route operator-Schmidt bound]
+\label{prop:attention-separation-rank}
+The position--channel operator-Schmidt rank of the frozen value operator in
+Eq.~\ref{eq:attention-kronecker-sum} is at most $H_{\mathrm{head}}$.  Its directed edge map is
+\begin{equation}
+\mathcal A_{i\leftarrow j}(H_0)
+=\sum_{h=1}^{H_{\mathrm{head}}}[P_h(H_0)]_{ij}B_h
+\in\Span\{B_1,\ldots,B_{H_{\mathrm{head}}}\}.
+\label{eq:frozen-edge-dictionary}
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+Equation~\ref{eq:attention-kronecker-sum} is an explicit sum of
+$H_{\mathrm{head}}$ position--channel Kronecker products.  Directly expanding row $i$ of
+Eq.~\ref{eq:attention-separated-evaluation} gives Eq.~\ref{eq:frozen-edge-dictionary}, which is
+Proposition~\ref{prop:attention-span}.
+\end{proof}
+
+Dense $L\times L$ routing therefore need not contain $L^2$ learned parameter blocks.  It evaluates
+a small shared family of channel operators at many dynamically weighted edges.  The dense route
+still costs $O(L^2d)$ leading arithmetic.  Materializing every head route costs
+$O(H_{\mathrm{head}}L^2)$ activation memory; exact tiled kernels can avoid storing the full route
+while retaining quadratic arithmetic \cite{dao2022flashattention}.  Since each $P_h$ is
+row-stochastic, Eq.~\ref{eq:frozen-edge-dictionary} also obeys
+$\sum_j\mathcal A_{i\leftarrow j}=\sum_hB_h$ in the dropout-free computation.  The separation-rank
+bound permits an ordinary matrix rank as large as $Ld$ and has no converse under the nonnegative
+routing constraints.
+
+The frozen map is a stop-gradient value-path audit and agrees with the actual value output at
+$X=H_0$.  The full differential is
+\begin{equation}
+DY(H_0)[\Delta]
+=\sum_hP_h(H_0)\Delta B_h^{\mathsf T}
++\sum_hDP_h(H_0)[\Delta]H_0B_h^{\mathsf T}.
+\label{eq:attention-full-differential}
+\end{equation}
+Only the first term satisfies Proposition~\ref{prop:attention-separation-rank}; route derivatives,
+earlier layers, and nonlinear blocks contribute to the model-level response.
+
+\BookSubsection{A recurrent operator dictionary}
+
+The separated form suggests sharing at a finer scale than complete layers.  Let
+\begin{equation}
+B_r=U_rV_r^{\mathsf T},
+\qquad
+U_r,V_r\in\mathbb R^{d\times\rho},
+\qquad r=1,\ldots,R,
+\label{eq:low-rank-operator-dictionary}
+\end{equation}
+be a reusable dictionary of rank-at-most-$\rho$ channel maps.  At recurrent step $n$, a sparse
+dynamic operator graph computes
+\begin{equation}
+m_i^{(n)}
+=
+\sum_{j\in\mathcal N_i^{(n)}}
+\sum_{r=1}^{R}
+a_{ijr}^{(n)}B_rh_j^{(n)},
+\qquad
+a_{ijr}^{(n)}
+=\left[g_\theta\!\left(h_i^{(n)},h_j^{(n)},S^{(n)}\right)\right]_r,
+\label{eq:recurrent-operator-message}
+\end{equation}
+followed by
+\begin{align}
+h_i^{(n+1)}
+&=h_i^{(n)}
++\eta_n\left[m_i^{(n)}+f_\theta\!\left(h_i^{(n)},S^{(n)}\right)\right],
+\label{eq:recurrent-operator-node-update}\\
+S^{(n+1)}
+&=\mathcal M_\theta\!\left(H^{(n)}\right)S^{(n)}
++\mathcal U_\theta\!\left(H^{(n)}\right).
+\label{eq:recurrent-operator-state-update}
+\end{align}
+Here $S^{(n)}$ declares a compressed memory as a separate coordinate from the route matrix.  The
+dictionary, router, node update, and state update can be tied across recurrent depth.  A small
+number $C$ of phase-specific cells or low-rank step adapters can preserve coarse depth
+specialization.
+
+For $N$ conventional untied blocks, Eq.~\ref{eq:transformer-block-parameters} gives
+\begin{equation}
+P_{\mathrm{standard}}
+\simeq N\left(4d^2+\nu d d_{\mathrm{ff}}\right).
+\label{eq:standard-depth-parameters}
+\end{equation}
+A conservative tied construction with $C\ll N$ full cells and rank-$\rho$ step adapters has
+\begin{equation}
+P_{\mathrm{tied}}
+\simeq C\left(4d^2+\nu d d_{\mathrm{ff}}\right)
++O\!\left(N\rho(d+d_{\mathrm{ff}})\right).
+\label{eq:tied-depth-parameters}
+\end{equation}
+Replacing full channel maps inside a shared cell by Eq.~\ref{eq:low-rank-operator-dictionary}
+stores $2Rd\rho$ raw factor parameters, together with the parameters of $g_\theta$, $f_\theta$,
+$\mathcal M_\theta$, and $\mathcal U_\theta$.  Each factorization has the reparameterization
+$U_r\mapsto U_rQ$, $V_r\mapsto V_rQ^{-\mathsf T}$ for invertible $Q$, so its intrinsic generic
+rank-$\rho$ dimension is $\rho(2d-\rho)$; $2d\rho$ is its raw storage count.  The edge coefficients
+are activations, not learned edgewise parameters.  Each edge map has rank at most
+$\min\{d,R\rho\}$; retaining all $R$ coefficients on a degree-$k$ graph costs $O(LkR)$ activation
+memory and arithmetic still carries an $R$ factor.  Selecting top-$k$ edges by dense all-pairs
+scoring can itself cost $O(L^2)$.  These counts omit embeddings and output heads.  They are
+accounting hypotheses; realized quality and compute remain empirical quantities \cite{hu2022lora}.
+
+\BookSubsection{Capacity from ordered operator words}
+
+Weight sharing does not force every effective depth map to be identical.  Consider the channel
+subflow obtained after freezing and scalarizing one position-space path:
+\begin{equation}
+h^{(n+1)}
+=T_nh^{(n)},
+\qquad
+T_n=I+\eta_n\sum_{r=1}^{R}a_{nr}B_r.
+\label{eq:operator-word-recurrence}
+\end{equation}
+Let
+\begin{equation}
+\operatorname{Alg}(B_1,\ldots,B_R)
+=\Span\left\{
+I,\ B_{r_k}\cdots B_{r_1}:k\geq1,\ r_1,\ldots,r_k\in\{1,\ldots,R\}
+\right\}
+\subseteq\mathbb R^{d\times d}
+\label{eq:generated-operator-algebra}
+\end{equation}
+denote the unital algebra generated by the dictionary.
+
+\begin{proposition}[Ordered-word expansion of tied depth]
+\label{prop:ordered-operator-words}
+For any frozen coefficient sequence $\{a_{nr}\}$, the depth-$N$ transport
+$T_{N-1}\cdots T_0$ belongs to $\operatorname{Alg}(B_1,\ldots,B_R)$ and expands as
+\begin{equation}
+T_{N-1}\cdots T_0
+=I+
+\sum_{k=1}^{N}
+\sum_{0\le n_1<\cdots<n_k<N}
+\sum_{r_1,\ldots,r_k=1}^{R}
+\left[
+\prod_{\ell=1}^{k}\eta_{n_\ell}a_{n_\ell r_\ell}
+\right]
+B_{r_k}\cdots B_{r_1}.
+\label{eq:ordered-operator-word-expansion}
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+Expand the ordered product of the $N$ factors in
+Eq.~\ref{eq:operator-word-recurrence}.  Selecting $k$ nonidentity terms at times
+$n_1<\cdots<n_k$ places the latest selected operator on the left and gives the word
+$B_{r_k}\cdots B_{r_1}$.
+\end{proof}
+
+Thus a compact generator set can produce a much larger family of effective maps through ordered
+composition.  With a state-dependent router, the coefficients are evaluated along the trajectory,
+so the complete input--output map is nonlinear; the realized linear channel transport at each
+trajectory still has the expansion above as a conditional, stop-gradient transport.  The
+$(R+1)^N$ formal terms are not independent degrees of freedom: words can collapse through
+commutation, nilpotence, common invariant spaces, Cayley--Hamilton identities, and low-rank
+overlap, while their coefficients remain coupled products of router outputs.  Full algebra
+generation is a span condition; reachability by one finite-depth product requires an additional
+argument.
+
+The factorized dictionary gives a sharper ceiling.  Define
+\begin{equation}
+\mathcal U=\Span_r\operatorname{col}(U_r),
+\qquad
+\mathcal V=\Span_r\operatorname{col}(V_r),
+\qquad u=\dim\mathcal U,\quad v=\dim\mathcal V.
+\label{eq:dictionary-coverage-spaces}
+\end{equation}
+
+\begin{proposition}[Coverage ceiling of a factorized dictionary]
+\label{prop:dictionary-coverage-ceiling}
+Every nonempty word in the generators of Eq.~\ref{eq:low-rank-operator-dictionary} has rank at most
+$\rho$, image contained in $\mathcal U$, and row space contained in $\mathcal V$.  Consequently,
+\begin{equation}
+\operatorname{Alg}(B_1,\ldots,B_R)
+\subseteq\Span\{I\}+\mathcal U\otimes\mathcal V,
+\qquad
+\dim\operatorname{Alg}(B_1,\ldots,B_R)
+\leq\min\{d^2,1+uv\}.
+\label{eq:dictionary-algebra-ceiling}
+\end{equation}
+Generating all of $\mathbb R^{d\times d}$ therefore requires $u=v=d$, and in particular
+$R\rho\geq d$.
+\end{proposition}
+
+\begin{proof}
+For $k\geq2$,
+\begin{equation}
+B_{r_k}\cdots B_{r_1}
+=U_{r_k}
+\left(V_{r_k}^{\mathsf T}U_{r_{k-1}}\right)\cdots
+\left(V_{r_2}^{\mathsf T}U_{r_1}\right)V_{r_1}^{\mathsf T}.
+\label{eq:factorized-word}
+\end{equation}
+The stated image, row-space, and rank bounds follow directly; their linear span lies in the space
+of maps from $\mathcal V$ to $\mathcal U$, plus the identity.  Finally
+$u,v\leq R\rho$.
+\end{proof}
+
+For a one-step state-dependent map $F(h)=T(h)h$, the full Jacobian contains
+\begin{equation}
+DF(h)
+=T(h)+\eta\sum_{r=1}^{R}(B_rh)\nabla a_r(h)^{\mathsf T},
+\label{eq:router-jacobian-escape}
+\end{equation}
+with further cross-terms from $S$ and $f_\theta$.  The outer-product terms can leave the generated
+algebra.  Proposition~\ref{prop:ordered-operator-words} therefore describes frozen channel
+transport, while the response audit must include router derivatives and position-space products.
+The relevant capacity diagnostics are the dimension, conditioning, and reachable subset of the
+word span.  The resulting design principle is
+\begin{equation}
+\boxed{
+\text{small operator dictionary}
++\text{state-dependent coefficients}
++\text{ordered composition}
+}
+\label{eq:operator-reuse-principle}
+\end{equation}
+Low rank alone supplies no expressivity guarantee.  The ordered-word algebra constrains an
+internal latent channel subflow.  Its externally observable categorical capacity is further
+limited by the injection and readout maps: Eq.~\ref{eq:etr-rank-bound} bounds every local response
+by the ranks of $\mathsf E_{i\leftarrow j,C}$ and $\mathsf R_{i\leftarrow j,C}$ even when the
+intervening latent algebra is full.  Conversely, router derivatives and nonlinear paths may leave
+the frozen word span, so neither the dictionary algebra nor the categorical audit alone determines
+the other.
+
+\BookSubsection{Computational realizability is a separate audit}
+
+The algebraic results above declare which maps can be represented.  An execution schedule must
+also specify which intermediate arrays are formed, how support is discovered, which operations are
+sequential, and whether the resulting kernels use the hardware efficiently.  These questions can
+be analyzed without expanding any operator word.
+
+Suppress the recurrent-step superscript and define
+$A_r\in\mathbb R^{L\times L}$ by
+\begin{equation}
+[A_r]_{ij}
+=a_{ijr}\mathbf1\{j\in\mathcal N_i\}.
+\label{eq:target-source-sparse-route}
+\end{equation}
+Thus rows index targets, columns index sources, and the declared directed support is
+$\mathcal E=\{(j,i):j\in\mathcal N_i\}$ with $E=|\mathcal E|$.  With token states stored by row,
+the complete dictionary message in Eq.~\ref{eq:recurrent-operator-message} is exactly
+\begin{equation}
+M_{\mathrm{msg}}
+=\sum_{r=1}^{R}A_rHV_rU_r^{\mathsf T}.
+\label{eq:factorized-sparse-message}
+\end{equation}
+Since $B_r=U_rV_r^{\mathsf T}$, column-stacking vectorization gives
+\begin{equation}
+\operatorname{vec}(M_{\mathrm{msg}})
+=\left(\sum_{r=1}^{R}B_r\otimes A_r\right)\operatorname{vec}(H).
+\label{eq:dictionary-message-kronecker}
+\end{equation}
+With the route matrices held fixed, the parenthesized operator is the dictionary contribution to
+the token-state block of $\mathbb J_C^{\mathrm{lat}}$ in
+Eq.~\ref{eq:latent-jacobian-product}.  State-dependent routes add derivatives through $A_r(H,S)$;
+node, state, residual, and nonlinear paths add the remaining Jacobian blocks.
+
+\begin{proposition}[Conditional factorized execution on supplied sparse support]
+\label{prop:factorized-sparse-execution}
+Assume the matrices $A_r$ have already been supplied and $E\leq Lk$.
+Equation~\ref{eq:factorized-sparse-message} can be evaluated by
+\begin{equation}
+Z_r=HV_r,
+\qquad
+T_r=A_rZ_r,
+\qquad
+M_{\mathrm{msg}}=\sum_{r=1}^{R}T_rU_r^{\mathsf T},
+\label{eq:factorized-sparse-schedule}
+\end{equation}
+using the exact multiply--accumulate count
+\begin{equation}
+\operatorname{MAC}_{\mathrm{message}}
+=R\rho(2Ld+E)
+=O\!\left(LR\rho(2d+k)\right).
+\label{eq:factorized-sparse-complexity}
+\end{equation}
+Counting a multiplication and addition as separate FLOPs approximately doubles this quantity.
+Materializing sparse indices, all route values, all $Z_r,T_r$, and the output uses
+$O(E+ER+LR\rho+Ld)$ forward storage up to constant factors.  Streaming or recomputing both the
+atom intermediates and route values reduces the forward workspace to
+$O(E+L\rho+Ld)$ when one atom is processed at a time.  Reverse-mode differentiation has a separate
+saved-tensor ledger.
+\end{proposition}
+
+\begin{proof}
+For each $r$, the dense thin products $HV_r$ and $T_rU_r^{\mathsf T}$ cost
+$Ld\rho$ multiply--accumulates each, while sparse--dense multiplication by $A_r$ costs $E\rho$.
+Sum over $R$ and use $E\leq Lk$.  The storage bounds follow from the shapes of the support,
+coefficient, intermediate, and output arrays.
+\end{proof}
+
+This rearrangement improves on applying $U_rV_r^{\mathsf T}$ independently at every edge, whose
+direct cost is $O(LkRd\rho)$.  Equation~\ref{eq:factorized-sparse-schedule} uses dense thin matrix
+products and sparse aggregation available in current tensor frameworks, so a reference
+implementation is straightforward once $A_r$ is supplied.  High-throughput execution is more
+demanding.  Unstructured per-step COO or CSR routes require repacking, $R$ sparse reductions unless
+they are fused, and low-$\rho$ kernels that can be bandwidth- or launch-bound.  Static or block
+sparsity is substantially easier to optimize.  For moderate $L$, a dense matrix multiplication
+with more formal FLOPs can run faster than an irregular sparse gather--reduce.  A systems claim
+therefore requires forward and backward latency, throughput, peak memory, and kernel utilization in
+addition to Eq.~\ref{eq:factorized-sparse-complexity}.
+
+Declared sparse support and discovered sparse support have different costs.  Let
+$\mathcal C_i$ be a candidate set of size at most $c$ and define
+\begin{equation}
+\mathcal N_i
+=\operatorname{TopK}_{j\in\mathcal C_i}
+s_\theta(h_i,h_j,S).
+\label{eq:candidate-support-selection}
+\end{equation}
+For a dot-product scorer of projected width $d_s$, projections cost $O(Ldd_s)$ and pair scoring
+costs $O(Lc\,d_s)$; an arbitrary scorer should instead report its measured per-candidate cost.
+Exact selection additionally performs $O(Lc)$ to $O(Lc\log k)$ comparisons, depending on the
+algorithm.  Producing all $R$ retained coefficients writes at least $LkR$ activations and may cost
+more than the rank-$\rho$ message itself.
+
+Exact all-pairs top-$k$ uses $c=L$ and retains quadratic route-discovery work even though the
+realized message graph has only $Lk$ edges.  Tiling can remove quadratic score storage while leaving
+the work and comparisons quadratic.  End-to-end subquadratic execution therefore needs a candidate
+graph of size $O(Lc)$ before learned pair scoring.  Declared local or block patterns provide the
+most hardware-compatible case; approximate content routing and indices rebuilt on changing states
+add recall and rebuild costs \cite{beltagy2020longformer,zaheer2020bigbird,kitaev2020reformer,roy2021routing}.
+Periodic global attention changes the constant when its frequency is fixed and retains an
+$O(L^2d)$ term.  A fixed-size latent bottleneck or a genuinely subquadratic global mechanism is
+required for linear asymptotics.  The per-step accounting is therefore
+\begin{equation}
+F_{\mathrm{step}}
+=F_{\mathrm{candidate}}
++F_{\mathrm{score}}
++F_{\mathrm{message}}
++F_{\mathrm{state}}
++F_{\mathrm{FFN}}.
+\label{eq:computational-cost-ledger}
+\end{equation}
+
+Cross-depth sharing gives a second separation.  If a shared cell is evaluated $N$ times, then,
+ignoring step adapters and shared overhead,
+\begin{equation}
+P_{\mathrm{depth}}\simeq C P_{\mathrm{cell}},
+\qquad
+F_{\mathrm{depth}}\simeq N F_{\mathrm{cell}},
+\qquad C\ll N.
+\label{eq:shared-depth-parameter-compute-split}
+\end{equation}
+The nonlinear recurrence has $N$ sequential update stages.  Storing all node trajectories for
+reverse-mode differentiation has the rough activation ledger
+\begin{equation}
+M_{\mathrm{train}}^{\mathrm{naive}}
+=O\!\left(
+N[Ld+Ld_{\mathrm{ff}}+LR\rho+LkR+M_S]
+\right),
+\label{eq:recurrent-training-memory}
+\end{equation}
+where $M_S$ counts state activations per step, before pair features and implementation-specific
+router intermediates are added.  Parameter tying reduces parameter and optimizer-state memory,
+while these trajectory activations remain.
+Checkpointing trades activation memory for recomputation; reversible updates require invertibility,
+and equilibrium differentiation requires convergence and an implicit solve.  A general nonlinear
+dynamic router has no associative scan guarantee.  Tying preserves the $N$-stage critical path of
+an equal-depth untied stack; extra recurrent steps or adaptive stopping can increase latency and
+create batch divergence.  In the present whole-graph recurrence, only a deliberately fixed-size
+$S$ is independent of $L$: node state remains $O(Ld)$, support remains $O(Lk)$, and retained route
+coefficients remain $O(LkR)$.
+
+The feed-forward path must be counted separately.  With $d_{\mathrm{ff}}=4d$, the ordinary FFN in
+Eq.~\ref{eq:transformer-block-parameters} contributes approximately $8d^2$ parameters and the four
+attention projections contribute approximately $4d^2$.  A dictionary that compresses only the
+message path can therefore leave most block parameters in $f_\theta$.  At sequence length $L$, the
+corresponding MAC-scale terms are approximately $8Ld^2$ for the FFN, $4Ld^2$ for the projections,
+and $2L^2d$ for dense attention.  The FFN often dominates at moderate protein lengths; attention
+dominates only after the quadratic term becomes large enough.  Cross-depth tying, a factorized FFN,
+or a shared nonlinear expert dictionary must be evaluated as an additional design choice.
+
+Finally, several mathematical audits are intentionally off the training critical path.  The
+coverage dimensions in Proposition~\ref{prop:dictionary-coverage-ceiling} are obtained directly
+from
+\begin{equation}
+u=\operatorname{rank}[U_1\ \cdots\ U_R],
+\qquad
+v=\operatorname{rank}[V_1\ \cdots\ V_R].
+\label{eq:dictionary-coverage-rank-audit}
+\end{equation}
+Writing $p=R\rho$, an exact thin QR or SVD of either concatenated factor costs
+$O(dp\min\{d,p\})$ arithmetic and $O(dp)$ storage; a rank tolerance and the singular-value spectrum
+are part of the audit.  An exact basis for a full generated algebra can contain $d^2$ matrices and
+require $O(d^4)$ storage, so large models need randomized word-span probes.  A complete
+$(Ld)\times(Ld)$ Jacobian is likewise replaced by sampled substitutions, Jacobian--vector products,
+vector--Jacobian products, or trace estimators.
+
+A frozen-family stability audit may seek a common quadratic certificate
+\begin{equation}
+T_n^{\mathsf T}QT_n\preceq\gamma^2Q,
+\qquad Q\succ0,
+\label{eq:shared-update-stability}
+\end{equation}
+over a declared update set.  This is a sufficient certificate for that set; failure to find a
+common $Q$ does not establish instability.  At large $d$, product norms and iterative spectral
+estimates provide scalable diagnostics before a full semidefinite solve.  Mathematical existence,
+algorithmic complexity, and measured systems performance are three separately reported claims.
+
+A matched benchmark should preserve the same separation.  First time
+Eq.~\ref{eq:factorized-sparse-schedule} with support and coefficients supplied; then add candidate
+generation and coefficient routing; then measure the complete recurrent cell in forward and
+backward passes; finally compare full models at matched data, quality, parameter count, FLOPs, and
+wall-clock budget.  This prevents a fast message microkernel from being reported as an end-to-end
+architecture speedup.
+
+\BookSubsection{Protein realization and tests}
+
+For proteins, the shared $B_r$ can encode reusable computational primitives for amino-acid
+exchange, charge, packing, or geometric compatibility.  Their scientific interpretation remains
+an experimental question.  The coefficients $a_{ijr}^{(n)}$ supply a sequence- or
+family-conditioned graph over those shared primitives.  Column support can combine fixed chain
+edges with learned top-$k$ long-range edges.  MSA rows can retain permutation equivariance or use
+an explicitly declared tree geometry, while columns retain chain order.  Persistent pair features
+on selected edges cost $O(Lkd_p)$ memory at degree $k$, compared with $O(L^2d_p)$ for a dense pair
+track.  Periodic global attention or latent-memory retrieval can refresh information omitted by a
+local sparse support.
+
+The construction has identifiable failure modes.  A fixed-dimensional recurrent state can collide
+or forget; inadequate $\mathcal U$ or $\mathcal V$ coverage creates a hard bottleneck on the
+dictionary message path; sparse support can miss long-range dependencies; router collapse or
+top-$k$ route churn can impair optimization; repeated shared updates can oversmooth, explode,
+vanish, or converge to unhelpful fixed points; and lower parameter count can require more
+iterative computation.  A frozen-family
+stability audit can use Eq.~\ref{eq:shared-update-stability}; state dependence and nonlinear paths
+require corresponding Jacobian bounds.  External retrieval may still be needed for factual memory.
+Endpoint-removable conditional semantics also continue to require the measurability conditions
+developed below.
+
+Cross-layer sharing in ALBERT, recurrent depth in the Universal Transformer, fixed-point depth in
+deep equilibrium models, and shared key--value heads in grouped-query attention provide precedents
+for individual parts of this construction \cite{lan2020albert,dehghani2019universal,bai2019deq,ainslie2023gqa}.
+R-GCN basis decomposition is a direct precedent for a shared graph-operator dictionary; dynamic
+filter networks provide input-conditioned operator generation; and low-rank adapters provide a
+standard depth-modulation mechanism \cite{schlichtkrull2018rgcn,jia2016dynamic,hu2022lora}.
+KDA and related state-space attention supply precedents for compressed recurrent context
+\cite{kimilinear2025,kimik3}.  A distinct contribution would require a typed operator-algebra
+analysis, parameter--expressivity--stability bounds, and matched experiments at equal data and
+compute.  Reports should separate the coordinates of Eq.~\ref{eq:resource-ledger} and include
+prediction quality, latency, route audits, state-propagator audits, and interventional-response
+audits.
+
+These propositions establish representability and message execution conditional on supplied
+support and coefficients.  End-to-end efficiency additionally requires candidate generation,
+coefficient routing, sparse aggregation, nonlinear updates, recurrent backward propagation, and
+communication to satisfy the same resource ledger.
 
 \BookInsert{chapters/11_pallatom_structural_alignment}
 
@@ -2729,8 +3868,9 @@ A schematic objective is
 +\lambda_0\sum_{(i,j)\in E_c}q_{ij}^\theta.
 \label{eq:training-objective}
 \end{align}
-MSA availability changes supervision, not the single-sequence inference contract.  This objective
-is one architecture consistent with the framework, not a convergence or consistency theorem.
+MSA availability changes the training supervision while the inference contract remains
+single-sequence.  This objective gives one architecture consistent with the framework.  Convergence
+and statistical consistency require separate analysis.
 
 \BookInsert{chapters/10_coda}
 \BookChapter{Falsification and Biological Interpretation}
@@ -2741,8 +3881,11 @@ is one architecture consistent with the framework, not a convergence or consiste
 \ifdefined\BOOKMODE
 \BookInsert{chapters/12_falsification_cases}
 \else
-The framework is tested in three stages.  Each stage declares an estimator, a null, an uncertainty
-procedure, and an observation that would reject the proposed upgrade in the claim ladder.
+The evaluation program has three stages.  Each stage declares an estimator, a null, an uncertainty
+procedure, and an observation that would reject the proposed upgrade in the claim ladder.  The
+current evidence covers analytic identities, formal failure conditions, and constructive operation
+counts.  Family-scale estimator comparisons and biological interventions are prespecified
+evaluation protocols for the next evidence layer.
 
 \begin{enumerate}
 \setlength{\itemsep}{4pt}
@@ -2791,12 +3934,12 @@ dynamic, and higher-order operators with matched structural, double-mutant, and 
 experimental endpoints.
 \end{enumerate}
 
-These tests distinguish an operator framework from an architectural proposal.  The theory can
-fail informatively: a pLM mean may not agree with family Potts fields; dynamic variance may be
+These tests assign separate evidence to the operator framework and the architectural proposal.  The
+theory can fail informatively: a pLM mean may not agree with family Potts fields; dynamic variance may be
 dominated by off-manifold substitutions; reciprocity may fail; or pairwise components may leave a
 large higher-order residual.  Contact prediction from a response tensor supports reusable
-evolutionary statistics, but not by itself a discrete internal motif library, a physical energy,
-or a causal biological interaction.
+evolutionary statistics.  Claims about an internal motif library, physical energy, or causal
+biological interaction require their corresponding interventions.
 \fi
 
 \BookInsert{chapters/12_vertical_audit}
@@ -2894,39 +4037,60 @@ while the definition of categorical interaction stays fixed.
 
 Architectural consequences follow after semantics are fixed.  At the computational level, a
 Transformer is a dynamic GNN; at the interaction level, the identified operator comes from an
-audited categorical response.  Dense transient routes, persistent pair tracks, sparse signed
-routing, and endpoint-removable cavities make different memory and measurability tradeoffs.  The
+audited categorical response.  The exact response table factors through categorical injection,
+complete latent computation, and logit readout.  At a declared continuous anchor, its local
+Jacobian factors as $\mathsf R\mathbb J^{\mathrm{lat}}\mathsf E$; this places attention, dictionary,
+and state operators inside latent transport while retaining the finite substitution table as the
+extension-independent external object.  For recurrent linear attention, the cross-cut rank bounds
+the frozen memory channel and the state-variation recurrence supplies its complete Jacobian block.
+Dense transient routes, persistent pair tracks, sparse
+signed routing, and endpoint-removable cavities make different memory and measurability tradeoffs.  The
 support no-go and cavity Bayes floor quantify the limits that strict conditional meaning places on
 content-dependent routing and single-sequence recoverability.  Optional MSA supervision changes
 the training signal while those inference-time information constraints remain.
 
-Six limitations remain structural.  First, reference transport preserves the gauge class but not
-the numerical norm, so the anchor measure remains part of every static average and ranking.
-Second, the exact identification of dynamic variance with higher-order mass requires a product
-reference that may be far off the natural sequence manifold; correlated empirical backgrounds are
-closer to that manifold but introduce nonorthogonal cross terms.  The two quantities and their
-geometry gap in Eq.~\ref{eq:dynamic-geometry-gap} must therefore be reported separately.  Third, a Laplacian
+Parameter efficiency is another typed architectural coordinate.  A frozen multihead value path is
+a low-separation-rank sum of position and channel operators, even when its realized route is dense.
+Cross-depth reuse can replace independent layer matrices by a small generated operator algebra;
+state-dependent routing and ordered products then select different effective maps along different
+inputs and depths.  This mechanism changes total parameters, while sparse support, recurrent
+context, and quantization act on different entries of the resource ledger.  The generated word
+span and coverage ceiling are tests of internal transport; encoder and readout ranks impose an
+additional ceiling on observable categorical responses.  On declared sparse support, factorized execution
+reduces message arithmetic to Eq.~\ref{eq:factorized-sparse-complexity}; dynamic support discovery
+can remain quadratic, tied depth remains sequential, and the FFN can dominate block cost.  These
+identities motivate the architecture hypothesis stated in this chapter.  Quality per parameter and
+realized systems efficiency require stability, kernel, ablation, and matched-compute scaling tests.
+
+Six limitations remain structural.  First, reference transport preserves the gauge class while the
+anchor still determines numerical norms, singular directions, static averages, and rankings.
+Table~\ref{tab:reference-choice} ties the anchor to the estimand and requires a sensitivity report;
+it supplies no universal anchor.  Second, the product reference serves as an identification
+geometry for exact interaction-order decomposition.  Correlated empirical backgrounds serve as an
+evaluation geometry closer to the natural sequence manifold and introduce nonorthogonal cross
+terms.  The two dynamic fractions and their geometry gap in
+Eq.~\ref{eq:dynamic-geometry-gap} quantify the difference.  Third, a Laplacian
 spectrum depends on scalarization, sign convention, transport, normalization, and null graph;
 inside a nearly degenerate band only the eigenspace is stable.  Fourth, a row-stochastic route has
 no unique undirected spectrum until a stationary law, support convention, and symmetrization are
 declared; causal masks can make the route reducible or one-way.  Fifth, the Potts population
 optimum, true family pair component, and pLM response mean remain distinct estimands as shown in
-Eq.~\ref{eq:estimand-decomposition}.  Sixth, symmetry or reversibility of an attention route does
-not establish reciprocity of the end-to-end response, much less biological cause.  Contacts,
-allosteric networks, phylogeny, and experimental epistasis remain conclusions of matched nulls and
-interventions.
+Eq.~\ref{eq:estimand-decomposition}.  Sixth, symmetry and reversibility of an attention route concern
+computational routing.  End-to-end reciprocity requires a response audit, and biological cause
+requires matched nulls and interventions.  The same evidentiary requirement applies to contacts,
+allosteric networks, phylogeny, and experimental epistasis.
 
 Most individual mathematical ingredients---functional ANOVA, matrix scaling, Gaussian covariance
 selection, spectral geometry, and Bayes risk---are classical.  The contribution is their typed
 assembly around one interaction system, the reference-transport and exact gauge-factorization
-links, and the explicit boundaries between Potts parameter redundancy, dynamic response, latent
-memory,
-state dynamics, statistical estimation, and biological meaning.
+links, the encoder--transport--readout bridge, and the explicit boundaries between Potts parameter
+redundancy, dynamic response, latent memory, state dynamics, statistical estimation, and biological
+meaning.
 
 \BookChapter{Conclusion}
 
-Protein sequence models can be placed in one mathematical framework without being declared the
-same model.  The common carrier consists of fields and a block operator on the direct sum of
+Protein sequence models can be compared through one typed mathematical framework.  The common
+carrier consists of fields and a block operator on the direct sum of
 reference-centered feature fibers.  Weighted projection selects a canonical representative of a
 Potts parameter-gauge class, reference transport compares representatives, and Sinkhorn scaling
 supplies an
@@ -2934,21 +4098,30 @@ exact pair law on the same quotient.  Support and routing determine where an ope
 context determines whether it has conditional meaning; functional ANOVA determines its
 interaction order; an update rule determines whether it is a readout or a dynamical system; and
 MSA or pLM inference determines how it is estimated.  Scalar, signed, and connection Laplacians
-then provide distinct multiscale spectra on the position graph or the full categorical bundle;
-they are downstream transforms of the identified operator, not alternative definitions of it.
+then provide distinct multiscale spectra on the position graph or the full categorical bundle.
+Each spectrum is a downstream transform of the identified operator.
 
 Within this framework, Potts couplings are static reciprocal edge operators and pLM substitution
 responses are generally context-dependent effective operators.  Hopfield patterns and RBM motifs
 are different latent factorizations.  Transformer attention is dynamic graph computation, while
 only a frozen single-layer value path is restricted to the span of its head maps; the complete
-categorical response must be audited at the output.  Probability-exact pair laws, scalar position
-shadows, spectral nuisance removal, and biological validation are successive transformations and
-claims, not synonyms for the interaction itself.  Stationary-measure reversibility further
+categorical response must be audited at the output.  The encoder--transport--readout factorization
+locates attention, recurrent state, and reusable dictionaries inside the latent Jacobian and maps
+them into categorical fibers through typed injection and readout.  Its finite-substitution form is
+exact at categorical vertices; its differential form depends on a declared anchor and continuous
+extension.  Reusable factorized channel maps admit exact sparse execution once support and
+coefficients are supplied; candidate discovery, FFN cost,
+recurrent backward propagation, and accelerator performance remain distinct computational audits.
+Probability-exact pair laws, scalar position
+shadows, spectral nuisance removal, and biological validation occupy successive transformation and
+claim levels.  Stationary-measure reversibility further
 separates row-normalization asymmetry from genuine directed circulation: a symmetric logit kernel
 can yield an entrywise asymmetric but reversible route, whereas a doubly stochastic route can
 still be nonreciprocal.  The framework therefore converts informal
 unification into mathematical coordinates, transport rules, compatibility conditions, estimand
-gaps, and falsifiable experiments.
+gaps, and falsifiable experiments.  The present contribution comprises theory, constructive
+schedules, and an evaluation protocol.  Family-scale validation, biological intervention, and
+matched-compute systems benchmarks form the next evidence layer.
 
 \fi
 \BookBackMatter
@@ -3177,6 +4350,11 @@ W.~Qu, J.~Guan, R.~Ma, K.~Zhai, W.~Wu, and H.~Wang.
 \newblock \emph{Proceedings of the 42nd International Conference on Machine Learning},
 PMLR 267:50786--50816, 2025.
 
+\bibitem{opendde2026}
+OpenDDE Project, Aureka AI Research.
+\newblock Folding, reasoning, and scaling with Open-source Drug Discovery Engine.
+\newblock arXiv:2607.03787, 2026.
+
 \bibitem{jiang2025evolvepro}
 K.~Jiang et al.
 \newblock Rapid in silico directed evolution by a protein language model with EVOLVEpro.
@@ -3217,6 +4395,16 @@ J.~Gilmer, S.~S. Schoenholz, P.~F. Riley, O.~Vinyals, and G.~E. Dahl.
 \newblock Neural message passing for quantum chemistry.
 \newblock \emph{International Conference on Machine Learning}, 2017.
 
+\bibitem{schlichtkrull2018rgcn}
+M.~Schlichtkrull, T.~N. Kipf, P.~Bloem, R.~van~den Berg, I.~Titov, and M.~Welling.
+\newblock Modeling relational data with graph convolutional networks.
+\newblock \emph{Proceedings of the European Semantic Web Conference}, pages 593--607, 2018.
+
+\bibitem{jia2016dynamic}
+X.~Jia, B.~De Brabandere, T.~Tuytelaars, and L.~Van Gool.
+\newblock Dynamic filter networks.
+\newblock \emph{Advances in Neural Information Processing Systems}, 2016.
+
 \bibitem{velickovic2018}
 P.~Veli\v{c}kovi\'c et al.
 \newblock Graph attention networks.
@@ -3226,6 +4414,82 @@ P.~Veli\v{c}kovi\'c et al.
 A.~Vaswani et al.
 \newblock Attention is all you need.
 \newblock \emph{Advances in Neural Information Processing Systems}, 2017.
+
+\bibitem{su2024roformer}
+J.~Su, Y.~Lu, S.~Pan, A.~Murtadha, B.~Wen, and Y.~Liu.
+\newblock RoFormer: Enhanced Transformer with rotary position embedding.
+\newblock \emph{Neurocomputing}, 568:127063, 2024.
+
+\bibitem{haviv2022nope}
+A.~Haviv, O.~Ram, O.~Press, P.~Izsak, and O.~Levy.
+\newblock Transformer language models without positional encodings still learn positional
+information.
+\newblock \emph{Findings of the Association for Computational Linguistics: EMNLP}, 2022.
+
+\bibitem{kazemnejad2023positional}
+A.~Kazemnejad, I.~Padhi, K.~N. Ramamurthy, P.~Das, and S.~Reddy.
+\newblock The impact of positional encoding on length generalization in Transformers.
+\newblock \emph{Advances in Neural Information Processing Systems}, 2023.
+
+\bibitem{kimilinear2025}
+Kimi Team et al.
+\newblock Kimi Linear: An expressive, efficient attention architecture.
+\newblock arXiv:2510.26692, 2025.
+
+\bibitem{kimik3}
+Kimi Team et al.
+\newblock Kimi K3: Open frontier intelligence.
+\newblock arXiv:2607.24653, 2026.
+
+\bibitem{lan2020albert}
+Z.~Lan, M.~Chen, S.~Goodman, K.~Gimpel, P.~Sharma, and R.~Soricut.
+\newblock ALBERT: A lite BERT for self-supervised learning of language representations.
+\newblock \emph{International Conference on Learning Representations}, 2020.
+
+\bibitem{dehghani2019universal}
+M.~Dehghani, S.~Gouws, O.~Vinyals, J.~Uszkoreit, and \L.~Kaiser.
+\newblock Universal Transformers.
+\newblock \emph{International Conference on Learning Representations}, 2019.
+
+\bibitem{bai2019deq}
+S.~Bai, J.~Z. Kolter, and V.~Koltun.
+\newblock Deep equilibrium models.
+\newblock \emph{Advances in Neural Information Processing Systems}, 2019.
+
+\bibitem{ainslie2023gqa}
+J.~Ainslie, J.~Lee-Thorp, M.~de Jong, Y.~Zemlyanskiy, F.~Lebr\'on, and S.~Sanghai.
+\newblock GQA: Training generalized multi-query Transformer models from multi-head checkpoints.
+\newblock \emph{Proceedings of EMNLP}, pages 4895--4901, 2023.
+
+\bibitem{dao2022flashattention}
+T.~Dao, D.~Y. Fu, S.~Ermon, A.~Rudra, and C.~R\'e.
+\newblock FlashAttention: Fast and memory-efficient exact attention with IO-awareness.
+\newblock \emph{Advances in Neural Information Processing Systems}, 2022.
+
+\bibitem{beltagy2020longformer}
+I.~Beltagy, M.~E. Peters, and A.~Cohan.
+\newblock Longformer: The long-document Transformer.
+\newblock arXiv:2004.05150, 2020.
+
+\bibitem{zaheer2020bigbird}
+M.~Zaheer et al.
+\newblock Big Bird: Transformers for longer sequences.
+\newblock \emph{Advances in Neural Information Processing Systems}, 2020.
+
+\bibitem{kitaev2020reformer}
+N.~Kitaev, \L.~Kaiser, and A.~Levskaya.
+\newblock Reformer: The efficient Transformer.
+\newblock \emph{International Conference on Learning Representations}, 2020.
+
+\bibitem{roy2021routing}
+A.~Roy, M.~Saffar, A.~Vaswani, and D.~Grangier.
+\newblock Efficient content-based sparse attention with Routing Transformers.
+\newblock \emph{Transactions of the Association for Computational Linguistics}, 9:53--68, 2021.
+
+\bibitem{hu2022lora}
+E.~J. Hu et al.
+\newblock LoRA: Low-rank adaptation of large language models.
+\newblock \emph{International Conference on Learning Representations}, 2022.
 
 \bibitem{courtois2024}
 M.~Courtois, M.~Ostendorff, L.~Hennig, and G.~Rehm.

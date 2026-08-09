@@ -87,7 +87,7 @@ variables allow several motifs to be active simultaneously.  A categorical Hopfi
 stored memories compete on one simplex.  Both use log-sum-exp after marginalization; they sum over
 different latent sample spaces.
 
-\subsection*{Portrait VI: the Transformer has a route and an audited response}
+\subsection*{Portrait VI: the Transformer has a route, state transport, and an audited response}
 
 For a Transformer head, the native edge coefficient is
 \begin{equation}
@@ -98,20 +98,26 @@ It tells us how a target distributes routing mass over source positions.  The as
 value-path map lies in the span of the head value/output maps.  Both quantities depend on the
 current hidden state and belong to the computation.
 
+Recurrent and linear-attention variants add a second internal object.  Their state propagator
+$\Phi_{t:s}(x)$ records how information written at one step is carried through later transitions.
+It can induce a signed, non-normalized path kernel even when a periodic global-attention layer uses
+NoPE.  Instantaneous routing and historical transport therefore require separate records.
+
 The operator comparable with a Potts block is obtained elsewhere: vary the source residue, hold a
 declared background fixed, observe the categorical output at the target, and project the resulting
 table.  This gives $G_{i\leftarrow j}(C)$, a directed and generally background-dependent response.
-The route and response may correlate, but they answer different questions:
+The three objects may correlate, but they answer different questions:
 \begin{equation}
 \begin{aligned}
 \alpha_{ij}^{(h)}(x)&:\quad \text{where one layer reads},\\
+\Phi_{t:s}(x)&:\quad \text{how stored information crosses later state transitions},\\
 G_{i\leftarrow j}(C)&:\quad \text{how the complete model prediction changes}.
 \end{aligned}
 \end{equation}
 
-The Transformer portrait is consequently double.  It is a dynamic graph computation internally
-and a background-dependent operator field under external audit.  Neither object is automatically a
-joint sequence energy.
+The Transformer portrait therefore has three layers: an instantaneous dynamic route, a
+state-transport system, and a background-dependent operator field under external audit.  None of
+these objects is automatically a joint sequence energy.
 
 \section{What survives comparison}
 

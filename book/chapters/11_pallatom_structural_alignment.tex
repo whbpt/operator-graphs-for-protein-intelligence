@@ -99,6 +99,49 @@ This hierarchy is well matched to folded proteins and avoids global attention ov
 pair.  Long-range atom--atom effects are therefore mediated through a residue-level bottleneck,
 which defines the model's relational capacity at fold scale.
 
+\paragraph{OpenDDE and Pallatom: two multiscale bottlenecks.}
+The two models make the same local--global design problem visible through different state
+transitions.  Pallatom keeps an atom14 coordinate track in dialogue with residue states and pair
+features; denoised coordinates can be recycled into later relational computation.  OpenDDE first
+raises residue states to a role-labelled structural-token graph, refines its single and pair tracks,
+and then uses the refined state as a condition for atom-coordinate diffusion \cite{opendde2026}.
+The comparison is useful as an audit of feedback direction:
+
+\begin{center}
+\fbox{%
+\begin{minipage}{0.94\linewidth}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.18\linewidth}
+                    >{\raggedright\arraybackslash}p{0.36\linewidth}
+                    >{\raggedright\arraybackslash}p{0.36\linewidth}@{}}
+\toprule
+\textbf{Coordinate} & \textbf{Pallatom} & \textbf{OpenDDE schematic} \\
+\midrule
+\textbf{State} & Fixed atom14 coordinates $r_t\in\R^{L\times14\times3}$, with residue states and pair
+features organizing local--global denoising \cite{qu2025pallatom}. & Residue states $(S^r,Z^r)$ are
+parent-gathered into $M$ structural-token states $(S^{s,0},Z^{s,0})$, then updated by a
+token--pair refiner. \\
+\textbf{Feedback} & Partially denoised coordinates are converted into pair or self-conditioning features and
+recycled through later decoder computation. & The refiner output $(S^{s,*},Z^{s,*})$ is projected
+to a pair condition and held while noisy coordinates $x_t$ are denoised. \\
+\textbf{Bottleneck} & Local atom attention exchanges information with a globally communicating residue track;
+long-range atom--atom effects pass through residue-level states. & Global relational computation is
+carried by the $M\times M$ structural-token pair state; atom encoders and decoders map between this
+state and the $N_{\mathrm{atom}}$ coordinates. \\
+\textbf{Immediate semantics} & A coordinate-generating model with a geometry-conditioned sequence readout. &
+A latent structural-token conditioning path for coordinate diffusion; hidden channels acquire
+scientific meaning only through an endpoint-matched audit. \\
+\bottomrule
+\end{tabular}
+
+\medskip
+\emph{Scope.} The Pallatom column follows the cited model description.  The OpenDDE column records
+the released report and structural-refiner schematic; exact recycling contracts and implementation
+variants require version-specific source inspection.
+\end{minipage}}
+\end{center}
+
 The slogan ``learn $P(\text{all-atom})$'' should be read with care.  Pallatom supplies the denoiser
 with a reduced side-chain labeling, and several amino acids share geometrically degenerate atom14
 patterns.  Coordinates alone therefore leave sequence ambiguous.  The trained

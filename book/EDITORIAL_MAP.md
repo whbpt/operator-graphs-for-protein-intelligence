@@ -59,6 +59,12 @@ and synthesis rather than by adding more unstructured theory.
   diffusion, and coordinate-distribution diffusion distinct.
 - Carry the completed model portraits into a single comparative figure: state space, energy or
   update, edge object, normalization, and non-equivalence remainder.
+- Preserve the completed NoPE/KDA derivation: support automorphisms, normalized delta-rule online
+  regression, affine semigroup propagation, implicit path kernels, cross-cut rank, full state
+  variation, positional observability, and the distinct symmetry of MSA rows and columns.
+- Preserve the encoder--transport--readout bridge: the categorical vertex table is an exact finite
+  audit, its Jacobian factorization is anchor- and extension-dependent, and target-specific masked
+  blocks come from separate audit runs unless a joint encoder and common base point are declared.
 - Add one empirical operator comparison spanning Potts, RBM, and Transformer responses.
 - Expand local Gibbs softmax versus a coupled graph ensemble.
 
@@ -86,6 +92,8 @@ and synthesis rather than by adding more unstructured theory.
   precision, MSE reconstruction, PSICOV, ResPRE, network deconvolution, BND, and phylogenetic-mode
   deletion, typed by forward law, spectral transform, regularization, edge semantics, and endpoint.
 - Extend the completed mean-graph counterexample to directed and connection operators.
+- Keep spectra of position routes, time-ordered state propagators, and categorical response blocks
+  in their respective state spaces.
 - Make the null geometry explicit in every spectral portrait.
 
 ## Part IV: Realizability, Evidence, and Interpretation
@@ -93,6 +101,12 @@ and synthesis rather than by adding more unstructured theory.
 ### Chapter 11: Architectural Consequences and Realizability
 
 - Separate theorem-driven constraints from optional engineering designs.
+- Preserve the completed parameter-efficiency derivation: frozen-attention separation rank,
+  resource ledgers, reusable low-rank operator dictionaries, ordered-word capacity, dictionary
+  coverage ceilings, router-Jacobian escape, exact factorized sparse execution, support-discovery
+  cost, recurrent training memory, FFN accounting, and matched-compute stability tests.
+- Connect every dictionary or attention Kronecker block to the latent Jacobian, then carry it
+  through encoder and readout maps before making a categorical-capacity claim.
 - Add pseudocode for endpoint-removable routing and targetwise directed support.
 - Connect the completed maximal cavity-Bayes-floor example to realistic side information.
 
