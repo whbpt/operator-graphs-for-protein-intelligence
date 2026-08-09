@@ -209,7 +209,7 @@ framework below distinguishes symmetry of the query--key parameter kernel, symme
 logits, reversibility of the normalized route, and reciprocity of the output response.  Each has its
 own observable and validation test.
 
-The book develops the framework in four stages.  First, we define a typed interaction system and its
+The framework is developed in four stages.  First, we define a typed interaction system and its
 Potts parameter-gauge quotient, including an exact reference-transport law.  Second, we establish the
 Potts--pLM response bridge, its static--dynamic orthogonal decomposition, its product-reference
 higher-order identity, and the reciprocity condition for a joint pair energy.  Third, we connect
@@ -439,23 +439,40 @@ the context available to an edge or the state updated by that edge changes the m
 displayed matrix is unchanged.
 
 \begin{definition}[Typed interaction system]
-A typed interaction system is a tuple
+Let $(\mathsf C,\Sigma_{\mathsf C})$ be a measurable context space.  A typed interaction system is
+a tuple
 \begin{equation}
 \mathfrak G=
-\left(V,\{(\Omega_i,p_i,\mathcal H_i^0)\}_{i\in V},\mathcal C,
+\left(V,\{(\Omega_i,p_i,\mathcal H_i^0)\}_{i\in V},(\mathsf C,\Sigma_{\mathsf C}),
 E,h,\mathcal K,\mathcal O,\mathcal D,\mathcal N,\mathcal E_{\mathrm{st}},
 \mathcal V_{\!\mathrm{ld}}\right).
 \label{eq:typed-system}
 \end{equation}
 Here $V$ is the node set; $(\Omega_i,p_i)$ is the reference probability space at node $i$;
-$\mathcal H_i^0\subseteq L_0^2(p_i)$ is the chosen centered feature fiber; $\mathcal C$ is the
-context sigma-algebra; $E(C)\subseteq V\times V$ is measurable support; $h(C)\in\bigoplus_i
-\mathcal H_i^0$ is the one-body field; and
-$\mathcal K_{i\leftarrow j}(C):\mathcal H_j^0\to\mathcal H_i^0$ is the edge map.  The coordinate
-$\mathcal O$ records any higher-order maps; $\mathcal D$ records the represented latent and
+$\mathcal H_i^0\subseteq L_0^2(p_i)$ is the chosen centered feature fiber; $c\in\mathsf C$ is a
+context realization; the measurable map $E:\mathsf C\to2^{V\times V}$ gives the support;
+$h:\mathsf C\to\bigoplus_i\mathcal H_i^0$ gives the one-body field; and
+\[
+\mathcal K(c)=
+\left\{
+\mathcal K_{i\leftarrow j}(c):\mathcal H_j^0\longrightarrow\mathcal H_i^0
+\right\}_{(i,j)\in E(c)}
+\]
+is the edge-map family.  The higher-order coordinate is the measurable family
+\[
+\mathcal O(c)=
+\left\{
+\mathcal K_{i\leftarrow A}(c):
+\bigotimes_{j\in A}\mathcal H_j^0\longrightarrow\mathcal H_i^0
+:i\in V,\ A\subseteq V\setminus\{i\},\ |A|\geq2
+\right\},
+\]
+with absent maps represented by zero.  The coordinate $\mathcal D$ records the represented latent and
 persistent state together with its input injection, update or transport, and output readout;
 $\mathcal N$ records the normalization or Lyapunov functional, $\mathcal E_{\mathrm{st}}$ the
 estimator and nuisance model, and $\mathcal V_{\!\mathrm{ld}}$ the independent validation endpoint.
+A background or audit law is a probability measure on $(\mathsf C,\Sigma_{\mathsf C})$ and is
+declared separately from the type itself.
 \end{definition}
 
 A model audit is a typed extraction map from model parameters, data, and interventions to
@@ -488,8 +505,8 @@ the same local rule to act on new graph sizes and new combinations of entities. 
 architectural basis for combinatorial generalization.  Out-of-distribution generalization remains
 an empirical property of the trained system.
 
-The typed system in Eq.~\ref{eq:typed-system} refines this interface.  Its support $E(C)$ records
-the admissible senders and receivers; $\mathcal K_{i\leftarrow j}(C)$ types the edge update as a
+The typed system in Eq.~\ref{eq:typed-system} refines this interface.  Its support $E(c)$ records
+the admissible senders and receivers; $\mathcal K_{i\leftarrow j}(c)$ types the edge update as a
 map between declared fibers; and $\mathcal D$ records the aggregation and node-state update.  The
 remaining coordinates answer questions that a generic GN block intentionally leaves open:
 whether an edge is a route or an identified pair component, whether the updates arise from one
@@ -1013,22 +1030,31 @@ family distribution supplies the background law under which that hypothesis is e
 
 Equation~\ref{eq:dynamic-response} is a strict conditional component only if the table-generating
 context remains fixed while the endpoint states are varied.  Let
-$\mathcal C_{ij}=\sigma\{X_k:k\notin\{i,j\}\}$ and allow the reference, raw table, and any route
-decision to depend on this cavity.
+$X\sim\nu$ under a declared joint sequence law, set
+\begin{equation}
+C_{ij}=X_{[L]\setminus\{i,j\}},
+\qquad
+\mathcal C_{ij}=\sigma(C_{ij}),
+\qquad
+\mu_{ij}=\operatorname{Law}_{\nu}(C_{ij}),
+\label{eq:endpoint-excluding-context-law}
+\end{equation}
+and allow the reference, raw table, and any route decision to depend on this cavity.
 
 \begin{proposition}[Conditional gauge under an endpoint-excluding audit]
 \label{prop:conditional-gauge}
-Require the audit protocol to construct $T_{i\leftarrow j}(C)$, $p_i(C)$, $p_j(C)$, and every route
+Require the audit protocol to construct $T_{i\leftarrow j}(C_{ij})$, $p_i(C_{ij})$,
+$p_j(C_{ij})$, and every route
 decision from an endpoint-excluding representation measurable with respect to $\mathcal C_{ij}$;
 in particular, it may not reuse a hidden state that previously observed $x_i$ or $x_j$.  If the
 conditional references have full support, and the enumerated source category $b$ enters only in the
-final endpoint evaluation used to assemble the table, then, almost surely in $C$,
+final endpoint evaluation used to assemble the table, then, for $\mu_{ij}$-almost every context $c$,
 \begin{equation}
-G_{i\leftarrow j}(C)
-=P_i(C)T_{i\leftarrow j}(C)P_j(C)^{\mathsf T}
+G_{i\leftarrow j}(c)
+=P_i(c)T_{i\leftarrow j}(c)P_j(c)^{\mathsf T}
 \end{equation}
 is the unique bivariate contrast relative to
-$p_i(\cdot\mid C)p_j(\cdot\mid C)$.
+$p_i(\cdot\mid c)p_j(\cdot\mid c)$.
 \end{proposition}
 
 \begin{proof}
@@ -1043,12 +1069,13 @@ especially important when interpreting ordinary attention heads: masking the tar
 enumerating source substitutions defines a cleaner response audit than double centering an
 attention-derived table computed from the unmodified endpoints.
 
-When the conditional references in Proposition~\ref{prop:conditional-gauge} depend on $C$, the
-blocks inhabit moving fibers.  Transport them into common anchor references
+When the conditional references in Proposition~\ref{prop:conditional-gauge} depend on the random
+context $C_{ij}$, the blocks inhabit moving fibers.  For a realization $c$, transport them into
+common anchor references
 $(\bar p_i,\bar p_j)$ before applying Eq.~\ref{eq:static-dynamic-split}:
 \begin{equation}
-G_{i\leftarrow j}^{\mathrm{anc}}(C)
-=P_i^{[\bar p]}G_{i\leftarrow j}^{[p(C)]}(C)P_j^{[\bar p]\mathsf T};
+G_{i\leftarrow j}^{\mathrm{anc}}(c)
+=P_i^{[\bar p]}G_{i\leftarrow j}^{[p(c)]}(c)P_j^{[\bar p]\mathsf T};
 \label{eq:context-anchor-transport}
 \end{equation}
 then apply the static--dynamic decomposition to $G^{\mathrm{anc}}$.  This convention separates a
@@ -1142,6 +1169,23 @@ $E_uP_u=0$ and are orthogonal.  Equation~\ref{eq:pair-truncation} is Pythagoras 
 omitted terms.
 \end{proof}
 
+For a reference-centered block $G$, define the canonical currying map
+\begin{equation}
+\begin{aligned}
+\kappa_{ij}:\{G:p_i^{\mathsf T}G=0,\ Gp_j=0\}
+&\longrightarrow L_0^2(p_j;\mathcal H_i^0),\\
+(\kappa_{ij}G)(b)&=G(\mathord\cdot,b).
+\end{aligned}
+\label{eq:block-bochner-identification}
+\end{equation}
+It is an isometric identification because
+\begin{equation}
+\|\kappa_{ij}G\|_{L^2(p_j;\mathcal H_i^0)}^2
+=\sum_b p_j(b)\|G(\mathord\cdot,b)\|_{p_i}^2
+=\|G\|_{p_i,p_j}^2.
+\label{eq:block-bochner-isometry}
+\end{equation}
+
 \begin{corollary}[Dynamic variance equals higher-order response mass]
 \label{cor:dynamic-higher-order}
 Let $N\subseteq[L]\setminus\{i\}$ contain $j$ and define the centered, vector-valued target score
@@ -1154,11 +1198,16 @@ Let $N\subseteq[L]\setminus\{i\}$ contain $j$ and define the centered, vector-va
 \end{equation}
 For $B\subseteq N$, let
 $\Pi_B^N=(\prod_{u\in B}P_u)(\prod_{v\in N\setminus B}E_v)$ act on the source coordinates of this
-Hilbert-valued function, and write $\Phi_B=\Pi_B^N\Phi$.  Under the product reference, the audited
-response satisfies
+Hilbert-valued function, and write $\Phi_B=\Pi_B^N\Phi$.  Set
+$C=X_{N\setminus\{j\}}$ and take the mean and residual in
+Eq.~\ref{eq:static-dynamic-split} under the product law
+$\bigotimes_{u\in N\setminus\{j\}}p_u$.  The audited response then satisfies, for every $b$ and
+for almost every $C$ under this product law,
 \begin{align}
-G_{i\leftarrow j}(C)&=\sum_{B\subseteq N:\,j\in B}\Phi_B,\\
-\overline G_{i\leftarrow j}&=\Phi_{\{j\}},\\
+(\kappa_{ij}G_{i\leftarrow j}(C))(b)
+&=\sum_{B\subseteq N:\,j\in B}
+\Phi_B\!\left(b,C_{B\setminus\{j\}}\right),\\
+(\kappa_{ij}\overline G_{i\leftarrow j})(b)&=\Phi_{\{j\}}(b),\\
 \E_C\|\delta G_{i\leftarrow j}(C)\|_{p_i,p_j}^2
 &=\sum_{B\subseteq N:\,B\supsetneq\{j\}}\|\Phi_B\|^2.
 \label{eq:dynamic-higher-order}
@@ -1174,8 +1223,16 @@ target fiber.
 The commuting source-coordinate projections extend to the Bochner space in
 Eq.~\ref{eq:vector-valued-target-score} and remain mutually orthogonal.  Applying $P_j$ retains
 exactly the components whose source set contains $j$; $P_i$ has already centered the output fiber.
-Averaging over $C=X_{N\setminus\{j\}}$ retains only $\Phi_{\{j\}}$.  Orthogonality of the remaining
-Hilbert-valued components gives the squared-norm identity.
+For fixed $C$, the definition of the audited table gives, columnwise,
+\begin{equation}
+\left[\kappa_{ij}G_{i\leftarrow j}(C)\right](b)
+=\left[P_j\Phi(\mathord\cdot,C)\right](b),
+\end{equation}
+where $P_j$ acts on the $j$th source coordinate.  Expanding the right-hand side by the
+source-coordinate ANOVA gives the first identity.  Averaging over
+$C=X_{N\setminus\{j\}}$ retains only $\Phi_{\{j\}}$.  Orthogonality of the remaining
+Hilbert-valued components, followed by the isometry in
+Eq.~\ref{eq:block-bochner-isometry}, gives the squared-norm identity.
 \end{proof}
 
 The theorem gives Eq.~\ref{eq:response-order-mixture} a precise interpretation.  A dynamic edge
@@ -1411,7 +1468,7 @@ The framework compares sequence models coordinate by coordinate.  A model $M$ en
 typed extraction
 \begin{equation}
 \operatorname{Audit}(M)
-=\left(h_M,\mathcal K_M,E_M,\mathcal C_M,\mathcal O_M,
+=\left(h_M,\mathcal K_M,E_M,(\mathsf C_M,\Sigma_{\mathsf C_M}),\mathcal O_M,
 \mathcal D_M,\mathcal N_M,\mathcal E_{\mathrm{st},M},\mathcal V_{\!\mathrm{ld},M}\right),
 \label{eq:model-audit-map}
 \end{equation}
@@ -2676,10 +2733,19 @@ $\widehat{\overline G}^{\mathrm{pLM}}$ is a sampled response mean, then
 -\widehat{\overline G}_{i\leftarrow j}^{\mathrm{pLM}}}_{\text{response sampling}}.
 \label{eq:estimand-decomposition}
 \end{align}
-Common reference-centered coordinates make all four terms comparable; their magnitudes remain
-empirical.  In
-particular, agreement between a pseudolikelihood Potts optimum and a pLM response mean is a
-testable transfer statement of the framework.
+Common reference-centered coordinates make all four terms comparable.  On synthetic families with
+a known generating law, each term can be evaluated separately.  In an observed family,
+$G_{i\leftarrow j}^{F,(2)}$ is unknown, so the two middle terms are not separately identified by the
+MSA fit and pLM audit alone.  Their sum,
+\[
+\left(G_{i\leftarrow j}^{\mathrm{P},*}-G_{i\leftarrow j}^{F,(2)}\right)
++\left(G_{i\leftarrow j}^{F,(2)}-\overline G_{i\leftarrow j}^{\mathrm{pLM}}\right)
+=G_{i\leftarrow j}^{\mathrm{P},*}-\overline G_{i\leftarrow j}^{\mathrm{pLM}},
+\]
+is the population model--response gap; separating it requires a declared estimator or structural
+assumption for the true family conditional, together with sensitivity analysis.  Agreement between
+a pseudolikelihood Potts optimum and a pLM response mean remains a testable transfer statement of
+the framework.
 
 \BookInsert{chapters/09_estimand_ledger}
 
@@ -2687,8 +2753,8 @@ Finite-sample reporting should include the smoothing convention, regularization 
 uncertainty of full blocks as well as scalar scores.  The descriptive quantity
 $N_{\mathrm{eff}}=(\sum_nw_n^2)^{-1}$ records weight concentration.  Independent-sample
 uncertainty under phylogeny instead requires clade-aware or tree-based resampling rather than an
-ordinary row bootstrap when estimating confidence intervals for
-Eq.~\ref{eq:estimand-decomposition} and $\rho_{i\leftarrow j}^{\mathrm{dyn}}$.
+ordinary row bootstrap when estimating confidence intervals for the estimable contrasts derived
+from Eq.~\ref{eq:estimand-decomposition} and for $\rho_{i\leftarrow j}^{\mathrm{dyn}}$.
 
 Protein language models trained on single sequences and MSA Transformer instantiate different
 amortization regimes \cite{rives2021,rao2021}.  The former transfers a cross-family prior through
@@ -2933,14 +2999,24 @@ from a signed routing variable.  A block norm has discarded that information.  A
 edge encodes opposition in the declared contraction; probability and biological antagonism have
 their own meanings.
 
-To retain categorical contrast orientation on an undirected support, work in the anchor-whitened fibers
-$\widetilde{\mathcal H}_i^0=Q_i\R^q$ and choose for each undirected edge
-an orthogonal transport $U_{i\leftarrow j}:\widetilde{\mathcal H}_j^0\to
-\widetilde{\mathcal H}_i^0$ satisfying
-$U_{j\leftarrow i}=U_{i\leftarrow j}^{\mathsf T}$.  The polar factor of
-$\widetilde G_{i\leftarrow j}$ restricted to the centered fiber supplies one such orientation when
-that restriction is nonsingular; a rank-deficient fiber map requires a declared completion or
-restriction to its supported singular subspace.  For symmetric nonnegative
+To retain categorical contrast orientation on an undirected support, work in the anchor-whitened
+fibers $\widetilde{\mathcal H}_i^0=Q_i\R^q$.  First form the reciprocal block
+\begin{equation}
+\widetilde G_{ij}^{\mathrm{rec}}
+=\frac12\left(
+\widetilde G_{i\leftarrow j}
++\widetilde G_{j\leftarrow i}^{\mathsf T}
+\right).
+\label{eq:connection-reciprocal-block}
+\end{equation}
+For each undirected edge, let
+$U_{i\leftarrow j}:\widetilde{\mathcal H}_j^0\to\widetilde{\mathcal H}_i^0$ be the orthogonal polar
+factor of $\widetilde G_{ij}^{\mathrm{rec}}$ restricted to the centered fibers, and set
+$U_{j\leftarrow i}=U_{i\leftarrow j}^{\mathsf T}$.  This rule is unique when the restricted block is
+nonsingular.  A rank-deficient block requires a declared reciprocal completion or restriction to
+its supported singular subspace.  A connection built from one directed block instead requires an
+explicit edge orientation and a reversal-sensitivity report; its nonreciprocal remainder belongs
+to the directed audit above.  For symmetric nonnegative
 weights $a_{ij}=a_{ji}$, the connection energy is
 \begin{equation}
 \mathcal E_{\mathrm{conn}}(f)
@@ -2952,8 +3028,8 @@ weights $a_{ij}=a_{ji}$, the connection energy is
 The resulting connection Laplacian is positive semidefinite \cite{singer2012}.  Its low modes are
 categorical contrast fields that remain coherent after edge-specific transport.  The scalar
 Laplacian asks where a mode is smooth; the connection Laplacian additionally asks how a residue
-contrast must rotate between positions.  Singular blocks admit several transport completions, so
-the chosen completion is an audited modeling coordinate.
+contrast must rotate between positions.  Singular blocks admit several reciprocal transport
+completions, so the chosen completion is an audited modeling coordinate.
 
 Thus the connection construction computes smoothness only after neighboring categorical vectors
 have been aligned by the chosen transports.  It can reveal a coherent substitution pattern that a
@@ -3057,14 +3133,14 @@ invariance, and state--energy compatibility below are semantic requirements.  Si
 affine deletion, persistent pair tracks, and optional-MSA supervision form a menu of constructive
 realizations.  Other realizations can satisfy the same semantic requirements.
 
-This chapter uses three evidence levels:
+The architectural analysis uses three evidence levels:
 \begin{center}
 \small
 \begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.18\linewidth}
                 >{\raggedright\arraybackslash}p{0.35\linewidth}
                 >{\raggedright\arraybackslash}p{0.37\linewidth}@{}}
 \toprule
-Evidence level & Established in this chapter & Remaining evaluation \\
+Evidence level & Established here & Remaining evaluation \\
 \midrule
 Exact result & Algebraic identities, rank and coverage bounds, deletion conditions, and operation
 counts under their stated assumptions & Assumption checks on each implementation and numerical
@@ -3909,9 +3985,11 @@ and connection Dirichlet identities in Eqs.~\ref{eq:scalar-dirichlet},
 \ref{eq:signed-dirichlet}, and \ref{eq:connection-laplacian}.  Failure of any exact identity under
 its stated assumptions rejects the implementation of the framework.
 
-\item \emph{Family-level estimator comparison.}  For each family, compare the MSA-fitted Potts
-block with the pLM response mean in one anchor reference and report the four terms in
-Eq.~\ref{eq:estimand-decomposition}, with clade-aware uncertainty.  Estimate
+\item \emph{Family-level estimator comparison.}  For synthetic families with a known generating
+law, report all four terms in Eq.~\ref{eq:estimand-decomposition}.  For observed families, compare
+the MSA-fitted Potts block with the pLM response mean in one anchor reference and report the
+estimable endpoint gaps with clade-aware uncertainty.  Separate the two middle terms only under a
+declared estimator for $G^{F,(2)}$, with assumptions and sensitivity analysis.  Estimate
 $\rho_{i\leftarrow j}^{\mathrm{dyn}}$ on natural, mutational, and family-held-out backgrounds; repeat under
 independent-site, composition-matched, and phylogeny-aware nulls.  Report full-block alignment,
 singular directions, reciprocity, static--dynamic spectral-projector distance, and null-calibrated
@@ -4059,7 +4137,7 @@ span and coverage ceiling are tests of internal transport; encoder and readout r
 additional ceiling on observable categorical responses.  On declared sparse support, factorized execution
 reduces message arithmetic to Eq.~\ref{eq:factorized-sparse-complexity}; dynamic support discovery
 can remain quadratic, tied depth remains sequential, and the FFN can dominate block cost.  These
-identities motivate the architecture hypothesis stated in this chapter.  Quality per parameter and
+identities motivate the architecture hypothesis stated here.  Quality per parameter and
 realized systems efficiency require stability, kernel, ablation, and matched-compute scaling tests.
 
 Six limitations remain structural.  First, reference transport preserves the gauge class while the
@@ -4350,10 +4428,12 @@ W.~Qu, J.~Guan, R.~Ma, K.~Zhai, W.~Wu, and H.~Wang.
 \newblock \emph{Proceedings of the 42nd International Conference on Machine Learning},
 PMLR 267:50786--50816, 2025.
 
+\ifdefined\BOOKMODE
 \bibitem{opendde2026}
 OpenDDE Project, Aureka AI Research.
 \newblock Folding, reasoning, and scaling with Open-source Drug Discovery Engine.
 \newblock arXiv:2607.03787, 2026.
+\fi
 
 \bibitem{jiang2025evolvepro}
 K.~Jiang et al.
