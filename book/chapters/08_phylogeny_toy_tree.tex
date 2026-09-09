@@ -1,0 +1,52 @@
+\section{One aligned site on two four-leaf trees}
+\label{sec:book-phylogeny-toy-tree}
+
+For one alignment column, a phylogenetic model assigns a categorical state to every vertex of a
+tree.  The leaves $A,B,C,D$ are observed homologous sequences.  Internal vertices are latent
+ancestors whose residue states are summed out.  A biological root, when identified, orients descent
+from an ancestor; under a reversible likelihood model, a computational root may simply orient the
+recursion.  Each edge carries a substitution transition kernel.  Its branch length usually records
+expected substitutions per site under the declared model, which need not equal calendar time or
+raw percentage difference.
+
+Two four-leaf topologies expose the role of shared history:
+\begin{equation}
+\begin{aligned}
+\text{star:}&\qquad r\longrightarrow\{A,B,C,D\},\\
+\text{binary:}&\qquad
+r\longrightarrow\{u,v\},\qquad
+u\longrightarrow\{A,B\},\quad v\longrightarrow\{C,D\}.
+\end{aligned}
+\label{eq:book-star-binary-trees}
+\end{equation}
+The \emph{patristic distance} $d_{ab}$ is the sum of branch lengths along the unique path between
+leaves $a$ and $b$.  Under a stationary reversible single-site process, let $\varphi$ be a centered
+eigenfunction whose signal decays at rate $\lambda>0$.  Then
+\begin{equation}
+\operatorname{Cov}\!\left(\varphi(X_a),\varphi(X_b)\right)
+=\operatorname{Var}_{\pi}(\varphi)e^{-\lambda d_{ab}}.
+\label{eq:book-tree-mode-covariance}
+\end{equation}
+This formula is a transparent special case: leaf correlation follows the shared path geometry and
+the substitution process together.
+
+For a star with root-to-leaf length $t$, every leaf pair has distance $2t$ and the same covariance
+in Eq.~\ref{eq:book-tree-mode-covariance}.  For a balanced binary tree with root-to-internal length
+$a$, internal-to-leaf length $b$, and $a+b=t$, the within-clade distances are
+$d_{AB}=d_{CD}=2b$, whereas the cross-clade distances are $2t$.  The binary tree therefore creates
+stronger correlation within recent clades while retaining weaker correlation across them.  With
+unequal branch lengths or another substitution process, the comparison changes; topology alone
+does not order all correlations.
+
+Correlated leaves contain less independent information than the same number of independent rows.
+Under matched root-to-tip lengths, a star lacks the additional recent clade structure of the binary
+example and can yield a larger effective sample size for estimating column frequencies and
+covariation.  This improves the visibility of a fixed structural or functional constraint through
+reduced phylogenetic redundancy.  It does not increase the underlying residue coupling.
+
+Selection pressure is a property of the genotype-to-demography map, population process, and
+substitution rates.  A star or binary topology records the branching history and, together with branch lengths,
+the dependence among sampled leaves.  No ranking of selection pressure follows from topology by
+itself.  The basic site-independent phylogenetic model applies this construction separately to
+each alignment column on a shared tree; residue-interaction models add dependence between columns,
+and recombination or gene-tree discordance may make the tree vary along the sequence.

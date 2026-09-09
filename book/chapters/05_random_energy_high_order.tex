@@ -1,0 +1,77 @@
+\section{Random energy: a joint law without a low-order graph}
+
+Derrida's random-energy model assigns an independent energy to every complete configuration
+\cite{derrida1980}.  For a $q$-state sequence of length $L$, take
+\begin{equation}
+E(x)\overset{\mathrm{iid}}{\sim}\mathcal N(0,L\sigma^2),
+\qquad x\in[q]^L,
+\qquad
+P_\beta(x)=\frac{e^{-\beta E(x)}}{Z_L(\beta)}.
+\label{eq:book-rem-law}
+\end{equation}
+The model has one exact joint Gibbs law.  Its low-temperature freezing transition follows from
+competition between the $q^L$ configurations and the extreme tail of their energies.  With the
+normalization in Eq.~\ref{eq:book-rem-law}, the critical inverse temperature is
+$\beta_c=\sqrt{2\log q}/\sigma$.  Positional locality plays no role in this result.
+
+The operator framework reveals where the random energy resides in interaction order.  Use the
+uniform product reference and let $\Pi_A$ be the functional-ANOVA projector for a subset
+$A\subseteq[L]$.
+
+\begin{proposition}[ANOVA order profile of a random energy table]
+\label{prop:book-rem-anova}
+For the ensemble in Eq.~\ref{eq:book-rem-law},
+\begin{equation}
+\mathbb E_E\|\Pi_AE\|_{L^2}^2
+=\frac{L\sigma^2}{q^L}(q-1)^{|A|}.
+\label{eq:book-rem-subset-mass}
+\end{equation}
+Consequently the expected mass at interaction order $k$ is
+\begin{equation}
+W_k
+=\frac{L\sigma^2}{q^L}\binom{L}{k}(q-1)^k,
+\qquad
+\sum_{k=0}^{L}W_k=L\sigma^2.
+\label{eq:book-rem-order-profile}
+\end{equation}
+After normalization by total mass, the order profile is the binomial law
+$\operatorname{Binomial}(L,(q-1)/q)$.
+\end{proposition}
+
+\begin{proof}
+The product ANOVA subspace indexed by $A$ has dimension $(q-1)^{|A|}$.  The random vector of
+$q^L$ energy values is isotropic with coordinate variance $L\sigma^2$.  The expected Euclidean
+squared norm of its projection onto a rank-$r$ subspace is $L\sigma^2r$.  The uniform $L^2$ norm
+divides by $q^L$, giving Eq.~\ref{eq:book-rem-subset-mass}.  Summing over the
+$\binom{L}{k}$ subsets of size $k$ gives Eq.~\ref{eq:book-rem-order-profile}; the binomial theorem
+gives the final identity.
+\end{proof}
+
+For protein alphabets, $(q-1)/q$ is close to one, so the ensemble mass is concentrated at very
+high order.  This is an exact statement about a random function on sequence space, independent of
+whether its Gibbs measure is in the frozen phase.
+
+The same calculation sharpens the static--dynamic distinction.  Fix a pair $(i,j)$ and double
+center the $q\times q$ energy table obtained at each background
+$C=x_{[L]\setminus\{i,j\}}$.  The expected
+total conditional pair-response mass is
+\begin{equation}
+\mathbb E_E\mathbb E_C\|G_{i\leftarrow j}(C)\|^2
+=\beta^2L\sigma^2\frac{(q-1)^2}{q^2},
+\label{eq:book-rem-local-response}
+\end{equation}
+whereas the expected squared norm of the background mean is
+\begin{equation}
+\mathbb E_E\|\overline G_{i\leftarrow j}\|^2
+=\beta^2L\sigma^2\frac{(q-1)^2}{q^L}.
+\label{eq:book-rem-static-response}
+\end{equation}
+Thus the ratio of expected static mass to expected total response mass is $q^{-(L-2)}$.  A typical background displays a substantial
+finite pair response, while averaging across backgrounds removes almost all of it.  The apparent
+edge is a section through a high-order landscape.
+
+The random-energy model is therefore a useful null for protein sequence models.  It preserves a
+globally normalized energy landscape and destroys reusable positional structure.  A learned model
+has gone beyond this null when low-order operator mass, cross-background singular directions, or
+family-transferable static blocks exceed matched random-function and sequence-shuffling controls.
+Freezing, low-order interaction, and biological constraint remain separate empirical coordinates.

@@ -1,0 +1,40 @@
+\section{Three solvable lenses on interaction}
+
+Three lines of statistical mechanics are especially useful for the distinctions developed in this
+book: Bernard Derrida's random-energy landscapes, Marc M\'ezard's cavity inference, and Haim
+Sompolinsky's dynamical response theory.  They expose three different operations on a
+many-variable system.
+
+\begin{center}
+\small
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.16\linewidth}
+                >{\raggedright\arraybackslash}p{0.20\linewidth}
+                >{\raggedright\arraybackslash}p{0.24\linewidth}
+                >{\raggedright\arraybackslash}p{0.28\linewidth}@{}}
+\toprule
+Lens & Native state space & Native operation & Coordinate clarified in this book \\
+\midrule
+Derrida & complete configurations & Gibbs sampling from a random energy table & interaction order and background-dependent response \\
+M\'ezard & variables and factors of a joint law & deletion of one factor followed by message passing & coupling, marginal, message, and susceptibility \\
+Sompolinsky & trajectories of a high-dimensional network & propagation of an infinitesimal perturbation & parameter graph, local Jacobian, and time-ordered response \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The three cases also organize three common translation failures.  A global energy law need not have
+a useful low-order graph.  A message on an edge is derived from a probability model but is not its
+pair potential.  A fixed parameter matrix can produce a response operator that changes with state
+and time.  Each case will reappear where its native mathematics becomes useful: random energy in
+the interaction-order chapter, dynamical mean field in the static--dynamic chapter, and cavity
+equations in the probability chapter.
+
+This placement follows the objects rather than the chronology.  It turns a historical lineage
+from equilibrium statistical mechanics through nonequilibrium dynamics, optimization,
+neuroscience, and artificial intelligence into a sequence of exact audits.  Protein-facing
+claims enter only after the corresponding state space, operator, estimator, and validation
+endpoint have been declared.
+
+The three lenses distinguish operations on a many-variable system.  Protein science adds a second
+issue: one claim may also cross sequence, conformational, functional, evolutionary, and
+observational scales.  The next section makes those maps explicit before the operator formalism
+begins.

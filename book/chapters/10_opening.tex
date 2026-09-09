@@ -12,21 +12,17 @@ response.  A pair representation can store persistent state or merely cache a tr
 A soft gate can express uncertainty without producing exact support.  The operator framework
 separates these roles before asking which implementation is efficient.
 
-The chapter develops two kinds of result.  The first kind is semantic: endpoint-removable context,
-strict targetwise support, reciprocity, and state--energy compatibility state what an architecture
-must satisfy for a particular interpretation to be valid.  The second kind is constructive:
-signed routing, affine deletion, persistent pair tracks, sparse execution, and optional MSA
-supervision are possible ways to meet or approximate those requirements.  The constructions are
-examples, not definitions of the framework.
+The next two chapters develop complementary results.  This chapter treats routing geometry,
+persistent relational state, operator reuse, ordered composition, sparse execution, and structural
+alignment.  These are capacity and systems questions.  Chapter
+\ref{chap:book-conditional-limits} then treats endpoint-removable context, strict targetwise
+support, affine deletion, and optional MSA supervision as measurability and information questions.
 
-Two limitations are especially revealing.  A deterministic graph router that must remain globally
-invariant to all active endpoint identities can collapse to a fixed graph.  Relaxing the claim to a
-targetwise directed conditional operator avoids that collapse but gives up the semantics of one
-globally identified undirected graph.  Separately, a router forbidden from observing two endpoint
-residues faces an irreducible Bayes error whenever the desired edge label depends on information
-contained only in those residues.  Training data and teacher supervision can approach that floor;
-they cannot remove it at inference.
+The separation matters because representational capacity does not settle conditional meaning.  A
+router may compute an accurate adaptive graph while reading evidence that a later endpoint
+intervention is supposed to hold fixed.  Conversely, withholding endpoint identities can create an
+irreducible prediction floor even for a high-capacity architecture.
 
-Realizability is therefore not an afterthought.  It marks the boundary between a mathematically
-well-defined interaction and a trainable mechanism that can infer or execute it under finite
-information and compute.
+Realizability marks the boundary between a mathematically well-defined interaction and a trainable
+mechanism that can infer or execute it under finite information and compute.  This chapter begins
+with capacity and execution; the next chapter isolates the information contract.

@@ -17,6 +17,12 @@
   \fi}
 \makeatother
 
+% Reserve enough TOC width for section numbers such as 10.10 and 10.10.1.
+\makeatletter
+\renewcommand*\l@section{\@dottedtocline{1}{1.5em}{3.0em}}
+\renewcommand*\l@subsection{\@dottedtocline{2}{3.8em}{3.8em}}
+\makeatother
+
 \newcommand{\E}{\mathbb E}
 \newcommand{\R}{\mathbb R}
 \newcommand{\diag}{\operatorname{diag}}
@@ -33,22 +39,26 @@
 \newcommand{\BookPart}[1]{\part{#1}}
 \newcommand{\BookChapter}[1]{\chapter{#1}}
 \newcommand{\BookBackMatter}{\backmatter}
+\newcommand{\BookAppendices}{\appendix}
 \newcommand{\BookBibliographyColumnsBegin}{}
 \newcommand{\BookBibliographyColumnsEnd}{}
 \newcommand{\BookBibliographySize}{\small}
 \newcommand{\BookUnit}{Chapter}
 \newcommand{\BookInsert}[1]{\input{#1}}
 \newcommand{\BookOnlyChapter}[1]{\chapter{#1}}
+\newcommand{\BookChapterLabel}[1]{\label{#1}}
 \newcommand{\BookSpectralSection}[1]{\section{#1}}
 \newcommand{\BookSubsection}[1]{\subsection{#1}}
-\newcommand{\BookSpectralPointer}{Chapter~10}
+\newcommand{\BookSpectralPointer}{Chapter~\ref{chap:book-spectra}}
+\newcommand{\BookSpectralMarker}{\label{chap:book-spectra}}
 \newcommand{\BookSection}[1]{\section{#1}}
 \def\BOOKMODE{1}
 
-\title{Operator Graphs for Protein Intelligence\\
-\large A Mathematical Language for Energy, Probability, and Computation}
+\title{Protein Interaction as an Operator\\
+\large From Potts Models to Transformers}
 \author{Haobo Wang\\
-\small Levinthal Biotech, Hangzhou, China}
+\small Levinthal Biotech, Hangzhou, China\\
+\small\texttt{haobowang@levinthal.bio}}
 \date{July 2026}
 
 \begin{document}

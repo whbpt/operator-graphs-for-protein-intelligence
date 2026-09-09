@@ -31,23 +31,29 @@ the narrow arc of a single research claim.
 
 \section*{How to read this book}
 
-Part I establishes the cross-disciplinary vocabulary and the hierarchy of claims.  Part II is the
-theorem--proof core: it builds the operator geometry and develops static, dynamic, higher-order,
-and probability-exact edge objects.  Part III has a mixed role.  It contains exact model
-correspondences where their assumptions permit them, then uses the same coordinates as a
-structured audit of Potts models, Gaussian models, Hopfield systems, RBMs, Transformers, and the
-three generations of AlphaFold before turning to MSA estimators and graph spectra.  In particular,
-the AlphaFold comparison is an architectural reading of published systems, not an equivalence
-theorem about their algorithms.  Part IV asks which objects are realizable
-in trainable architectures and what evidence is required for statistical, physical, or biological
-interpretation.
+Part I establishes the cross-disciplinary vocabulary, the hierarchy of claims, and the scales that
+connect sequence, structure, function, evolution, and observation.  Part II is the theorem--proof
+core: it builds the operator geometry and develops static, dynamic, higher-order, and
+probability-exact edge objects.  Part III first compares Potts models, Gaussian models, Hopfield
+systems, RBMs, and Transformers in common coordinates.  It then separates phylogeny from the
+residue-position graph, declares the observations and estimands, audits the three generations of
+AlphaFold, and only then introduces graph spectra.  The AlphaFold comparison is an architectural
+reading of published systems; its claims concern retained evidence, relational state, and output
+law.  Part IV separates architectural capacity from conditional information limits, then closes
+with falsification and biological interpretation.  The detailed MSA Pairformer, graph-network, and
+diffusion derivations remain inside their protein-facing chapters.  The optional appendix isolates
+the population-selection bridge.
 
-Readers interested primarily in protein language models can begin with Chapters 1, 4, 7, 8, and 9.
-Readers coming from statistical physics may prefer Chapters 2, 3, 6, 7, 8, and 10.  Readers designing
-sparse or interpretable architectures should read Chapters 3, 4, 8, 11, and 12 before treating an
-internal route as an identified interaction.
+Readers interested primarily in protein language models can begin with Chapters
+\ref{chap:book-one-edge}, \ref{chap:book-static-dynamic}, \ref{chap:book-models},
+\ref{chap:book-observations}, and \ref{chap:book-alphafold}.  Readers coming from statistical
+physics may prefer Chapters \ref{chap:book-translation}--\ref{chap:book-probability-geometry},
+\ref{chap:book-phylogeny}, and \ref{chap:book-spectra}.  Readers designing sparse or interpretable architectures should read
+Chapters \ref{chap:book-reference-geometry}, \ref{chap:book-static-dynamic},
+\ref{chap:book-architecture}, \ref{chap:book-conditional-limits}, and
+\ref{chap:book-falsification} before treating an internal route as an identified interaction.
 
 The front-matter object map gives a lighter first route through the notation.  On a first reading,
-the opening prose, boxed equations, worked cases, and codas carry the conceptual argument.  Proofs
-and mathematical interludes can be read on a second pass; they establish the exact boundaries of
-the claims rather than introducing a separate storyline.
+the opening prose, boxed equations, worked cases, and codas carry the conceptual argument.  Readers
+following the protein-machine-learning route can skip the optional population appendix.  The
+corresponding chapters preserve the exact operator-limit and stochastic-transport derivations.

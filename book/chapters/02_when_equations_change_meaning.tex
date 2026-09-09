@@ -56,7 +56,8 @@ The associated free energy satisfies
 \begin{equation}
 -\tau\log\sum_z e^{-E_z/\tau}
 =\min_{q\in\Delta(\mathcal Z)}
-\left\{\sum_zq_zE_z-\tau H(q)\right\}.
+\left\{\sum_zq_zE_z-\tau H(q)\right\},
+\qquad H(q)=-\sum_zq_z\log q_z.
 \label{eq:book-free-energy}
 \end{equation}
 This is more than a metaphor.  The distribution exactly balances expected energy against entropy.
@@ -109,13 +110,13 @@ A term belongs to a justified Hamiltonian or effective energy under an explicit 
 symmetry class, and regime of validity.  Statistical fit alone does not supply those assumptions.
 
 \paragraph{Biological interaction.}
-A joint perturbation produces a reproducible effect on structure, fitness, activity, or another
-biological endpoint relative to a declared null.  This is an experimental statement and inherits
-the scope of the assay.
+A joint perturbation produces a reproducible effect on structure, a declared assay endpoint, or a
+population growth coordinate relative to a declared null.  This is an experimental statement and
+inherits the scope of the assay and demographic model.
 
 The four meanings can support one another without forming a chain of automatic implications.  A
 computational route can help predict a statistical coupling.  A fitted coupling can correlate
-with contact geometry.  A contact can constrain mutational fitness.  Each transition is an
+with contact geometry.  A contact can constrain a mutational assay or population growth rate.  Each transition is an
 empirical result with its own failure modes.
 
 \section{Four graphs on the same protein}
@@ -197,8 +198,8 @@ hidden feature can function as a memory without being a metastable thermodynamic
 execution graph can save computation without identifying conditional independence.  A gauge-fixed
 pair table can isolate statistical nonadditivity without establishing biological causality.
 
-This asymmetry is the price of honest unification.  The common language developed in the next part
-will be strong enough to compare models because it refuses to pretend that every coordinate has
-the same semantics.  We begin with the categorical edge itself: what remains of a pair table after
-constants and one-body effects have been removed, and how that remainder acts as an operator
-between reference-centered state spaces.
+This asymmetry is the price of honest unification.  The remaining sections first fix the elementary
+sequence and MSA objects, then broaden the translation ledger through four statistical-mechanics
+lenses and through the scales of protein science.  Part II begins with the categorical edge itself:
+what remains of a pair table after constants and one-body effects have been removed, and how that
+remainder acts as an operator between reference-centered state spaces.

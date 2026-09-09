@@ -1,0 +1,79 @@
+\section{From one protein sequence to an alignment}
+\label{sec:book-sequence-msa-primer}
+
+A protein sequence records the amino-acid residues of a polymer chain in their order from one
+terminus to the other.  A \emph{residue} is one amino-acid unit in that chain; a \emph{site} or
+\emph{position} is the coordinate at which its identity is recorded.  The \emph{query} is the
+particular sequence whose structure, function, or model response is under study.  A
+\emph{homologue} is a sequence related to the query by common ancestry.  Sequence similarity is
+evidence used to find homologues; homology itself is a historical relation.
+
+A multiple-sequence alignment (MSA) places homologous sequences in rows and proposes
+corresponding ancestral positions in columns.  The following toy alignment uses the query as its
+coordinate system:
+\begin{center}
+\small
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{@{}lcccccccc@{}}
+\toprule
+row & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 \\
+\midrule
+query       & M & K & T & A & E & L & V & G \\
+homologue 1 & M & K & S & A & E & L & I & G \\
+homologue 2 & M & R & T & A & D & L & V & G \\
+homologue 3 & M & R & S & -- & D & L & I & G \\
+\bottomrule
+\end{tabular}
+\end{center}
+Columns 1, 6, and 8 are conserved in this sample.  Columns 2 and 5 covary: the observed rows pair
+K with E and R with D.  The dash in column 4 is an alignment gap, representing an insertion,
+deletion, missing observation, or an alignment decision according to the data pipeline.  It is not
+an amino acid.  Row order in an alignment file has no biological meaning; relationships among
+rows are supplied by common ancestry, taxonomy, sampling, or an inferred tree.
+
+The model alphabet must therefore be declared.  The twenty standard amino acids may be augmented
+with gap, unknown, ambiguous, or masked symbols.  In a query-anchored analysis, indices $i$ and
+$j$ usually denote retained query-aligned columns.  They need not equal the raw residue numbers in
+every homologue, and poorly aligned or insertion-rich regions can make the correspondence
+uncertain.
+
+Conservation is a one-column statement: the marginal distribution $p_i(a)$ is concentrated on a
+small set of residue identities.  Covariation is a two-column statement: the joint distribution
+$p_{ij}(a,b)$ differs from $p_i(a)p_j(b)$.  The toy alignment displays both, yet its four rows are
+far too few to establish either quantity reliably.  More generally, observed covariation can
+contain several mechanisms at once:
+\begin{center}
+\small
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.24\linewidth}
+                >{\raggedright\arraybackslash}p{0.36\linewidth}
+                >{\raggedright\arraybackslash}p{0.30\linewidth}@{}}
+\toprule
+Source & How the pattern arises & What must be checked \\
+\midrule
+Direct structural or functional constraint & substitutions at two sites compensate to preserve
+folding, binding, catalysis, or another selected property & matched structure, function, or
+mutational evidence \\
+Indirect dependence & $i$ and $j$ are both coupled to a third site $k$, or are joined by a longer
+path & conditioning, inverse modeling, and controlled synthetic cases \\
+Shared ancestry & related rows inherit both residue states from common ancestors & a tree-based or
+clade-aware sampling null \\
+Mixture and data construction & subfamilies, taxonomic imbalance, gaps, alignment choices, or
+paired-MSA assignment change the empirical joint table & stratification and pipeline-matched nulls
+\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Finite depth and database redundancy add uncertainty to every row of this ledger.  Sequence
+weighting can reduce the influence of nearly duplicated observations, while the ancestral process
+and alignment uncertainty remain part of the data-generating law.  An MSA is therefore an observed
+three-axis object---row, aligned position, and residue category---from which a position-level
+interaction operator may be estimated.  The estimator and its null determine which part of the
+observed covariation the resulting edge can claim to represent.
+
+With these three axes fixed, the next step is to distinguish operations performed on the resulting
+many-variable system.  A global energy law, a factor-graph cavity message, a dynamical response,
+and a cascade on a support graph act on different state spaces even when each is described with the
+word ``interaction.''  The four statistical-mechanics lenses that follow provide exact reference
+cases for those operations before the argument crosses from sequence data to physical and
+evolutionary scales.

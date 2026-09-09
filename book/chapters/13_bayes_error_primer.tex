@@ -1,0 +1,41 @@
+\section{A binary Bayes-error primer}
+\label{sec:book-bayes-error-primer}
+
+Let $T\in\{0,1\}$ be a desired edge label and let $Y$ contain exactly the information available to
+a router.  The posterior probability of an edge is
+\begin{equation}
+\eta(y)=\Pr(T=1\mid Y=y).
+\label{eq:book-primer-binary-posterior}
+\end{equation}
+At a fixed observation $y$, predicting $1$ makes an error with probability $1-\eta(y)$, while
+predicting $0$ makes an error with probability $\eta(y)$.  The optimal binary decision is therefore
+\begin{equation}
+\widehat T^*(y)=\mathbf1\{\eta(y)\geq1/2\},
+\qquad
+\Pr(\widehat T^*(Y)\ne T\mid Y=y)
+=\min\{\eta(y),1-\eta(y)\}.
+\label{eq:book-primer-binary-decision}
+\end{equation}
+Averaging over the available observations gives the Bayes error
+\begin{equation}
+e_Y^*
+=\mathbb E_Y\min\{\eta(Y),1-\eta(Y)\}.
+\label{eq:book-primer-bayes-error}
+\end{equation}
+No classifier restricted to $Y$ can have smaller zero--one error.  Independent randomization cannot
+improve the bound because its conditional error is a convex combination of the two deterministic
+errors.
+
+Two limiting cases fix the intuition.  If $\eta(y)=0.8$, the best prediction is $1$ and the
+unavoidable conditional error is $0.2$.  If $Y$ carries no information about a balanced label,
+$\eta(y)=1/2$ for every $y$ and the Bayes error is $1/2$.
+
+For endpoint-excluding support prediction, the allowed observation is
+\begin{equation}
+Y_{ij}=X_{[L]\setminus\{i,j\}}.
+\label{eq:book-primer-endpoint-excluding-observation}
+\end{equation}
+A strict router can use any function of $Y_{ij}$, including a large learned representation, while
+it cannot recover label information that is absent from the conditional posterior
+$\Pr(T_{ij}=1\mid Y_{ij})$.  The Bayes-floor result below applies
+Eq.~\ref{eq:book-primer-bayes-error} to this declared information set.

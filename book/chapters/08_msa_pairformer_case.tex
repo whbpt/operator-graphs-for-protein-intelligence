@@ -1,0 +1,487 @@
+\section{Case study: MSA Pairformer and the paired-alignment estimand}
+\sectionmark{MSA Pairformer and the paired-alignment problem}
+
+MSA Pairformer supplies a compact empirical case for the progression developed in this chapter.
+It keeps an alignment state $m_{si}$, maintains a persistent pair state $z_{ij}$, writes from the
+alignment into the pair track through an outer product, and updates pair state through triangular
+paths.  The model has 111 million parameters and was trained by masked-token prediction on
+269,455 single-chain UniClust30 alignments.  Its protein--protein interaction behavior appears when
+a paired alignment is supplied at inference time, even though multichain alignments and complex
+structures were absent from pretraining \cite{akiyama2026msapairformer}.
+
+The case contains two statistical experiments.  Single-chain alignments support masked-token and
+intrachain contact evaluations.  Protein--protein interaction evaluations first construct a paired
+alignment, thereby declaring which homologue of chain $A$ and which homologue of chain $B$ form one
+joint observation.  Parameter count describes the learned maps in the middle of these pipelines;
+it does not specify the information in the input sample or the endpoint used to score the output.
+
+The mathematical audit will therefore ask five questions in order.  What empirical measure over
+MSA rows is induced by the query?  What statistic of that measure is written into pair state?  How
+do row-space transport and triangular path composition close the recurrent update?  Which output
+law is identified by query-only masking, and which internal factors remain nonidentifiable?  For a
+protein--protein interaction, what joint sample is created by the pairing rule?  The reported
+111M-versus-15B comparison can then be interpreted as a consequence of the full estimator rather
+than as its starting explanation.
+
+The finite estimator and the claims it can support come first.  Rank bounds, continuum limits,
+residual Jacobians, assignment relaxations, and the full adaptive-route audit follow in
+Section~\ref{sec:book-msa-pairformer-math}.
+
+\subsection{The mathematical object: a measure--edge dynamical system}
+
+\subsubsection{The coupled state and its three contractions}
+
+Each MSA Pairformer layer performs three coupled operations.  Pair-weighted averaging lets the
+pair track shape communication along each sequence.  A query-biased outer product writes
+alignment evidence back into the pair track.  Triangle multiplicative updates refine $(i,j)$ by
+paths through third residues $k$.  Schematically,
+\begin{equation}
+\begin{aligned}
+m^{(\ell+1/3)}_{si}
+&=\mathsf{PWA}_{\theta}\!\left(m^{(\ell)},z^{(\ell)}\right)_{si},\\
+z^{(\ell+2/3)}_{ij}
+&=z^{(\ell)}_{ij}
++W_{\theta}\!\left[
+\sum_s w_s(q;m^{(\ell+1/3)})
+a(m_{si})\otimes b(m_{sj})
+\right],\\
+z^{(\ell+1)}_{ij}
+&=z^{(\ell+2/3)}_{ij}
++\sum_k\Phi_{\theta}\!\left(z_{ik}^{(\ell+2/3)},z_{jk}^{(\ell+2/3)}\right).
+\end{aligned}
+\label{eq:book-msa-pairformer-layer}
+\end{equation}
+The sequence weights $w_s$ depend on the query.  Two queries embedded in the same broad family can
+therefore induce different effective family samples.  The pair track stores the resulting
+relational evidence, while triangle paths give the model a direct computational route for
+combining two-hop paths.  The equation is still only a schematic until the normalization spaces
+and the missing-data denominator are made explicit.  That algebra is the mathematical core of the
+model.
+
+\subsubsection{What the outer-product write estimates}
+
+Let $M\in\mathbb R^{S\times L\times d_m}$ denote one encoded MSA, with $s$ indexing sampled
+homologues and $i$ indexing aligned residue columns.  These axes have different meanings: $s$ is
+an empirical-sample axis, while $(i,j)$ is the edge index of a complete residue-position graph.
+For two learned maps $A,B:\mathbb R^{d_m}\to\mathbb R^{c}$, define
+\begin{equation}
+\begin{aligned}
+u_{si}&=A(\operatorname{LN}M_{si}),qquad
+v_{sj}=B(\operatorname{LN}M_{sj}),\\[-2pt]
+\mathcal O_{q,ij}
+&=\frac{\displaystyle\sum_s\omega_s(q)\,\chi_{si}\chi_{sj}
+        \,u_{si}\otimes v_{sj}}
+       {d_{q,ij}},\\[-2pt]
+d_{q,ij}&=\sum_s\omega_s(q)\chi_{si}\chi_{sj},
+\end{aligned}
+\label{eq:msa-pairformer-exact-cross-moment}
+\end{equation}
+where $\chi_{si}$ is the observed-token mask.  The released implementation computes this
+quantity by multiplying both factors by $\sqrt{\omega_s}$ and dividing by $d_{q,ij}$ after the
+contraction.  With complete alignments $d_{q,ij}=1$; with gaps, every residue pair has its own
+conditional empirical measure
+\begin{equation}
+\mu_{q,ij}
+=\frac1{d_{q,ij}}\sum_s\omega_s(q)\chi_{si}\chi_{sj}\,\delta_s,
+\qquad
+\mathcal O_{q,ij}=\mathbb E_{\mu_{q,ij}}[u_{si}\otimes v_{sj}].
+\label{eq:msa-pairformer-pairwise-measure}
+\end{equation}
+Thus the outer product is a weighted cross-moment.  It becomes a covariance only after centering
+$u$ and $v$ under the same pair-specific measure.  A shared linear map and a small hidden width
+compress this moment before a SwiGLU and a projection write it into $z_{ij}$.
+
+The query update is an exponential tilt of an empirical MSA measure.  Its exact covariance identity
+and the distinction between feature, router, and denominator terms are collected in
+Section~\ref{sec:book-msa-pairformer-math}.
+\subsubsection{Alternating contractions close two index spaces}
+
+The MSA update has the complementary contraction
+\begin{equation}
+\beta^h_{ij}=w_z^h{}^{\mathsf T}\operatorname{LN}(z_{ij}),qquad
+A^h_{ij}=\operatorname{softmax}_{j}(\beta^h_{ij}),qquad
+\Delta m_{si}=W_o\operatorname{concat}_{h}\left[
+g^h_{si}\odot\sum_jA^h_{ij}v^h_{sj}\right],
+\label{eq:msa-pairformer-pwa-operator}
+\end{equation}
+with $v^h_{sj}$ and $g^h_{si}$ obtained from normalized MSA features.  The pair-to-MSA map is a
+row-wise transport on the position graph; the MSA-to-pair map in Eq.~\ref{eq:msa-pairformer-exact-cross-moment}
+contracts the sample axis and expands a position edge.  The model's basic algebra is this
+alternation of three index operations: contraction over homologues $s$, expansion to $(i,j)$,
+and path composition over mediators $k$.
+
+\subsubsection{The closed operator and its asymptotic limits}
+
+The finite model is an ordered nonlinear composition of pair-to-MSA transport, query-weighted
+MSA-to-pair writing, and triangle updates.  Its typed domains, continuum limits, rank bounds,
+parameterisation gauge, and large-$S$ limits are collected in
+Section~\ref{sec:book-msa-pairformer-math}.  The pairing rule enters through the observed rows and
+the query enters through the empirical row measure, so replacing the sequence-to-edge lift by a fixed
+family average changes the operator.
+\subsection{Adaptive row measure and identification}
+
+\subsubsection{Query bias as a maximum-entropy row measure}
+
+The released model uses two pre-softmax query--key fields.  Suppressing layer and batch indices,
+\begin{equation}
+r_s(q;M)
+=\frac1{\sqrt d}\frac1{L_s}\sum_i\chi_{si}
+\left(q_{1i}^{\mathsf T}k_{1si}
+-\lambda\,q_{2i}^{\mathsf T}k_{2si}\right),
+\qquad
+\omega_s=\frac{\rho_s e^{r_s}}{\sum_t\rho_t e^{r_t}},
+\label{eq:msa-pairformer-differential-row-score}
+\end{equation}
+with $\lambda=\exp(\langle\lambda_{q1},\lambda_{k1}\rangle)-
+\exp(\langle\lambda_{q2},\lambda_{k2}\rangle)+\lambda_0^{(\ell)}$, where $\rho_s$ is the row-validity
+mask and $L_s=\sum_i\chi_{si}$.  In the released depth-22 model, using zero-based layer index
+$\ell$, $\lambda_0^{(\ell)}=0.8-0.6\exp(-0.3\ell)$.  The score is averaged over the columns
+present in row $s$ and the final softmax is over valid MSA rows.  This is the precise mathematical
+novelty often hidden by the phrase ``query-biased attention.''
+\subsubsection{What query-only masking identifies}
+
+Let $I$ be a random set of query positions and let $M_{0,-I}$ denote the visible query residues.
+The second training stage optimizes the denoising risk
+\begin{equation}
+\mathcal L_{\mathrm{query}}
+=\mathbb E_{M,I}\left[-\sum_{i\in I}
+\log p_\theta\!\left(M_{0i}\mid M_{0,-I},M_{1:S}\right)\right].
+\label{eq:msa-pairformer-query-pseudolikelihood}
+\end{equation}
+This is a query-conditional pseudolikelihood/denoising objective.  It does not define or maximize
+a joint Potts likelihood unless additional compatibility conditions are imposed on all conditional
+logits.  Randomly changing the query row trains a row-exchangeable rule: a permutation of the
+non-query rows leaves the weighted moment unchanged up to the same permutation of weights.
+
+Under a mixture model with latent subfamily $H_s$, a Bayes-optimal relevance score would contain a
+log density ratio such as $\log p(M_s\mid q,H_s)/p(M_s\mid q)$, but the paper does not prove that
+the learned score has this form.  The defensible statement is therefore query-conditioned
+empirical reweighting, with posterior interpretation treated as a hypothesis to test.
+
+\subsubsection{Symmetry and identifiability of the row axis}
+
+Row permutation equivariance, query exchange, and the distinction between paired and unpaired chain
+permutations are recorded in Section~\ref{sec:book-msa-pairformer-math}.  The main consequence is
+that changing the query or the partner assignment changes the empirical reference law.
+\subsubsection{Three risks, three estimands}
+
+The two language-model stages optimize different conditional risks.  With a random mask set
+$J_s$ on every row, the first stage is
+\begin{equation}
+\mathcal L_{\mathrm{all}}
+=\mathbb E_{M,J}\left[-\sum_{s=0}^{S-1}\sum_{i\in J_s}
+\log p_\theta(M_{si}\mid M_{-J})\right],
+\label{eq:msa-pairformer-all-row-risk}
+\end{equation}
+whereas query-only masking is Eq.~\ref{eq:msa-pairformer-query-pseudolikelihood}.  The latter
+changes the information available to the target row and trains the network to use the visible
+homologues as context.  The infinite-capacity population optimum identifies the conditional output
+law; it does not identify a unique decomposition into $q,k$, $\omega$, pair features, and triangle
+messages.
+
+The contact benchmark adds a separate supervised risk for a frozen representation,
+\begin{equation}
+\mathcal L_{\mathrm{contact}}(\eta)
+=-\sum_{(i,j)}\left[y_{ij}\log c_{ij}^{\eta}
++(1-y_{ij})\log(1-c_{ij}^{\eta})\right],
+\label{eq:msa-pairformer-contact-probe-risk}
+\end{equation}
+with $c_{ij}^{\eta}$ read from a selected pair layer.  MP-EM and MP-PDP then define a third,
+assignment-dependent objective through Potts pseudolikelihood or its differentiable relaxation.
+Consequently, a contact score can improve while the masked-token risk is unchanged, and a pairing
+score can improve through the MRF head without proving that the base language model has learned a
+general partner posterior.
+
+\subsection{Pair-state path algebra and residual depth}
+
+\subsubsection{Triangle multiplication is a length-two path closure}
+
+The triangle block has a precise tensor contraction.  After input normalization and learned gates,
+let $a_{ik},b_{ik}\in\mathbb R^{c}$ be the two projected versions of the pair edge.  The outgoing
+and incoming updates are
+\begin{equation}
+\begin{aligned}
+\mathsf T_{\mathrm{out}}(z)_{ij}
+&=\sum_k a_{ik}\odot b_{jk},\\
+\mathsf T_{\mathrm{in}}(z)_{ij}
+&=\sum_k a_{ki}\odot b_{kj}.
+\end{aligned}
+\label{eq:msa-pairformer-triangle-contractions}
+\end{equation}
+If projections, gates, and normalization are suppressed and the pair state is scalar, these become
+$ZZ^{\mathsf T}$ and $Z^{\mathsf T}Z$.  Each output edge therefore aggregates all length-two
+walks $i\!\to\!k\!\to\!j$ or $k\!\to\!i, k\!\to\!j$ in a shared feature space.  Under a factor
+model $z_{ik}\approx r_i^{\mathsf T}h_k$ and $z_{jk}\approx r_j^{\mathsf T}h_k$, the contraction
+measures overlap of the two endpoint--mediator factor sets.  This gives a path-consistency
+interpretation for the operation.
+
+The interpretation has a strict boundary.  A triangle contraction is generally neither an inverse
+covariance nor a direct-coupling estimator: it need not be positive semidefinite, symmetric,
+energy-decreasing, or gauge-fixed.  The ablation in the paper supports a task-specific benefit of
+the path channel; it does not identify the channel with $C^{-1}$ or prove that every selected false
+positive is an indirect statistical correlation.  In the language of cavity methods, the operation
+is a representation-level surrogate for combining a mediator.  It does not perform cavity deletion,
+variable marginalization, or normalization over a probabilistic factor graph.
+
+\subsubsection{Residual depth is a nonlinear transport process}
+
+Residual depth transports perturbations through a coupled MSA--pair state.  The full transport
+Jacobian, singular-value diagnostics, and independent scalar readouts are collected in
+Section~\ref{sec:book-msa-pairformer-math}; residual form alone carries no Lyapunov or free-energy
+interpretation.
+\subsection{Architectural lineage: why it looks like AlphaFold}
+
+The resemblance is architectural and direct.  MSA Pairformer builds on the MSA module of
+AlphaFold 3, whose operations descend from the MSA--pair organization of the AlphaFold 2
+Evoformer \cite{jumper2021,abramson2024}.  All three systems treat a residue pair as a persistent
+state variable, write alignment statistics into that state, and refine it through triangular
+paths.  MSA Transformer keeps the MSA tensor as its principal state and exposes position routes
+through axial attention; it has no corresponding persistent $L\times L\times d_z$ pair track.
+
+The four computational records can be placed side by side:
+\begin{equation}
+\begin{aligned}
+\text{MSA Transformer:}&\quad
+M^{(0)}\longrightarrow\cdots\longrightarrow M^{(D)}
+\longrightarrow \text{token logits or attention contact readout},\\
+\text{AlphaFold 2:}&\quad
+(M^{(0)},Z^{(0)})\longrightarrow\cdots\longrightarrow(M^{(D)},Z^{(D)})
+\longrightarrow \text{equivariant structure module},\\
+\text{AlphaFold 3:}&\quad
+(M,Z)\longrightarrow (s,Z)
+\longrightarrow \text{conditional all-atom diffusion},\\
+\text{MSA Pairformer:}&\quad
+(M^{(0)},Z^{(0)})\longrightarrow\cdots\longrightarrow(M^{(D)},Z^{(D)})
+\longrightarrow \text{masked-token logits}.
+\end{aligned}
+\label{eq:book-msa-pairformer-alphafold-lineage}
+\end{equation}
+AlphaFold 2 preserves bidirectional MSA--pair communication through the Evoformer and then maps
+the result into coordinates.  AlphaFold 3 uses a shorter MSA module to deposit evolutionary
+evidence into pair state, discards the explicit MSA rows, and lets its Pairformer and diffusion
+modules complete structural generation.  MSA Pairformer repeatedly applies the MSA-module style
+of computation and reads the result back into amino-acid probabilities.  Its scientific role is
+therefore a family-conditioned language model, even though its relational state and update algebra
+come from structure-prediction architectures.
+
+The main architectural modification is the query-biased write from $M$ into $Z$.  A standard
+outer-product mean uses a uniform row average,
+\begin{equation}
+O_{ij}^{\mathrm{uniform}}
+=\frac1R\sum_{s=1}^{R}a(M_{si})\otimes b(M_{sj}),
+\label{eq:book-uniform-outer-product-mean}
+\end{equation}
+whereas MSA Pairformer uses
+\begin{equation}
+O_{ij}^{q}
+=\sum_{s=1}^{R}w_s(q)\,
+a(M_{si})\otimes b(M_{sj}).
+\label{eq:book-query-biased-outer-product-lineage}
+\end{equation}
+This changes the AlphaFold-style relational trunk from a global family aggregator into a
+query-conditioned estimator.  The training contract makes that change identifiable.  Pretraining
+used uniform sequence weights and masked reconstruction throughout the MSA.  During the second
+stage, homologous rows remained visible, only the designated query row was masked, and a different
+sufficiently covered row could become the query at each epoch.  The row weights were therefore
+trained to estimate relevance to the current query rather than reproduce one global family
+average.  The training endpoint is conditional token reconstruction.  The structural inductive bias remains
+present in the choice of pair state and triangle paths, while masked-token prediction supplies the
+learning signal.
+
+A relational computation developed for structure prediction has therefore been isolated from
+coordinate generation and trained to estimate evolutionary conditionals.  Whether that transferred
+inductive bias improves a particular endpoint is assessed only after the paired sample and readout
+have been declared.
+
+\subsection{Paired MSAs define the protein--protein interaction sample}
+
+\subsubsection{What joint sample does the pairing rule create?}
+
+Suppose two interacting protein families provide separate alignments
+\begin{equation}
+\mathcal M_A=\{a_u\}_{u\in U},
+\qquad
+\mathcal M_B=\{b_v\}_{v\in V}.
+\label{eq:book-two-unpaired-msas}
+\end{equation}
+These collections do not yet define cross-chain covariance.  Within organism or genomic context
+$g$, there may be several paralogues $U_g\subset U$ and $V_g\subset V$.  A pairing rule chooses a
+partial assignment
+\begin{equation}
+\widehat\pi_g:U_g\longrightarrow V_g
+\label{eq:book-paired-msa-assignment}
+\end{equation}
+and constructs concatenated rows
+\begin{equation}
+\mathcal M_{AB}^{\widehat\pi}
+=\left\{a_u\Vert b_{\widehat\pi_g(u)}:
+u\in U_g,\ g\in\mathcal G\right\}.
+\label{eq:book-paired-msa-construction}
+\end{equation}
+Only Eq.~\ref{eq:book-paired-msa-construction} turns residues in the two chains into jointly
+observed variables.  Different assignments preserve the single-chain alignments while changing
+the cross-chain joint table.  For positions $i$ in $A$ and $j$ in $B$, a weighted covariance block
+has the form
+\begin{equation}
+\widehat C_{ij}^{\widehat\pi}(x,y)
+=\sum_u w_u
+\mathbf 1[a_{u,i}=x]
+\mathbf 1[b_{\widehat\pi_g(u),j}=y]
+-\widehat p_i^A(x)\widehat p_j^B(y).
+\label{eq:book-cross-chain-covariance-pairing}
+\end{equation}
+The marginals in the second term can remain unchanged while the first term moves from a strong
+coevolutionary pattern to noise.  Pairing error can erase a real interface signal, and a pairing
+rule correlated with taxonomy or genomic organization can introduce structure that the downstream
+model will exploit.
+
+The assignment $\Pi=(\pi_g)_g$ is therefore a latent combinatorial variable.  The attenuation and
+total-variance formulas are collected in Section~\ref{sec:book-msa-pairformer-math}.
+\subsubsection{Query bias changes the empirical reference law}
+
+The query-biased outer product produces one normalized weight for each concatenated MSA row.  For
+query $q$ and pairing $\widehat\pi$, it defines the empirical measure
+\begin{equation}
+\widehat\mu_{q,\widehat\pi}
+=\sum_u w_u(q;\mathcal M_{AB}^{\widehat\pi})
+\delta_{a_u\Vert b_{\widehat\pi_g(u)}}.
+\label{eq:book-query-pairing-empirical-law}
+\end{equation}
+This is an adaptive reference law over observed evolutionary backgrounds.  It changes with the
+query and with the pairing rule.  Calling the weights ``attention'' describes the operation;
+Eq.~\ref{eq:book-query-pairing-empirical-law} states their statistical effect.  In the presence of
+gaps, the exact pairwise law is the conditional, pair-specific measure in
+Eq.~\ref{eq:msa-pairformer-pairwise-measure}, rather than one global row distribution.
+
+The response-regulator experiment makes that effect visible.  OmpR sequences formed only about
+$12\%$ of a 4,096-sequence mixed-family alignment.  Uniform averaging recovered one of 19
+subfamily-specific interface contacts, whereas query bias recovered eight.  Some strongly weighted
+sequences had low raw sequence identity to the query.  The estimator had learned a relevance rule
+richer than nearest-neighbor selection.
+
+The benefit is conditional on family heterogeneity.  When a property is shared globally or every
+row supplies useful evidence, query weighting can reduce effective alignment depth and need not
+improve the estimate.  The broader estimator also depends on a deep, trustworthy alignment:
+evolutionarily recent and de novo proteins, disordered or distantly alignable regions, and sequence
+rearrangements that violate one-to-one column correspondence remain weakly supported regimes.
+
+This adaptivity also creates a dependency that an operator audit must retain:
+\begin{equation}
+G_{i\leftarrow j}
+=G_{i\leftarrow j}
+\left(C;\mathcal M_A,\mathcal M_B,\widehat\pi,
+\widehat\mu_{q,\widehat\pi}\right).
+\label{eq:book-pairformer-conditioned-operator}
+\end{equation}
+A reference-centered categorical Jacobian extracted from the model is closest to the edge operator
+developed in this book.  The hidden $z_{ij}$ is a computational edge state, and the scalar contact
+head is a readout from that state.  Neither object alone identifies the directed categorical
+response in Eq.~\ref{eq:book-pairformer-conditioned-operator}.
+
+\subsubsection{The externally comparable object is a finite categorical response}
+
+Fix an MSA, a pairing, a masked target $i$, and an audit source $j$.  For source residue $b$ and
+target logit category $a$, define
+\begin{equation}
+T^{\mathcal M}_{i\leftarrow j}(a,b)
+=\ell_i\!\left(a\mid M_{0j}=b,M_{0i}=\mathrm{mask},\mathcal M_{-0}\right),
+\qquad
+G^{\mathcal M}_{i\leftarrow j}=P_iT^{\mathcal M}_{i\leftarrow j}P_j^{\mathsf T}.
+\label{eq:msa-pairformer-finite-categorical-response}
+\end{equation}
+This finite table, after reference centering, lives in the same categorical operator space as the
+Potts and pLM responses developed earlier in the book.  It includes every path from the perturbed
+residue through the MSA state, adaptive row weights, pair state, triangle blocks, and language-model
+head.
+\subsection{Task-conditional efficiency after the estimand is fixed}
+
+On 45 CASP15 monomer targets shorter than 1,024 residues, MSA Pairformer achieved median long-range
+contact precision $P@L=0.66$, compared with $0.50$ for both MSA Transformer and ESM2-15B.  Its 111M
+parameters are approximately $0.74\%$ of 15B.  The comparison licenses a task-specific claim:
+explicit family evidence, persistent pair state, and triangle computation can dominate parameter
+scale for long-range contact extraction.  ProteinGym variant-effect performance remained strong,
+with an average Spearman correlation of $0.45$ over 217 substitution datasets.  The result does not
+establish a universal ordering across generation, remote homology, structure prediction, binding
+affinity, or low-homology proteins.
+
+The contact benchmark also contains a small supervised readout.  The pretrained representation was
+frozen and a logistic contact head was fitted on the same 20 trRosetta proteins used in prior MSA
+Transformer and ESM evaluations.  ``Unsupervised contact prediction'' describes the language-model
+objective; the end-to-end contact score still contains labeled structural calibration.
+
+The efficiency result is therefore a statement about an estimator-resource pair.  The model
+receives a structured family sample, compresses it through a finite bilinear feature bottleneck,
+retains a persistent relational workspace, and uses path closure before a task-specific readout.
+The 111M-versus-15B contrast follows from that complete statistical and computational pipeline.
+
+\subsection{What the experiments identify}
+
+The paper supplies several useful interventions, each with a different scope.
+
+\paragraph{Interface contacts.}
+On 27 bacterial complexes that fit the MSA Transformer length limit, median interface $P@K$ was
+$0.52$ for MSA Pairformer and $0.19$ for MSA Transformer.  Among 519 predictions with reported
+probability above $0.75$, $83\%$ were within 8 Angstrom and $94\%$ within 12 Angstrom in the
+experimental structure.  These results evaluate the complete proximity-pairing, representation,
+and contact-readout pipeline.
+
+\paragraph{Partner removal.}
+In the ParD3--ParE3 toxin--antitoxin landscape, 9,194 antitoxin variants altered four interface
+positions.  MSA Pairformer attained precision $0.74$ when ranking the 465 designated binders.
+Removing the toxin sequences from the paired MSA reduced precision to $0.50$.  This intervention
+shows that cross-chain rows carry information used by the score; it does not isolate whether the
+gain comes from query weighting, pair state, triangle updates, or another learned component.
+
+\paragraph{Pair assignment.}
+For MALG--MALK, the reported pairing precision was $0.70$ and $0.67$ for the two MSA Pairformer
+procedures, compared with $0.31$ for MSA Transformer DiffPALM.  This is evidence that the learned
+family estimator can help infer partners.  Evaluation on two interactions leaves the general
+paralogue-pairing problem open.
+
+\paragraph{Triangle paths.}
+In a separate supplemental ablation, replacing triangle updates by parameter-matched pair updates
+reduced CASP15 long-range contact precision by roughly 16--18 percentage points, depending on the
+training comparison.  About $41\%$ of the ablated model's selected false positives could be linked
+to a third residue contacting both endpoints.  The experiment supports the hypothesis that
+triangle paths provide a useful consistency channel and can suppress some mediated false positives
+on this task.  Equation~\ref{eq:msa-pairformer-triangle-contractions} shows why the channel is
+sensitive to common mediators; it does not establish an algorithmic equivalence with inverse
+covariance or direct coupling analysis.
+
+\subsection{A paired-MSA audit}
+
+A protein--protein interaction claim should report the paired alignment as part of the estimator,
+not as an incidental preprocessing file.  A minimal audit contains:
+\begin{enumerate}
+\setlength{\itemsep}{2pt}
+\item the sequence databases, search dates, coverage and identity thresholds for both families;
+\item the taxonomic units, paralogue counts, genomic-neighborhood rule, and assignment constraints;
+\item paired depth, effective depth, discarded candidates, fusion handling, and uncertainty over
+ties;
+\item a within-taxon random-pairing null, which preserves species composition and single-chain
+marginals while destroying the proposed partner assignment;
+\item a cross-taxon random-pairing null, which tests how much broader taxonomic structure drives the
+score;
+\item a partner-removal ablation and a depth-matched unpaired or single-chain baseline;
+\item sensitivity of full categorical Jacobian blocks, query weights, and contact readouts to the
+pairing rule;
+\item separate reporting for bacterial operon-linked, eukaryotic paralogue-rich, and cross-species
+systems.
+\end{enumerate}
+
+The strongest factorial experiment crosses pairing and architecture.  Run the same model on
+curated, within-taxon-shuffled, cross-taxon-shuffled, and partner-removed alignments; then run a
+Potts model, MSA Transformer, and MSA Pairformer on those same inputs.  The pairing contrast
+estimates the value of the joint sample.  The model contrast estimates how well each method
+extracts information from that sample.  Their interaction asks whether one architecture is
+especially robust to pairing noise.
+
+MSA Pairformer therefore connects the three levels of this book in one pipeline.  Mathematics
+specifies a maximum-entropy row tilt, a pair-specific weighted cross-moment, a path-closure
+dynamics, a latent permutation problem, and a finite categorical response operator.  Physics
+supplies testable hypotheses about when compensatory substitutions and path consistency reflect an
+interface geometry; no free energy is implied by the architecture alone.  AI supplies an amortized
+estimator that converts a current family sample into persistent relational state.  This returns to
+the observation principle of
+Chapter~\ref{chap:book-observations}: the pairing rule is part of the estimator.  The next chapter
+takes spectra only after this provenance has been recorded.

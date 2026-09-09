@@ -1,0 +1,53 @@
+\section{A four-genotype grammar for experimental interaction}
+\label{sec:book-epistasis-primer}
+
+Consider reference residues $(a_0,b_0)$ at sites $(i,j)$, an alternative $a$ at site $i$, and an
+alternative $b$ at site $j$.  A linked double-mutant experiment measures all four genotypes in the
+same molecular construct and assay pipeline:
+\begin{center}
+\small
+\begin{tabular}{@{}c|cc@{}}
+ & $j=b_0$ & $j=b$ \\
+\hline
+$i=a_0$ & $Y_e(a_0,b_0;c)$ & $Y_e(a_0,b;c)$ \\
+$i=a$   & $Y_e(a,b_0;c)$   & $Y_e(a,b;c)$ \\
+\end{tabular}
+\end{center}
+Here $Y_e(\cdot;c)\in\mathcal Y_e$ is the endpoint of assay $e$ under condition and sequence
+background $c$.  Choose a declared scalar coordinate $g_e:\mathcal Y_e\to\mathbb R$ and define
+$F_e=g_e\circ Y_e$.  Experimental epistasis in that coordinate is the mixed finite difference
+\begin{equation}
+\epsilon_{ij}^{(e,g)}(a,b;c)
+=F_e(a,b;c)-F_e(a,b_0;c)-F_e(a_0,b;c)+F_e(a_0,b_0;c)
+=\Delta_i\Delta_jF_e.
+\label{eq:book-epistasis-primer}
+\end{equation}
+The additive null in the $F_e$ coordinate has $\epsilon_{ij}^{(e,g)}=0$.  A complete substitution panel repeats
+the four-genotype comparison across many choices of $a$ and $b$, producing a categorical table
+rather than one scalar pair label.
+
+The coordinate is part of the null.  For a positive scalar endpoint $Y_e$, the identity choice
+$g_e(y)=y$ tests additive endpoint effects.  The logarithmic choice $g_e(y)=\log y$ gives
+\begin{equation}
+\epsilon_{ij}^{(e,\log)}(a,b;c)
+=\log\frac{Y_e(a,b;c)Y_e(a_0,b_0;c)}
+{Y_e(a,b_0;c)Y_e(a_0,b;c)},
+\end{equation}
+so zero epistasis tests a multiplicative endpoint model.  A nonlinear transformation can change the
+numerical epistasis and occasionally its sign.  The assay, endpoint, units, transformation, reference
+genotype, condition, and uncertainty must accompany the table.  If a competition assay directly
+identifies the Malthusian rate $m_c$, choosing $F_e=m_c$ yields Malthusian-growth epistasis with a
+population-dynamic interpretation.  Other assay coordinates retain their own experimental meaning.
+
+The remaining residues form a sequence background $C$.  Repeating the panel in several backgrounds
+defines $\epsilon_{ij}^{(e,g)}(a,b;C,c)$ and tests whether the interaction is stable or modulated by other
+sites.  Assay conditions supply another background: temperature, binding partner, expression
+system, time point, and cellular environment can all change the measured relation.  Compensation
+means that the double perturbation restores the chosen endpoint relative to the declared
+single-mutant null; it does not identify a physical contact by itself.
+
+Replicates, matched controls, and an explicit treatment of missing or low-count variants are needed
+to separate biological nonadditivity from measurement noise.  A scalar structural contact can test
+the endpoints of a positional prediction.  A reference-aligned epistasis table retains the
+substitution-specific degrees of freedom needed to test a categorical edge operator, with a fitted
+link function when model scores and experimental measurements use different scales.

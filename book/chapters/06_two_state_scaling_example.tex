@@ -1,5 +1,21 @@
-\section*{A two-state finite-coupling calculation}
-\addcontentsline{toc}{section}{A two-state finite-coupling calculation}
+\section*{A two-state probability table}
+\addcontentsline{toc}{section}{A two-state probability table}
+
+For two binary variables, a joint law is a nonnegative $2\times2$ table $Q$ whose four entries sum
+to one.  Row sums give the marginal $p_i$, column sums give $p_j$, and for $p_j(b)>0$ the conditional
+law is
+\begin{equation}
+q_{i\mid j}(a\mid b)=\frac{Q(a,b)}{p_j(b)}.
+\end{equation}
+Independence means $Q(a,b)=p_i(a)p_j(b)$.  Departure from independence can be measured by
+\begin{equation}
+I(X_i;X_j)
+=\operatorname{KL}(Q\|p_ip_j^{\mathsf T})
+=\sum_{a,b}Q(a,b)\log\frac{Q(a,b)}{p_i(a)p_j(b)},
+\label{eq:book-binary-mi-definition}
+\end{equation}
+with the convention $0\log0=0$.  This quantity is nonnegative and vanishes exactly at
+independence when the reference has full support.
 
 The difference between tangent geometry and an exact pair law is already visible for two uniform
 binary variables.  Let
@@ -47,11 +63,12 @@ Q_\theta-p_ip_j^{\mathsf T}
 \label{eq:book-binary-tangent}
 \end{equation}
 which is exactly the tangent direction predicted by
-Eq.~\ref{eq:sinkhorn-linearization}.  At finite strength the linear coordinate $\theta$ is replaced
+Eq.~\ref{eq:sinkhorn-linearization}, derived later in this chapter.  At finite strength the linear coordinate $\theta$ is replaced
 in the probability table by the bounded coordinate $\tanh\theta$.  The transport polytope bends
 and eventually saturates as probability concentrates on the two matching states.
 
-The mutual information is also exact:
+Substituting Eq.~\ref{eq:book-binary-scaled-law} into
+Eq.~\ref{eq:book-binary-mi-definition} gives the exact mutual information
 \begin{equation}
 I(\theta)
 =\frac{1+t}{2}\log(1+t)

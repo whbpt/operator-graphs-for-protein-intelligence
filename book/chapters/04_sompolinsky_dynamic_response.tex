@@ -1,0 +1,64 @@
+\section{A fixed random network with a dynamic response graph}
+
+The random recurrent network gives a solvable temporal analogue of the static--dynamic split
+\cite{sompolinsky1988}.  Let
+\begin{equation}
+h(t+1)=\phi\!\left(Jh(t)+Bu(t)\right),
+\label{eq:book-rnn-dynamics}
+\end{equation}
+where $J$ is fixed and $\phi$ acts coordinatewise.  At the realized state define
+\begin{equation}
+D_t=\diag\!\left(\phi'(Jh(t)+Bu(t))\right),
+\qquad K_t=D_tJ.
+\label{eq:book-rnn-local-jacobian}
+\end{equation}
+The support and entries of $J$ belong to the parameterization.  The effective one-step response
+$K_t$ depends on the trajectory through $D_t$.  A perturbation introduced at time $s$ is transported
+to time $t>s$ by
+\begin{equation}
+\Phi_{t:s}=K_{t-1}K_{t-2}\cdots K_s.
+\label{eq:book-rnn-propagator}
+\end{equation}
+Ordered multiplication matters: the same collection of local Jacobians in a different temporal
+order generally gives a different response.
+
+This example separates three graphs that share the same neuron labels:
+\begin{equation}
+J\quad\text{(parameter graph)},\qquad
+K_t\quad\text{(instantaneous response)},\qquad
+\Phi_{t:s}\quad\text{(finite-time transport)}.
+\label{eq:book-rnn-three-graphs}
+\end{equation}
+Sparsity of $J$ constrains possible one-step paths.  It does not determine the magnitude or
+long-time stability of the realized response.  Saturated units can suppress a parameter edge,
+while products of individually modest Jacobians can amplify selected directions.
+
+In the classical ensemble $J_{ij}\sim\mathcal N(0,g^2/n)$ with a sigmoidal nonlinearity,
+dynamical mean-field theory reduces the $n\to\infty$ network to a self-consistent stochastic
+process.  For the zero-input hyperbolic-tangent model, the fixed state loses stability at the
+critical gain $g=1$ and a chaotic regime appears beyond it \cite{sompolinsky1988}.  This threshold
+belongs to the specified random ensemble and dynamics.  A trained finite network with structured
+weights requires its own stability and finite-size analysis.
+
+The correspondence with a deep sequence model is operational.  For layer maps
+$h^{(\ell+1)}=F_\ell(h^{(\ell)})$, define
+\begin{equation}
+K_\ell(x)=\frac{\partial F_\ell}{\partial h}
+\bigg|_{h=h^{(\ell)}(x)},
+\qquad
+\Phi_{b:a}(x)=K_{b-1}(x)\cdots K_a(x).
+\label{eq:book-layerwise-propagator}
+\end{equation}
+This is a layerwise response audit.  It becomes a Sompolinsky-style mean-field model only after
+randomness, width, stationarity, and scaling assumptions have been supplied.  For a protein
+Transformer, the practical experiment is to perturb one residue representation, track the
+singular values and localization of $\Phi_{b:a}(x)$ across layers and backgrounds, and compare
+that internal transport with the finite categorical response $G_{i\leftarrow j}(C)$.  Agreement is
+a mechanism hypothesis; the two operators live at different points in the encoder--readout chain.
+
+The example gives the phrase ``dynamic edge'' a precise temporal reading.  One may average
+$K_t$ or a transported categorical block over a declared trajectory law, then apply the same
+mean--residual Pythagorean decomposition used for sequence backgrounds.  Lyapunov exponents and
+finite-time singular values answer propagation and stability questions, while
+$\rho^{\mathrm{dyn}}$ answers variation across the declared contexts.  They complement one another
+and should be reported in their respective state spaces.

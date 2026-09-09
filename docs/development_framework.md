@@ -14,7 +14,7 @@ T_\theta(X)
 + \epsilon.
 \]
 
-其中最终希望保留的是能够预测结构接触、突变 epistasis 和 fitness 的交互项
+其中最终希望保留的是能够预测结构接触、突变 epistasis 和声明过的 assay endpoint 的交互项
 `I_interaction`，而不是简单删除低秩或最大本征模态。
 
 ## 2. 核心科学问题
@@ -38,7 +38,7 @@ T_\theta(X)
 
 ### Layer A：数据与 null generator
 
-输入：真实 MSA、query sequence、结构、DMS/fitness、可选 phylogenetic tree。
+输入：真实 MSA、query sequence、结构、带 assay 类型与测量尺度的 DMS endpoint、可选 phylogenetic tree。
 
 需要实现：
 
@@ -77,7 +77,7 @@ T_\theta(X)
 - APC 前后变化；
 - layer/head 稳定性；
 - MSA depth 和模型规模依赖；
-- contact、epistasis 和 fitness precision。
+- contact、epistasis 和 assay-endpoint precision；若数据识别了人口增长参数，再单列 selection prediction。
 
 这一层只回答“有什么”，不进行训练期修改。
 
@@ -137,7 +137,7 @@ T_\theta(X)
 1. 长程结构接触；
 2. experimental double-mutant epistasis；
 3. single-mutant effect；
-4. protein stability/fitness；
+4. protein stability、声明过的 assay endpoint，以及可识别时的 Malthusian growth rate；
 5. sequence generation 的 diversity、foldability 和 novelty；
 6. 必要时开展小规模实验验证。
 
@@ -204,7 +204,7 @@ T_\theta(X)
 ### Gate C：方法有用
 
 - held-out long-range contact precision 提升；
-- epistasis/fitness 预测提升；
+- epistasis/assay-endpoint 预测提升；涉及 selection 的结论须给出 genotype-to-demography map；
 - 不依赖 test-family head selection；
 - 不显著损害 MLM likelihood 和 marginal calibration。
 
@@ -286,4 +286,3 @@ T_\theta(X)
 
 当前最高优先级是把 `real - matched null` 的接触富集结果扩展到独立 protein families，
 并用 categorical Jacobian 证明该现象不依赖 supervised contact head。
-

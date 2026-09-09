@@ -1,0 +1,84 @@
+\section{A finite-dimensional categorical geometry primer}
+\label{sec:book-categorical-geometry-primer}
+
+This primer collects the notation needed to reread the preceding table calculation and follow the
+exact construction below.  All spaces in this chapter are finite-dimensional.  The notation $L^2(p)$ therefore means an
+ordinary vector space equipped with weights, rather than an infinite-dimensional function space.
+For a full-support categorical reference $p=(p(1),\ldots,p(q))^{\mathsf T}$, write
+\begin{equation}
+D=\operatorname{diag}(p),
+\qquad
+\langle f,g\rangle_p
+=\sum_{a=1}^q p(a)f(a)g(a)
+=f^{\mathsf T}Dg.
+\label{eq:book-primer-weighted-inner-product}
+\end{equation}
+A vector $f\in\mathbb R^q$ is a numerical score on the $q$ residue categories.  Its reference
+mean is $p^{\mathsf T}f$, and the centered contrast space is
+\begin{equation}
+\mathcal H^0
+=\{f\in\mathbb R^q:p^{\mathsf T}f=0\}.
+\label{eq:book-primer-centered-subspace}
+\end{equation}
+It has dimension $q-1$: adding the same number to every category supplies no contrast.
+
+The matrix
+\begin{equation}
+P=I-\mathbf1p^{\mathsf T}
+\label{eq:book-primer-weighted-projection}
+\end{equation}
+subtracts the weighted mean, since $Pf=f-\mathbf1(p^{\mathsf T}f)$.  It obeys
+$P^2=P$ and $P^{\mathsf T}D=DP$, so it is the orthogonal projector onto $\mathcal H^0$ in the
+$p$-weighted inner product.  For a uniform reference this is ordinary mean subtraction.  For a
+nonuniform reference, orthogonality is measured with the declared category frequencies.
+
+Whitening converts the weighted geometry into Euclidean geometry.  The coordinate change
+\begin{equation}
+f\longmapsto \widetilde f=D^{1/2}f
+\end{equation}
+satisfies $\|f\|_p=\|\widetilde f\|_2$, and the projector becomes
+\begin{equation}
+Q=D^{1/2}PD^{-1/2}
+=I-\sqrt{p}\sqrt{p}^{\,\mathsf T}.
+\label{eq:book-primer-whitened-projection}
+\end{equation}
+For endpoint references $p_i,p_j$, a centered pair block $G$ has weighted norm
+\begin{equation}
+\|G\|_{p_i,p_j}^2
+=\sum_{a,b}p_i(a)p_j(b)G(a,b)^2
+=\|D_i^{1/2}GD_j^{1/2}\|_F^2.
+\label{eq:book-primer-weighted-block-norm}
+\end{equation}
+
+The singular-value decomposition of the whitened block is
+\begin{equation}
+\widetilde G
+=D_i^{1/2}GD_j^{1/2}
+=\sum_{r=1}^{q-1}\sigma_r u_rv_r^{\mathsf T}.
+\label{eq:book-primer-block-svd}
+\end{equation}
+The same block induces the edge map $\mathcal Kf=GD_jf$ from source contrasts to target contrasts;
+in whitened coordinates its matrix is $\widetilde G$.  Each $v_r$ is a whitened source-category
+contrast, $u_r$ is the whitened target contrast it produces, and $\sigma_r$ is the gain along that
+pair of directions.  The Hilbert--Schmidt norm keeps their total squared strength,
+\begin{equation}
+\|\mathcal K\|_{\mathrm{HS}}^2
+=\|\widetilde G\|_F^2
+=\sum_r\sigma_r^2,
+\label{eq:book-primer-hs-norm}
+\end{equation}
+while discarding the individual source and target directions.
+
+Finally, the quotient language records a simple equivalence relation.  Two raw tables represent
+the same pair interaction when
+\begin{equation}
+T'-T=u\mathbf1^{\mathsf T}+\mathbf1v^{\mathsf T}
++c\mathbf1\mathbf1^{\mathsf T}.
+\label{eq:book-primer-table-equivalence}
+\end{equation}
+They differ only by target-only, source-only, and constant terms, and double projection returns the
+same centered block.  A quotient class is the collection of all raw tables related in this way;
+the reference $p_i,p_j$ selects one centered representative of that class.
+
+Direct sums assemble one contrast vector per node, while tensor products later encode contrasts
+involving several source coordinates at once.

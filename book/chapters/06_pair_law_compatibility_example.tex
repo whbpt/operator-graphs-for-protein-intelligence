@@ -1,0 +1,25 @@
+\section*{Three valid pair laws with no joint law}
+\addcontentsline{toc}{section}{Three valid pair laws with no joint law}
+
+Pairwise normalization does not guarantee global compatibility.  Let
+$X_1,X_2,X_3\in\{0,1\}$ have uniform one-site marginals.  Consider three individually valid pair
+laws:
+\begin{equation}
+X_1=X_2\quad\text{almost surely},
+\qquad
+X_2=X_3\quad\text{almost surely},
+\qquad
+X_1\ne X_3\quad\text{almost surely}.
+\label{eq:book-incompatible-pair-laws}
+\end{equation}
+Each statement is realized by a normalized $2\times2$ table with the required marginals.  The first
+two statements imply $X_1=X_3$ for every triple in the support, contradicting the third.  No joint
+law on $(X_1,X_2,X_3)$ can therefore have all three pair marginals.
+
+The example separates local and global probability claims.  Matrix scaling can turn each positive
+pair score into a valid coupling.  A collection of those couplings belongs to one sequence law only
+when their shared marginals and higher-order compatibility constraints can be satisfied
+simultaneously.  A sparse layer of pair tables does not supply that global certificate by itself.
+This does not prevent finite pair \emph{potentials} from being added into a globally normalized
+Gibbs Hamiltonian.  It says that separately normalized pair \emph{marginals} need not be the
+marginals of that Gibbs law, or of any common joint law.

@@ -1,6 +1,6 @@
 # Prior-Art Matrix for Marginal/Sparse Interaction Separation
 
-Date: 2026-07-12
+Date: 2026-08-10
 
 | Literature | Mathematical object | Already solves | Does not by itself solve | Consequence for this project |
 |---|---|---|---|---|
@@ -22,6 +22,7 @@ Date: 2026-07-12
 | AlphaFold2 Evoformer / AlphaFold3 Pairformer | Dense pair tracks and triangle updates | Rich pair context and geometric consistency | Linear sparse execution; marginal-gauge categorical semantics | Pair track and triangle update cannot be novelty |
 | ESMFold | Single-sequence language state plus dense pair/folding trunk | Pair representation without an inference MSA | Explicit entropy/interaction gauge; sparse pair execution | Single-sequence pair state is already demonstrated |
 | MSA Transformer | Axial processing of alignment rows and columns | Learned evolutionary structure from MSA input | MSA-optional inference contract | Our base forward must not require this data shape |
+| MSA Pairformer (Akiyama et al., Cell 2026) | Query-conditioned MSA-row weighting, persistent pair state, and triangle updates | Subfamily-specific coevolution, paired-MSA interface inference, and parameter-efficient contact prediction | Endpoint-invariant single-sequence support; marginal-gauge semantics; general eukaryotic partner assignment | Query-biased row weighting and iterative MSA/pair refinement are prior art; pairing, MSA search, and the supervised contact probe must remain in the resource and evidence ledger |
 | Pure-attention rank-collapse theory | Row-stochastic token mixing and convergence toward token uniformity | Explains a token-space common mode | Categorical one-body/pair gauge | Token Perron projection and categorical projection must remain distinct |
 | Deep Sets / additive sufficient statistics | Permutation-invariant sums of token-local features | Algebraically exact deletion of token-local terms | Rich ordered contextual representation; bitwise invariance after rounded subtraction | Useful implementation basis for cavity summaries, not a novelty source |
 | Linear attention / Performer | Additive key-value sufficient statistics | Fast global aggregation and algebraic direct endpoint subtraction for token-local keys/values | Exclusion after ordinary contextual stacking; finite-precision residuals; categorical identifiability | A separate cavity stream may reuse this algebra, but contextual leakage and arithmetic path must be audited |
@@ -95,6 +96,9 @@ targetwise routing can remain nontrivial; symmetric protein-contact outputs are 
 - ``A strict router can use an endpoint category to decide whether that same endpoint is selected.''
 - ``Optional MSA supervision makes an exact family interaction graph recoverable from one sequence.''
 - ``Conditional mutual information is itself a structural interaction score.''
+- ``Query-conditioned MSA row weighting is new.''
+- ``Triangle updates generally remove indirect biological couplings.''
+- ``A model's parameter count measures the full cost of MSA search, partner assignment, and readout.''
 
 ## Literature additions still needed
 

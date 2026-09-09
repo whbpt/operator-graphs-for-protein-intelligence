@@ -1,0 +1,200 @@
+\section{The MSA Pairformer mathematical interlude}
+\label{sec:book-msa-pairformer-math}
+
+This section collects derivations that support the main Pairformer case but are optional for its
+architectural and estimand-level argument.  The preceding case uses the finite cross-moment, the query
+conditioned row measure, the triangle path, and the categorical response as its primary objects.
+
+\subsection{Measure derivatives, ranks, and typed maps}
+
+Writing $\phi_s(q)=r_s(q;M)$ and
+$Y_s^{ij}=\chi_{si}\chi_{sj}(u_{si}\otimes v_{sj})$, the complete-mask derivative is
+\begin{equation}
+\mathcal O_{q,ij}=\mathbb E_{\mu_q}Y_s^{ij},\qquad
+\nabla_q\mathcal O_{q,ij}
+=\operatorname{Cov}_{\mu_q}\!\left(Y_s^{ij},\nabla_q\phi_s(q)\right),
+\label{eq:msa-pairformer-query-covariance-gradient}
+\end{equation}
+when the feature map has no direct query argument.  Gaps or query-dependent features add feature
+and denominator terms.  Higher derivatives contain higher cumulants of the tilted empirical law.
+
+For one feature channel, let $U^a_{is}=u^a_{si}$, $V^b_{js}=v^b_{sj}$, and
+$D=\operatorname{diag}(\omega)$.  Before nonlinear mixing,
+\begin{equation}
+\mathcal O_{ij}^{ab}=U^a_{i:}DV^{b\mathsf T}_{:j},
+\qquad
+\operatorname{rank}(U^aDV^{b\mathsf T})\leq\min(S,L).
+\label{eq:msa-pairformer-cross-moment-rank}
+\end{equation}
+For a linearly combined output channel,
+\begin{equation}
+\mathcal O^d=\sum_{s=1}^{S}\omega_sA_sW_dB_s^{\mathsf T},
+\qquad
+\operatorname{rank}(\mathcal O^d)\leq\min(L,Sc).
+\label{eq:msa-pairformer-output-channel-rank}
+\end{equation}
+Masks make coefficients pair dependent, and gates, residual depth, and triangle nonlinearities remove
+any global low-rank conclusion about the final contact map.
+
+The three typed maps can be written as
+\begin{equation}
+\begin{aligned}
+\mathsf K_{q,\theta}:&\quad M\longmapsto
+\left[\int A_\theta(m_i)\otimes B_\theta(m_j)\,d\widehat\mu_{q,ij}[M](m)\right]_{ij},\\
+\mathsf P_{\theta,Z}:&\quad M\longmapsto
+\left[\sum_jP_{Z,\theta}(i,j)V_\theta(m_{sj})\right]_{si},\\
+\mathsf G_\theta:&\quad Z\longmapsto
+\left[\gamma_L\sum_ka_\theta(Z_{ik})\odot b_\theta(Z_{jk})\right]_{ij}.
+\end{aligned}
+\label{eq:msa-pairformer-typed-operators}
+\end{equation}
+The finite residual block is their ordered nonlinear composition.  A continuum path limit requires a
+declared scaling such as $\gamma_L\asymp L^{-1}$; it is not implied by the finite implementation.
+
+If rows were independent draws from $P$ and features were bounded, the cross-moment has the formal
+limit
+\begin{equation}
+\widehat{\mathcal O}_{q,ij}
+\xrightarrow[S\to\infty]{\mathsf P}
+\frac{\mathbb E_{M\sim P}[\chi_i\chi_j e^{\phi_\theta(q,M)}
+A_\theta(M_i)\otimes B_\theta(M_j)]}
+{\mathbb E_{M\sim P}[\chi_i\chi_j e^{\phi_\theta(q,M)}]}.
+\label{eq:msa-pairformer-mean-field-opm}
+\end{equation}
+With $\gamma_L\sim L^{-1}$, the triangle sum has the graphon-style formal limit
+\begin{equation}
+(\mathsf G_{\mathrm{out}}Z)(x,y)
+=\int_0^1a_Z(x,u)\odot b_Z(y,u)\,d\nu(u).
+\label{eq:msa-pairformer-graphon-triangle-limit}
+\end{equation}
+
+The linear OPM write has a parameterization gauge.  For invertible $R,T\in GL(c)$,
+$A\mapsto RA$, $B\mapsto TB$, and
+$W_{\rm opm}\mapsto W_{\rm opm}(R\otimes T)^{-1}$ preserve the write up to vectorisation.
+The masked loss therefore identifies an output law up to output-equivalent parameters, not a unique
+factorization into row weights and feature maps.
+
+\subsection{Router curvature and effective depth}
+
+Before LayerNorm, the two query--key fields combine into the bilinear kernel
+\begin{equation}
+h_{1,si}-\lambda h_{2,si}
+=x_{0i}^{\mathsf T}
+\underbrace{(W_{Q1}^{\mathsf T}W_{K1}-\lambda W_{Q2}^{\mathsf T}W_{K2})}_{B_\lambda}x_{si},
+\qquad \operatorname{rank}(B_\lambda)\leq2d_q.
+\label{eq:msa-pairformer-effective-bilinear-kernel}
+\end{equation}
+For a finite score vector $r$,
+\begin{equation}
+\log\sum_se^{r_s}
+=\sup_{\omega\in\Delta_S}\left\{\sum_s\omega_sr_s+H(\omega)\right\},
+\qquad H(\omega)=-\sum_s\omega_s\log\omega_s,
+\label{eq:msa-pairformer-entropy-variational}
+\end{equation}
+with optimizer $\omega=\operatorname{softmax}(r)$.  Its curvature is
+\begin{equation}
+\nabla_r^2\log\sum_se^{r_s}
+=\operatorname{diag}(\omega)-\omega\omega^{\mathsf T}.
+\label{eq:msa-pairformer-softmax-curvature}
+\end{equation}
+
+The differential of the cross-moment separates feature and router terms:
+\begin{equation}
+d\mathcal O_{q,ij}
+=\mathbb E_{\mu_{q,ij}}[d(u_i\otimes v_j)]
++\operatorname{Cov}_{\mu_{q,ij}}(u_i\otimes v_j,dr)
++d_{q,ij}^{-1}\,\text{mask/denominator terms}.
+\label{eq:msa-pairformer-total-moment-differential}
+\end{equation}
+The corresponding pair-specific effective depth is
+\begin{equation}
+N_{\mathrm{eff}}^{ij}
+=\frac{d_{q,ij}^{2}}{\sum_s(\omega_s\chi_{si}\chi_{sj})^2}.
+\label{eq:msa-pairformer-effective-depth}
+\end{equation}
+At depth, row dependence requires the covariance form
+\begin{equation}
+\operatorname{Var}(\mathcal O_{ij})
+=\sum_{s,t}\alpha_{s|ij}\alpha_{t|ij}\operatorname{Cov}(Y_s^{ij},Y_t^{ij}),
+\label{eq:msa-pairformer-dependent-row-variance}
+\end{equation}
+with a declared tree or resampling scheme.
+
+\subsection{Symmetry, residual transport, and readouts}
+
+For a fixed query row and a permutation $\pi$ of the remaining rows,
+\begin{equation}
+M\mapsto\pi M,\qquad \omega(\pi M)=\pi\omega(M),\qquad
+\mathcal O_q(\pi M)=\mathcal O_q(M).
+\label{eq:msa-pairformer-row-equivariance}
+\end{equation}
+Changing the query is an intervention because it changes the reference law.  Independent permutations
+of two chains preserve their marginals while generally changing their paired joint table.
+
+Collect the MSA and pair states into $x_\ell=(M_\ell,Z_\ell)$.  The residual transport is
+\begin{equation}
+x_{\ell+1}=x_\ell+F_\ell(x_\ell),
+\qquad
+D x_D=\left[\prod_{\ell=D-1}^{0}(I+DF_\ell(x_\ell))\right]D x_0.
+\label{eq:msa-pairformer-residual-transport}
+\end{equation}
+The local Jacobian has the two-track form
+\begin{equation}
+J_\ell=
+\begin{pmatrix}I+J_{MM}^{(\ell)}&J_{MZ}^{(\ell)}\\
+J_{ZM}^{(\ell)}&I+J_{ZZ}^{(\ell)}\end{pmatrix}.
+\label{eq:msa-pairformer-two-track-jacobian}
+\end{equation}
+Singular values of the ordered product diagnose amplification and forgetting; residual form alone
+does not give a Lyapunov or free-energy interpretation.
+
+The independent scalar readouts from the pair state are
+\begin{equation}
+\widehat c^{(r)}_{ij}
+=\frac12\left[\sigma(\eta_r^{\mathsf T}\operatorname{LN}(Z^{(\ell_r)}_{ij})+b_r)
++\sigma(\eta_r^{\mathsf T}\operatorname{LN}(Z^{(\ell_r)}_{ji})+b_r)\right],
+\quad (\ell_r,r)\in\{(15,\mathrm C_\beta),(18,\mathrm{ConFind})\}.
+\label{eq:msa-pairformer-independent-readouts}
+\end{equation}
+The hidden directed pair field, scalar contact probability, and categorical response remain distinct
+objects.
+
+\subsection{Pair assignment and response audits}
+
+If a fraction $\rho$ of rows is correctly paired and the wrong pairs are conditionally independent,
+the centered cross-chain moment obeys the attenuation approximation
+\begin{equation}
+\mathbb E\widehat C_{ij}^{\Pi}=\rho C_{ij}^{\star}+(1-\rho)C_{ij}^{\mathrm{wrong}}
+\approx\rho C_{ij}^{\star}.
+\label{eq:msa-pairformer-pairing-attenuation}
+\end{equation}
+Sampling and assignment uncertainty separate as
+\begin{equation}
+\operatorname{Var}_{X,\Pi}(\widehat C)
+=\mathbb E_\Pi\operatorname{Var}_X(\widehat C\mid\Pi)
++\operatorname{Var}_\Pi\mathbb E_X(\widehat C\mid\Pi).
+\label{eq:msa-pairformer-pairing-total-variance}
+\end{equation}
+
+For one organism with $n$ candidates, the idealized assignment is
+\begin{equation}
+P_g^\star\in\arg\max_{P\in\mathcal P_n}\langle P,C_g(W)\rangle.
+\label{eq:msa-pairformer-hungarian-assignment}
+\end{equation}
+Gumbel--Sinkhorn relaxation and EM-like hard reassignment solve moving, noisy objectives; monotonicity
+of exact coordinate ascent is therefore not guaranteed for the released procedure.
+
+For a source perturbation $\delta M$, the difference between adaptive and frozen routing is
+\begin{equation}
+D\mathcal O_{ij}^{\mathrm{adaptive}}[\delta M]-D\mathcal O_{ij}^{\mathrm{frozen}}[\delta M]
+=\sum_sD\omega_s[\delta M]\frac{\chi_{si}\chi_{sj}}{d_{q,ij}}
+\left(u_{si}\otimes v_{sj}-\mathcal O_{q,ij}\right).
+\label{eq:msa-pairformer-router-mediated-response}
+\end{equation}
+A static pairwise Hamiltonian requires the additional reciprocity test
+\begin{equation}
+G_{i\leftarrow j}^{\mathcal M}=G_{j\leftarrow i}^{\mathcal M\mathsf T}.
+\label{eq:msa-pairformer-reciprocity-test}
+\end{equation}
+under a common endpoint-excluding context.  Query-only training and scalar symmetrization do not
+impose this condition on the hidden response.

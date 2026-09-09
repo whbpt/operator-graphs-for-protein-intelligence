@@ -1,0 +1,47 @@
+\section{A three-node spectral primer}
+\label{sec:book-spectral-primer}
+
+Before applying spectral transforms to protein operators, consider the path on three positions,
+\begin{equation}
+A=
+\begin{pmatrix}
+0&1&0\\
+1&0&1\\
+0&1&0
+\end{pmatrix},
+\qquad
+D=\operatorname{diag}(1,2,1),
+\qquad
+L=D-A=
+\begin{pmatrix}
+1&-1&0\\
+-1&2&-1\\
+0&-1&1
+\end{pmatrix}.
+\label{eq:book-three-node-laplacian}
+\end{equation}
+For a scalar signal $u=(u_1,u_2,u_3)^{\mathsf T}$ on the positions,
+\begin{equation}
+u^{\mathsf T}Lu=(u_1-u_2)^2+(u_2-u_3)^2.
+\label{eq:book-three-node-dirichlet}
+\end{equation}
+The quadratic form is small when neighboring positions carry similar values.  The eigenvalues are
+$0,1,3$.  The zero mode is constant, the middle mode contrasts the two endpoints, and the highest
+mode alternates across both edges.  Low eigenvalue therefore means smoothness relative to this
+declared graph and this declared node signal.
+
+Three choices precede every biological interpretation of these modes.  First, the adjacency must
+be supplied: contact, covariance, attention, and an operator norm produce different $A$.  Second,
+the node signal must be typed: a scalar position score, an amino-acid contrast, and an atomic
+displacement live in different spaces.  Third, any null subtraction, symmetrization, or
+normalization changes the operator being diagonalized.
+
+This primer uses the unnormalized Laplacian.  Later sections introduce normalized variants; they
+rescale node coordinates while preserving the same edgewise smoothness principle.  For
+nonsymmetric routes, eigenvectors alone are insufficient, so stationary geometry and left--right
+structure enter the audit.
+
+The rest of the chapter generalizes this calculation in stages.  Directed routes require a
+stationary geometry; signed edges retain a declared polarity; connection Laplacians transport
+categorical vectors between sites; wavelets localize selected spectral bands.  The three-node path
+is the baseline against which each additional structure should be read.

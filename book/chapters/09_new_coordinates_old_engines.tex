@@ -46,8 +46,9 @@ small-data optimization loop substantially more useful.
 
 \subsection{VIRAL: modern embeddings, Gaussian-process geometry}
 
-VIRAL places viral protein sequences in an ESM3-derived representation and models measured fitness
-with a Gaussian process, using its predictive distribution to explore the landscape
+VIRAL places viral protein sequences in an ESM3-derived representation and models a measured viral
+assay endpoint, termed fitness in that study, with a Gaussian process, using its predictive
+distribution to explore the landscape
 \cite{ito2025viral}.  For a kernel $k$ on the learned coordinates, the posterior mean and variance
 at a candidate $z_*$ have the familiar form
 \begin{align}
@@ -66,7 +67,7 @@ An upper-confidence acquisition rule such as
 a(z)=\widehat m(z)+\beta^{1/2}\widehat v(z)^{1/2}
 \label{eq:viral-ucb}
 \end{equation}
-then balances predicted fitness against model uncertainty.  The exploration term is meaningful only
+then balances the predicted assay endpoint against model uncertainty.  The exploration term is meaningful only
 relative to the GP prior, kernel, noise model, and observed region.  Other sources of biological
 failure remain outside that posterior.  VIRAL is a particularly clear instance of old probabilistic
 machinery becoming powerful because the representation changes which sequences count as nearby.

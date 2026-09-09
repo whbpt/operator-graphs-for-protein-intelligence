@@ -1,0 +1,141 @@
+\section{Protein interaction across scales}
+\label{sec:book-protein-scales}
+
+The five edges in Chapter~\ref{chap:book-one-edge} arise at different resolutions of the same
+protein system.  A residue identity belongs to sequence space, an atomic contact belongs to a
+conformational description, a family coupling belongs to an evolutionary sample, a model response
+belongs to a fitted computation, and epistasis belongs to an intervention with a measured
+endpoint.  Their shared residue indices make comparison possible.  Moving between them requires a
+declared coarse graining or estimator.
+
+Let $x\in[q]^L$ be a sequence and let $r$ collect atomic coordinates, solvent, protonation, and any
+other physical variables retained by a molecular model.  A microscopic energy first defines a
+conditional conformational partition function and free energy,
+\begin{equation}
+Z_{\mathrm{conf}}(x)
+=\int e^{-\beta E_{\mathrm{atom}}(x,r)}\,d\mu_x(r),
+\qquad
+F_{\mathrm{conf}}(x)
+=-\beta^{-1}\log Z_{\mathrm{conf}}(x).
+\label{eq:book-scale-conformational-free-energy}
+\end{equation}
+The integral removes physical degrees of freedom.  Its value depends on the ensemble, measure,
+temperature, chemical state, and environmental conditions encoded by $(\mu_x,\beta)$.  A single
+predicted structure is one representative coordinate configuration; it does not by itself specify
+the conformational integral in Eq.~\ref{eq:book-scale-conformational-free-energy}.
+
+Function first enters through a typed measurement.  Let $e$ index an assay protocol, let $c$ collect
+the environment and sequence background held fixed by that protocol, and let $\mathsf P_{x,c}$ denote
+the molecular or cellular state law presented to the measurement.  The experimental endpoint is
+\begin{equation}
+Y_e(x,c)=\mathcal A_e(\mathsf P_{x,c},c)\in\mathcal Y_e.
+\label{eq:book-scale-assay-map}
+\end{equation}
+The codomain $\mathcal Y_e$ may contain a binding constant, catalytic rate, abundance, fluorescence,
+growth-curve statistic, or a vector of jointly measured quantities.  Assay identity, units, time
+window, and preprocessing are part of the definition.  Structure can mediate $Y_e$ through
+$\mathsf P_{x,c}$; expression, localization, kinetics, partners, and cellular context can change the
+endpoint while a representative folded geometry remains similar.
+
+Population selection requires a further genotype-to-demography map.  The map may use measured traits,
+latent ecological variables, or a full population state; its output has its own units and dynamics.
+The main text leaves that map unspecified and uses $P_{\mathrm{evo}}$ for the resulting evolutionary
+law.  The Malthusian-rate construction is given in the optional population-selection appendix.
+
+Evolution acts on populations and histories rather than on one isolated structure.  A mutation
+process, population model, and genealogy together induce a law on the observed leaves
+of an alignment,
+\begin{equation}
+(E_{\mathrm{atom}},\mu,\{\mathcal A_e\},\text{population},T)
+\longmapsto
+\mathbb P_{\mathrm{evo}}(X_{\mathcal L}),
+\qquad X_{\mathcal L}\in[q]^{R\times L}.
+\label{eq:book-scale-evolutionary-law}
+\end{equation}
+Chapter~\ref{chap:book-phylogeny} develops the tree component of this construction.  Selection,
+drift, mutation, recombination, sampling, and shared ancestry can all shape the alignment.  A
+sequence-level marginal
+$P_{\mathrm{evo}}^{\mathrm{seq}}$ consequently combines several mechanisms.  Its negative-log
+coordinate
+\begin{equation}
+H_{\mathrm{seq}}(x)=-\log P_{\mathrm{evo}}^{\mathrm{seq}}(x)
+\label{eq:book-scale-sequence-surprisal}
+\end{equation}
+is a statistical sequence score.  Connecting it quantitatively to
+$F_{\mathrm{conf}}(x)$ requires the intervening assay, demographic, and evolutionary maps to be
+specified.
+
+Population selection is a downstream model choice.  The assay endpoint $Y_e$ and the induced sequence
+law $P_{\mathrm{evo}}$ can be used without assigning either one a universal fitness coordinate.  A
+specific mutation--selection operator, its equilibrium eigenproblem, and reversible Gibbs-like special
+cases are collected in Appendix~\ref{app:book-population-selection}.  The main text only carries the
+boundary condition: interpreting an assay value or a model score as population fitness requires an
+explicit genotype-to-demography map and its units.
+
+The complete path used by this book is therefore
+\begin{equation}
+\boxed{
+\begin{gathered}
+\text{atomic law}
+\longrightarrow\text{conformational ensemble}
+\longrightarrow\text{structure, kinetics, and function}\\
+\longrightarrow\text{population and phylogenetic law}
+\longrightarrow\text{observed MSA}
+\longrightarrow\text{estimated sequence operator}\\
+\longrightarrow\text{declared compression or spectrum}
+\longrightarrow\text{matched experiment}.
+\end{gathered}}
+\label{eq:book-protein-scale-chain}
+\end{equation}
+Each arrow changes the state space or the available information.  A structural contact can explain
+part of an evolutionary constraint; a distal functional relation can also survive without a short
+geometric edge.  The operator framework begins near the middle of this chain, where sequence data
+or a trained model are converted into a typed categorical relation.  Physical and functional
+claims are recovered only by supplying the missing upstream derivation or downstream endpoint.
+
+The word \emph{entropy} also changes type along this path.  Four recurring quantities are:
+\begin{center}
+\small
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.25\linewidth}
+                >{\raggedright\arraybackslash}p{0.29\linewidth}
+                >{\raggedright\arraybackslash}p{0.36\linewidth}@{}}
+\toprule
+Quantity & Distribution or state space & Question answered \\
+\midrule
+Conformational entropy & molecular configurations conditional on sequence and environment & how physical probability mass is distributed across conformations \\
+Sequence entropy & $P_{\mathrm{evo}}^{\mathrm{seq}}$ on $[q]^L$ & how dispersed the induced sequence ensemble is \\
+Phylogenetic path or leaf uncertainty & ancestral histories or $X_{\mathcal L}$ on a tree & how much evolutionary history or leaf state remains uncertain \\
+Predictive entropy & one model output simplex under a declared context & how uncertain the fitted predictor is about its normalized variable \\
+\bottomrule
+\end{tabular}
+\end{center}
+These quantities may influence one another through Eq.~\ref{eq:book-protein-scale-chain}.  Their
+numerical equality would require an additional theorem tying the corresponding probability laws
+together.
+
+There is likewise no universal monotonicity law for entropy along evolution.  Mutation can broaden
+a sequence distribution, while purifying selection can concentrate it; drift, bottlenecks,
+recombination, migration, environmental change, and biased sampling alter the result in different
+directions.  A claim of entropy production requires a declared trajectory law, time direction,
+boundary conditions, and measure of irreversibility.  The entropy of an observed MSA is a property
+of its induced and sampled distribution, not a clock that must increase along every lineage.
+
+A cross-scale claim can now be read through six proof obligations:
+\begin{equation}
+\boxed{
+\begin{gathered}
+\text{state space}
+\to\text{law}
+\to\text{observable}\\
+{}\to\text{reference or small parameter}
+\to\text{controlled remainder}
+\to\text{validated effective claim}.
+\end{gathered}}
+\label{eq:book-cross-scale-proof-obligations}
+\end{equation}
+Later chapters use this ledger for phylogenetic nulls, sequence Hamiltonians, spectral modes, and
+biological interventions.  In each case the effective object is licensed only to the level reached
+by its declared reference, controlled approximation, and matched validation endpoint.
+
+Part II begins at the estimation end of this chain: with one categorical pair table and the
+contrasts it can identify.

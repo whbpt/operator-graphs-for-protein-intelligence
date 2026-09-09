@@ -1,6 +1,6 @@
-# Operator Graphs for Protein Intelligence
+# Protein Interaction as an Operator
 
-**A Mathematical Language for Energy, Probability, and Computation**
+**From Potts Models to Transformers**
 
 An evolving scientific monograph by Haobo Wang on the mathematical objects that
 sit behind protein sequence models, graphical models, neural architectures, and
@@ -25,9 +25,38 @@ derivations and interpretation boundaries while organizing them around one susta
 argument: a graph becomes meaningful only after its state space, edge object,
 normalization, dynamics, estimator, and validation target have been declared.
 
+## Book structure
+
+1. **Language and Foundations (Chapters 1--2):** One Edge, Several Meanings; When Equations Change
+   Their Meaning.
+2. **Operator Geometry of Sequence Interactions (Chapters 3--6):** Reference-Centered
+   Operator-Valued Graphs; Static and Dynamic Sequence Interactions; Interaction Order, Rank, and
+   Scalar Compression; Probability-Exact Edge Geometry.
+3. **Models, Estimation, and Spectra (Chapters 7--11):** Model Correspondences in Operator
+   Coordinates; Phylogeny as Tree-Constrained Transport; From Observations to Operator Graphs;
+   Three AlphaFolds: The Evolution of Relational State; Spectra After the Graph Has Been Declared.
+4. **Realizability, Evidence, and Interpretation (Chapters 12--15):** Architectural Consequences
+   and Realizability; Conditional Realizability and Information Limits; Falsification and
+   Biological Interpretation; What Kind of Object Is a Protein Interaction?
+
+The optional appendix is:
+
+- **Appendix A:** Population Selection as an Optional Bridge
+
+The default sequence is cumulative: Chapters 1--2 stabilize meanings; Chapters 3--6 construct the
+mathematical object; Chapters 7--11 connect it to evolution, models, estimation, and spectra; and
+Chapters 12--15 address realization, evidence, and information limits. The appendix provides
+the additional population model used at the assay-to-evolution boundary.
+
+## Reading Routes
+
+- **Protein language models and operators:** Chapters 1, 4, 7, 9, 10, and 14.
+- **Statistical physics:** Chapters 2, 3, 5, 6, 8, and 11.
+- **Architecture and realizability:** Chapters 3, 4, 10, 12, 13, and 14.
+
 ## Status
 
-Draft monograph, July 2026. The PDF currently contains 115 pages. Substantive
+Draft monograph, July 2026. The PDF currently contains 171 pages. Substantive
 revisions will be tagged as versioned releases; small corrections may appear on the
 default branch between releases.
 

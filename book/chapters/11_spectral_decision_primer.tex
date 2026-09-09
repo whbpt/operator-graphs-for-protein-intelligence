@@ -1,0 +1,81 @@
+\section{A decision rule for spectral analysis}
+\label{sec:book-spectral-decision-primer}
+
+The word ``spectrum'' hides several different questions.  The operator type determines which
+decomposition is informative.
+
+For a symmetric matrix $L=L^{\mathsf T}$, the eigendecomposition
+\begin{equation}
+L=V\Lambda V^{\mathsf T}
+\label{eq:book-primer-symmetric-spectrum}
+\end{equation}
+uses an orthonormal basis.  Its Rayleigh quotient
+$u^{\mathsf T}Lu/\|u\|_2^2$ measures the quadratic energy per unit signal, so low Laplacian
+eigenvalues identify smooth directions on the declared graph.
+
+For a rectangular map, or for a directed map whose left and right spaces play different roles, use
+the singular-value decomposition
+\begin{equation}
+O=U\Sigma V^{\mathsf T}.
+\label{eq:book-primer-directed-svd}
+\end{equation}
+A right singular vector is an input direction, the matching left singular vector is its output
+direction, and the singular value is the amplification.  A square map is nonnormal when
+$OO^{\mathsf T}\ne O^{\mathsf T}O$.  Its eigenvectors can be nonorthogonal, so its SVD and its
+eigendecomposition answer different questions.
+
+A row-stochastic route $P$ adds a probabilistic question.  Its stationary law satisfies
+\begin{equation}
+\pi^{\mathsf T}P=\pi^{\mathsf T},
+\qquad \sum_i\pi_i=1,
+\label{eq:book-primer-stationary-law}
+\end{equation}
+and describes mass preserved by repeated routing.  Reversibility asks whether every stationary
+edge flux balances its reverse:
+\begin{equation}
+\pi_iP_{ij}=\pi_jP_{ji}.
+\label{eq:book-primer-detailed-balance}
+\end{equation}
+Entrywise symmetry is stronger than this flux condition.
+
+For example, a lazy random walk on the three-node path has
+\begin{equation}
+P_{\mathrm{rev}}
+=\begin{pmatrix}
+1/2&1/2&0\\
+1/4&1/2&1/4\\
+0&1/2&1/2
+\end{pmatrix},
+\qquad
+\pi=\begin{pmatrix}1/4\\1/2\\1/4\end{pmatrix}.
+\label{eq:book-primer-reversible-asymmetric-walk}
+\end{equation}
+The entries $P_{12}=1/2$ and $P_{21}=1/4$ differ, while their stationary fluxes both equal $1/8$.
+The route is asymmetric in Euclidean coordinates and reversible in the $\pi$-weighted geometry.
+
+By contrast, the biased three-cycle
+\begin{equation}
+P_{\circlearrowright}
+=\begin{pmatrix}
+1/4&1/2&1/4\\
+1/4&1/4&1/2\\
+1/2&1/4&1/4
+\end{pmatrix}
+\label{eq:book-primer-directed-cycle}
+\end{equation}
+has the uniform stationary law because it is doubly stochastic.  Its clockwise flux exceeds its
+counterclockwise flux on every edge, so detailed balance fails and a nonzero circulation remains.
+With the entropy-production convention used later, this example has
+$\operatorname{EP}(P_{\circlearrowright})=\tfrac14\log2>0$.
+
+Finally, an individual eigenvector is not an invariant object inside a repeated or nearly repeated
+spectral band.  If the columns of $V_B$ span such a band, another orthonormal basis has the form
+$V_BQ$ with $Q^{\mathsf T}Q=I$, while
+\begin{equation}
+(V_BQ)(V_BQ)^{\mathsf T}=V_BV_B^{\mathsf T}.
+\label{eq:book-primer-band-projector}
+\end{equation}
+The projector records the stable subspace even when the displayed eigenvectors rotate.  Thus the
+minimal decision rule is: use eigenpairs for self-adjoint quadratic geometry, singular vectors for
+directed input--output amplification, stationary flux for repeated stochastic routing, and
+subspace projectors for clustered spectral modes.

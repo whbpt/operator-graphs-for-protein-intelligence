@@ -1,4 +1,4 @@
-\section{A longitudinal case: one covariance matrix, many inverse graphs}
+\section[Case study: inverse graphs]{Case study: one covariance matrix, many inverse graphs}
 \sectionmark{Many inverse graphs}
 
 An essay written in 2022 under the deliberately exaggerated title ``Inverse covariance is all
@@ -9,7 +9,9 @@ the same form: diagonalize a matrix, alter its eigenvalues, and reconstruct a cl
 through the operator framework, this family resemblance is real and stronger than a metaphor.
 For a symmetric observed matrix
 \begin{equation}
-O=U\diag(\lambda_1,\ldots,\lambda_d)U^{\mathsf T},
+O=U\Lambda U^{\mathsf T},
+\qquad
+\Lambda=\diag(\lambda_1,\ldots,\lambda_d),
 \end{equation}
 most of the methods in the essay can be written
 \begin{equation}
@@ -88,7 +90,7 @@ require an additional correspondence.
 
 \subsection{MSE reconstruction: the same optimum through another objective}
 
-Chapter~7 showed that a regularized linear self-reconstruction problem can have an optimum that is
+Chapter~\ref{chap:book-models} showed that a regularized linear self-reconstruction problem can have an optimum that is
 an affine function of $(S+\lambda I)^{-1}$.  The 2022 essay emphasized the same fact from the
 opposite direction: a matrix learned by squared-error reconstruction can land on the same
 precision-like solution as a multivariate Gaussian fit even though the loss surfaces are not the
@@ -246,7 +248,7 @@ spectral family.  Its conceptual advance is to identify which large modes should
 supply a model for
 why.  Without that null, deleting leading eigenvectors is only rank-relative cleaning and may
 erase real subfamily or functional structure.  With it, the projection is an estimand-level
-decision of the kind developed in Chapter~9.
+decision of the kind developed in Chapter~\ref{chap:book-observations}.
 
 \subsection{What is genuinely the same}
 

@@ -1,0 +1,82 @@
+\section{Cavity inference on a declared factor graph}
+
+Matrix scaling solved a local problem: given one pair score and two marginals, construct a
+probability-exact pair law.  The preceding compatibility example showed that solving this problem
+edge by edge does not guarantee one joint law for all vertices.  Cavity inference starts after that
+additional joint factorization has been declared.  It propagates the effect of the rest of the
+factor graph into a local marginal, thereby separating the pair factor, the inference message, and
+the resulting pair law.
+
+The cavity method begins from a joint factorization.  For a pairwise categorical model on a graph
+$G=(V,E)$, write
+\begin{equation}
+P(x)=\frac1Z\prod_{i\in V}\psi_i(x_i)
+\prod_{(i,j)\in E}\psi_{ij}(x_i,x_j).
+\label{eq:book-pair-factor-law}
+\end{equation}
+On a tree, deleting the factor on $(i,j)$ separates the two sides.  The cavity message carried by
+the directed edge $i\to j$ obeys
+\begin{equation}
+m_{i\to j}(a)
+\propto
+\psi_i(a)
+\prod_{k\in\partial i\setminus\{j\}}
+\sum_b\psi_{ik}(a,b)m_{k\to i}(b).
+\label{eq:book-cavity-message}
+\end{equation}
+The exact pair marginal is then
+\begin{equation}
+P_{ij}(a,b)
+\propto
+\psi_{ij}(a,b)m_{i\to j}(a)m_{j\to i}(b).
+\label{eq:book-cavity-pair-marginal}
+\end{equation}
+These equations are exact on trees and form the Bethe approximation on loopy graphs
+\cite{mezard1987,mezardmontanari2009}.
+
+One edge now carries several related objects:
+\begin{center}
+\small
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.23\linewidth}
+                >{\raggedright\arraybackslash}p{0.30\linewidth}
+                >{\raggedright\arraybackslash}p{0.35\linewidth}@{}}
+\toprule
+Object & Definition & Meaning \\
+\midrule
+$\log\psi_{ij}(a,b)$ & factor parameter, projected into a gauge when needed & direct pair term in the declared joint law \\
+$m_{i\to j}(a)$ & marginal state of $i$ with the $(i,j)$ factor removed & directed inference message \\
+$P_{ij}(a,b)$ & compatible marginal after messages are recombined & exact or approximate pair law \\
+$\chi_{i\leftarrow j}$ & derivative of a marginal with respect to a field & propagated statistical susceptibility \\
+$G_{i\leftarrow j}(C)$ & finite endpoint substitution at fixed background & background-conditioned model response \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The distinction matters even when all five objects are computed from one Potts model.  The factor
+is static.  Messages vary with boundary conditions and the rest of the graph.  Susceptibility sums
+all paths permitted by the joint law.  The finite-background audit conditions on one realized
+context rather than marginalizing it.  Agreement among these objects is a theorem only under the
+corresponding factorization, topology, and conditioning operation.
+
+There is also a terminology boundary.  Graphical-model cavity inference deletes an edge or factor
+while retaining an endpoint variable as the argument of a message.  The endpoint-excluding audit
+in this book withholds the realized identities of both $X_i$ and $X_j$ from support selection and
+reference construction.  Both use deletion to control information flow, but they delete different
+objects and license different conditional statements.  We reserve \emph{cavity message} for
+Eq.~\ref{eq:book-cavity-message} and use \emph{endpoint exclusion} for the architectural
+measurability condition.
+
+This supplies a controlled protein benchmark.  Generate categorical sequences on a tree from a
+known Potts law, then report the projected factor $G_{ij}^{\mathrm P}$, the BP marginal, the
+susceptibility, and the finite substitution response in common anchor coordinates.  Exact
+tree identities test the implementation.  Adding loops exposes the Bethe residual, which can be
+measured by marginal error, calibration, or discrepancy from exact enumeration on small systems.
+For dense protein-family models, tree exactness is unavailable unless a sparse factorization has
+been declared and validated.
+
+Replica-symmetry breaking moves the object one level higher: a single cavity message is replaced
+by a distribution over messages or pure states.  Survey propagation uses this idea to derive
+algorithms for random constraint problems \cite{mezard2002sat}.  In the language of this book it
+suggests an ensemble of operator graphs or message fields, with uncertainty attached to the edge
+object itself.  That extension belongs to the open problem of graph ensembles rather than to a
+single deterministic interaction graph.

@@ -23,21 +23,25 @@
 \newcommand{\BookPart}[1]{}
 \newcommand{\BookChapter}[1]{\section{#1}}
 \newcommand{\BookBackMatter}{}
+\newcommand{\BookAppendices}{}
 \newcommand{\BookBibliographyColumnsBegin}{\begin{multicols}{2}}
 \newcommand{\BookBibliographyColumnsEnd}{\end{multicols}}
 \newcommand{\BookBibliographySize}{\scriptsize}
 \newcommand{\BookUnit}{Section}
 \newcommand{\BookInsert}[1]{}
 \newcommand{\BookOnlyChapter}[1]{}
+\newcommand{\BookChapterLabel}[1]{}
 \newcommand{\BookSpectralSection}[1]{\subsection{#1}}
 \newcommand{\BookSubsection}[1]{\subsubsection{#1}}
-\newcommand{\BookSpectralPointer}{\BookUnit~8}
+\newcommand{\BookSpectralPointer}{Section~\ref{sec:article-estimation-spectra}}
+\newcommand{\BookSpectralMarker}{\label{sec:article-estimation-spectra}}
 \newcommand{\BookSection}[1]{\subsection{#1}}
 
 \title{From Potts Energies to Protein Transformers:\\
 A Reference-Centered Operator Framework for Sequence Interactions}
 \author{Haobo Wang\\
-\small Levinthal Biotech, Hangzhou, China}
+\small Levinthal Biotech, Hangzhou, China\\
+\small\texttt{haobowang@levinthal.bio}}
 \date{July 2026}
 
 \begin{document}
@@ -94,6 +98,7 @@ meaning enters through the estimation and validation coordinates.
 \BookPart{Language and Foundations}
 \ifdefined\BOOKMODE
 \BookChapter{One Edge, Several Meanings}
+\BookChapterLabel{chap:book-one-edge}
 \BookInsert{chapters/01_one_edge_several_meanings}
 \else
 \BookChapter{Introduction}
@@ -238,7 +243,11 @@ post-hoc correction to an already compressed position graph.
 \fi
 \ifdefined\BOOKMODE
 \BookChapter{When Equations Change Their Meaning}
+\BookChapterLabel{chap:book-translation}
 \BookInsert{chapters/02_when_equations_change_meaning}
+\BookInsert{chapters/02_sequence_msa_primer}
+\BookInsert{chapters/02_four_statistical_mechanics_lenses}
+\BookInsert{chapters/02_protein_scales_and_claims}
 \else
 \BookChapter{Translation Across Physics, Probability, and Computation}
 
@@ -302,7 +311,7 @@ component after a declared lower-order projection;
 \item a \emph{physical interaction}: a term belongs to a justified Hamiltonian or effective
 energy under declared coarse graining and symmetry assumptions;
 \item a \emph{biological interaction}: an intervention establishes a reproducible effect on
-structure, fitness, epistasis, or another biological endpoint.
+structure, a declared assay endpoint, a population growth coordinate, or experimental epistasis.
 \end{enumerate}
 In general none of these statements implies the next.  Transformer attention establishes a
 computational route.  A gauge-fixed Potts block establishes a statistical pair component under its
@@ -432,11 +441,20 @@ predictive without establishing biological cause.
 \fi
 \BookPart{Operator Geometry of Sequence Interactions}
 \BookChapter{Reference-Centered Operator-Valued Graphs}
+\BookChapterLabel{chap:book-reference-geometry}
 \BookInsert{chapters/03_opening}
+\BookInsert{chapters/03_three_state_example}
+\BookInsert{chapters/03_categorical_geometry_primer}
 
 The common object must record more than a matrix attached to each pair.  In particular, changing
 the context available to an edge or the state updated by that edge changes the model even when the
 displayed matrix is unchanged.
+
+\ifdefined\BOOKMODE
+The formal tuple below is a second-reading map of the complete framework.  On a first pass, track
+the node, its centered contrast space, the map carried by an edge, the context available to that
+map, and the endpoint used to validate it.
+\fi
 
 \begin{definition}[Typed interaction system]
 Let $(\mathsf C,\Sigma_{\mathsf C})$ be a measurable context space.  A typed interaction system is
@@ -669,9 +687,8 @@ $G_{ij}(s_i,s_j)=J_{ij}s_is_j$.  Thus the $q=2$ categorical construction extract
 Ising coupling coordinate from a redundant binary table.  The ``gauge'' here remains the additive
 Potts parameter redundancy, distinct from an Ising gauge field.
 
-\BookInsert{chapters/03_three_state_example}
-
-This is a functional-ANOVA statement relative to $p_ip_j^{\mathsf T}$ \cite{hoeffding1948}.  It
+The canonical decomposition is a functional-ANOVA statement relative to $p_ip_j^{\mathsf T}$
+\cite{hoeffding1948}.  It
 identifies a mathematical component, not a physical mechanism.  In particular, nonzero
 $G_{ij}$ identifies a mathematical component; direct contact, causal epistasis, and phylogenetic
 independence are separate empirical properties.
@@ -806,6 +823,7 @@ reciprocity and may therefore yield genuinely directed block operators.
 
 \BookInsert{chapters/03_coda}
 \BookChapter{Static and Dynamic Sequence Interactions}
+\BookChapterLabel{chap:book-static-dynamic}
 \BookInsert{chapters/04_opening}
 
 \BookSection{Potts models as static response fields}
@@ -1026,6 +1044,8 @@ statistical model against which the response mean can be tested.  Equality betwe
 Potts block and the pLM mean is an empirical transfer hypothesis in their common coordinates.  The
 family distribution supplies the background law under which that hypothesis is evaluated.
 
+\BookInsert{chapters/04_sompolinsky_dynamic_response}
+
 \BookSection{Conditional meaning requires endpoint exclusion}
 
 Equation~\ref{eq:dynamic-response} is a strict conditional component only if the table-generating
@@ -1039,7 +1059,7 @@ C_{ij}=X_{[L]\setminus\{i,j\}},
 \mu_{ij}=\operatorname{Law}_{\nu}(C_{ij}),
 \label{eq:endpoint-excluding-context-law}
 \end{equation}
-and allow the reference, raw table, and any route decision to depend on this cavity.
+and allow the reference, raw table, and any route decision to depend on this endpoint-excluding context.
 
 \begin{proposition}[Conditional gauge under an endpoint-excluding audit]
 \label{prop:conditional-gauge}
@@ -1122,7 +1142,9 @@ irreversibility interpretation additionally requires a dynamical model.
 
 \BookInsert{chapters/04_coda}
 \BookChapter{Interaction Order, Rank, and Scalar Compression}
+\BookChapterLabel{chap:book-order-rank}
 \BookInsert{chapters/05_opening}
+\BookInsert{chapters/05_three_variable_anova_primer}
 
 \BookSection{From operator-valued graphs to hypergraphs}
 
@@ -1263,6 +1285,8 @@ variance remains measurable, but it is no longer identifiable with a simple sum 
 ANOVA masses.
 \end{remark}
 
+\BookInsert{chapters/05_random_energy_high_order}
+
 \begin{proposition}[Nonlinear composition can create higher order]
 \label{prop:nonlinear-nonclosure}
 Separately centered pair messages can generate higher-order components after nonlinear
@@ -1358,7 +1382,9 @@ retain different amounts of the original categorical geometry.
 
 \BookInsert{chapters/05_coda}
 \BookChapter{Probability-Exact Edge Geometry}
+\BookChapterLabel{chap:book-probability-geometry}
 \BookInsert{chapters/06_opening}
+\BookInsert{chapters/06_two_state_scaling_example}
 
 \BookSection{From tangent coordinates to finite pair laws}
 
@@ -1430,8 +1456,6 @@ Thus the reference-centered representative is both the tangent-space linearizati
 marginal-preserving pair geometry and a linear coordinate on the same gauge quotient through which
 the exact Sinkhorn map factors.
 
-\BookInsert{chapters/06_two_state_scaling_example}
-
 \BookSection{Local pair laws and global compatibility}
 
 The exact conditional $q_{i\mid j}(a\mid b)=Q_{ij}(a,b)/p_j(b)$ is normalized for each $b$, and
@@ -1459,9 +1483,14 @@ The third property is a global compatibility constraint beyond a sparse pair lay
 Sinkhorn scaling.  Marginal log-linear, discrete dependence, and minimum-information models provide global alternatives but
 introduce a separate estimation problem \cite{bergsma2002,geenens2020,sei2024}.
 
+\BookInsert{chapters/06_pair_law_compatibility_example}
+
+\BookInsert{chapters/06_mezard_cavity_tree}
+
 \BookInsert{chapters/06_coda}
 \BookPart{Models, Estimation, and Spectra}
 \BookChapter{Model Correspondences in Operator Coordinates}
+\BookChapterLabel{chap:book-models}
 \BookInsert{chapters/07_opening}
 
 The framework compares sequence models coordinate by coordinate.  A model $M$ enters through the
@@ -1546,6 +1575,11 @@ where the two terms represent distributed collective modes and localized typed c
 decomposition is a model hypothesis: low-rank and sparse classes overlap, so recovery needs
 declared penalties, incoherence assumptions, synthetic ground truth, or independent interventions.
 
+\ifdefined\BOOKMODE
+The next block moves from fitted probabilistic fields to neural computation.  Its order is
+instantaneous route, end-to-end latent transport, positional observability, and current-family
+conditioning.  The output response remains the externally comparable operator throughout.
+\fi
 \BookSection{Transformer computation and interaction graphs}
 
 A self-attention layer is a message-passing operation whose nodes are tokens.  Its candidate
@@ -1640,8 +1674,9 @@ complete architectural realization therefore includes an augmented latent state 
 \label{eq:augmented-latent-state}
 \end{equation}
 where $\mathscr Z_i^{(n)}$ is a token or residue fiber and $\mathscr S^{(n)}$ contains any recurrent,
-pair, or global state.  Fix an ordered audit pair $i\leftarrow j$, an endpoint-removable context
-$C=C_{ij}$, and the complete target protocol, and write $q_k=|\Omega_k|$.  Let
+pair, or global state.  Fix an ordered audit pair $i\leftarrow j$, an audit context $C=C_{ij}$
+constructed without the two endpoint identities, and the complete target protocol, and write
+$q_k=|\Omega_k|$.  Let
 \begin{equation}
 \iota_{i\leftarrow j,C}:\Omega_j\longrightarrow\mathscr Z^{(0)},
 \qquad
@@ -2323,11 +2358,11 @@ edge-operator coordinates.  Equality in those coordinates is then an empirical h
 after the shared matrix multiplication or softmax has been typed.
 
 \BookInsert{chapters/07_unified_framework_case}
-
 \BookInsert{chapters/07_gcn_longitudinal}
 
 \BookInsert{chapters/07_coda}
 \BookChapter{Phylogeny as Tree-Constrained Transport}
+\BookChapterLabel{chap:book-phylogeny}
 
 Phylogeny is not merely a correction applied after an MSA statistic has been computed.  It is a
 distinct generative graph on the sequence axis.  Its vertices include latent ancestors, its edges
@@ -2337,6 +2372,16 @@ statistical or functional relations within a sequence, and from an MSA Transform
 which is generated between observed sequences by a learned computation.  The distinction supplies
 the missing type information behind the informal statement that an MSA contains both constraint
 and common ancestry.
+
+\ifdefined\BOOKMODE
+The proof-obligation ledger in Section~\ref{sec:book-protein-scales} supplies the standard for this
+separation.
+\fi
+A phylogeny-aware interaction claim needs a generative row-tree law as its reference,
+a connected residual on the within-sequence position space, and a quantitative error connecting
+that residual to a closed structural or functional object.
+
+\BookInsert{chapters/08_phylogeny_toy_tree}
 
 \BookSection{Why a tree is a special computational structure}
 
@@ -2635,10 +2680,9 @@ physical contact or causal epistasis; those remain separate validation coordinat
 is narrower and more rigorous: common ancestry is represented as a generative row-graph rather
 than removed by an unlabeled spectral heuristic.
 
-\BookOnlyChapter{Three AlphaFolds: The Evolution of Relational State}
-\BookInsert{chapters/08_three_alphafolds}
 \ifdefined\BOOKMODE
 \BookChapter{From Observations to Operator Graphs}
+\BookChapterLabel{chap:book-observations}
 \else
 \BookChapter{Statistical Estimation and Spectral Disentanglement}
 \fi
@@ -2798,8 +2842,17 @@ and mechanism interpretations enter through downstream validation.
 \BookInsert{chapters/09_new_coordinates_old_engines}
 
 \BookInsert{chapters/08_coda}
+\BookOnlyChapter{Three AlphaFolds: The Evolution of Relational State}
+\BookChapterLabel{chap:book-alphafold}
+\BookInsert{chapters/08_three_alphafolds}
+\BookInsert{chapters/appendix_diffusion_probability_transport}
+\BookInsert{chapters/08_msa_pairformer_case}
+\BookInsert{chapters/appendix_msa_pairformer_math}
 \BookOnlyChapter{Spectra After the Graph Has Been Declared}
+\BookSpectralMarker
 \BookInsert{chapters/09_opening}
+\BookInsert{chapters/10_spectral_primer}
+\BookInsert{chapters/11_spectral_decision_primer}
 \BookSpectralSection{Reference-projected spectral transforms}
 
 Let $O:\mathcal H_R\to\mathcal H_L$ be an observed operator, $O_0$ a null expectation, and
@@ -2854,8 +2907,6 @@ M_\perp=R_Z(M-M_0)R_Z^*.
 This removes exactly the declared linear nuisance space.  APC and leading-mode deletion are
 special rank-one approximations; improvement in contact precision validates their utility for that
 task, not a universal entropy or phylogeny label.
-
-\BookInsert{chapters/10_inverse_covariance_case}
 
 \BookSpectralSection{Graph Laplacians and multiscale operator spectra}
 
@@ -3036,6 +3087,11 @@ have been aligned by the chosen transports.  It can reveal a coherent substituti
 norm graph erases.  Uniqueness, allosteric interpretation, and correspondence to microscopic motion
 remain validation questions.
 
+\BookInsert{chapters/10_inverse_covariance_case}
+
+\ifdefined\BOOKMODE
+\BookSpectralSection{Spectral filters and localized multiscale analysis}
+\fi
 If $L=V\Lambda V^{\mathsf T}$ denotes either a scalar or connection Laplacian, the graph Fourier
 coefficients of a compatible signal $y$ are $\widehat y_k=v_k^{\mathsf T}y$, and a spectral filter
 is
@@ -3075,7 +3131,7 @@ on the same declared operator geometry but answer different multiscale questions
 
 \BookInsert{chapters/10_graph_wavelets}
 
-\BookSubsection{Context averaging and null-relative spectra}
+\BookSpectralSection{Context averaging and null-relative spectra}
 
 Static and dynamic shadows define different Laplacians.  Construct
 $A_{ij}^{\mathrm{dyn}}$ from $M_{i\leftarrow j}^{\mathrm{dynamic}}$ by the same declared
@@ -3124,23 +3180,24 @@ therefore occupy distinct coordinates of the framework.
 \BookInsert{chapters/09_coda}
 \BookPart{Realizability, Evidence, and Interpretation}
 \BookChapter{Architectural Consequences and Realizability}
+\BookChapterLabel{chap:book-architecture}
 \BookInsert{chapters/10_opening}
 
 The operator coordinates distinguish a semantic interaction object from an implementation that
 computes it.  Support selection, routing normalization, persistent state, endpoint measurability,
 and update dynamics are independent architectural decisions.  Endpoint measurability, support
-invariance, and state--energy compatibility below are semantic requirements.  Signed routing,
-affine deletion, persistent pair tracks, and optional-MSA supervision form a menu of constructive
-realizations.  Other realizations can satisfy the same semantic requirements.
+invariance, and state--energy compatibility are semantic requirements.  Signed routing, affine
+deletion, persistent pair tracks, and optional-MSA supervision form a menu of constructive
+realizations.  Other realizations can satisfy the same requirements.
 
-The architectural analysis uses three evidence levels:
+The realizability analysis uses three evidence levels:
 \begin{center}
 \small
 \begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.18\linewidth}
                 >{\raggedright\arraybackslash}p{0.35\linewidth}
                 >{\raggedright\arraybackslash}p{0.37\linewidth}@{}}
 \toprule
-Evidence level & Established here & Remaining evaluation \\
+Evidence level & Established in this part & Remaining evaluation \\
 \midrule
 Exact result & Algebraic identities, rank and coverage bounds, deletion conditions, and operation
 counts under their stated assumptions & Assumption checks on each implementation and numerical
@@ -3194,6 +3251,12 @@ State dynamics is another coordinate.  The same $\mathbb K_z$ may define a one-p
 an iterated map, or part of a descent dynamics.  A Hopfield claim combines a specified state space,
 fixed memories, update schedule, and Lyapunov decrease in addition to graph support.
 
+\ifdefined\BOOKMODE
+The chapter now turns from admissible routing geometries and state carriers to theorem-driven
+capacity and execution statements.  Definitions, rank bounds, and operation counts are exact under
+their stated assumptions; the architecture assembled from them is a constructive design whose
+optimization and quality remain empirical.
+\fi
 \BookSection{Parameter efficiency from operator reuse}
 
 Parameter efficiency has several inequivalent meanings.  For a width-$d$ Transformer block with
@@ -3730,6 +3793,12 @@ support and coefficients.  End-to-end efficiency additionally requires candidate
 coefficient routing, sparse aggregation, nonlinear updates, recurrent backward propagation, and
 communication to satisfy the same resource ledger.
 
+\ifdefined\BOOKMODE
+The final block changes evidence level.  It uses a concrete protein generator to examine whether
+representation, relational architecture, objective, data curation, and evaluation are aligned with
+one endpoint.  The case illustrates the preceding design principles without turning them into a
+theorem about biological validity.
+\fi
 \BookInsert{chapters/11_pallatom_structural_alignment}
 
 \ifdefined\BOOKMODE
@@ -3781,6 +3850,11 @@ architecture, and objective can give a powerful computational graph without maki
 slots physical entities, its pair state an identified energy, or its learned symmetry exact.
 \fi
 
+\BookInsert{chapters/12_architecture_coda}
+\BookOnlyChapter{Conditional Realizability and Information Limits}
+\BookChapterLabel{chap:book-conditional-limits}
+\BookInsert{chapters/13_conditional_realizability_opening}
+
 \BookSection{Endpoint-removable context}
 
 \begin{definition}[Endpoint-removable context]
@@ -3816,19 +3890,19 @@ parenthesization.
 
 The theorem applies exactly to the affine recurrence core.  Surrounding convolutions,
 normalizations, and context-dependent parameter generators require their own deletion laws.  A segment-product data structure can
-evaluate a cavity with $|A|=m$ by composing at most $m+1$ retained intervals.
+evaluate an endpoint-deleted context with $|A|=m$ by composing at most $m+1$ retained intervals.
 
 \BookSection{Strict targetwise conditional operators}
 
 For a target $i$ and selected source set $N_i$, the shared strict context is the
-whole-neighborhood cavity
+whole-neighborhood endpoint-excluding context
 \begin{equation}
 \mathcal C_i^E
 =\sigma\{X_k:k\notin\{i\}\cup N_i\}.
 \label{eq:whole-neighborhood-cavity}
 \end{equation}
 Every reference, route decision, coefficient, and pair table directed into $i$ must be measurable
-with respect to this same cavity.  Only the final categorical lookup may observe a selected source
+with respect to this same context.  Only the final categorical lookup may observe a selected source
 state $x_j$.
 
 \begin{definition}[Strict targetwise support]
@@ -3857,14 +3931,14 @@ the final lookup $\widehat G_{i\leftarrow j}(a,x_j;c_i^E)$.
 \end{proposition}
 
 \begin{proof}
-Condition on the cavity and the realized support.  All tables, references, and coefficients are
+Condition on the endpoint-excluding context and the realized support.  All tables, references, and coefficients are
 fixed while $(x_i,x_{N_i})$ vary.  Theorem~\ref{thm:pair-anova} centers each target--source term,
 and additivity over $j$ excludes components involving two active sources.  Theorem
 \ref{thm:pair-truncation} identifies the branch as the pairwise truncation.
 \end{proof}
 
 Projection with an ordinary full-context table remains a useful local gauge.  The stricter global
-functional semantics comes from the shared cavity construction above.
+functional semantics comes from the shared endpoint-excluding construction above.
 
 \BookSection{Dynamic support is directed and targetwise}
 
@@ -3887,8 +3961,10 @@ invariance therefore forces the same graph for every input.
 
 Targetwise routing remains adaptive under the theorem.  $N_i(x)$ stays fixed when its own target
 and realized sources vary, while other residues may still alter routes for targets to which they
-are unselected.  The resulting predictive object is a directed cavity operator; an undirected
+are unselected.  The resulting predictive object is a directed endpoint-excluding operator; an undirected
 contact graph requires a separate identification step.
+
+\BookInsert{chapters/13_bayes_error_primer}
 
 \BookSection{Single-sequence recoverability and optional-MSA supervision}
 
@@ -3900,18 +3976,18 @@ invariance to $x_j$ follows from the definition.  If $j$ is not selected but cha
 selected, applying strictness at the modified input while reverting $x_j$ would force the modified
 support at the original input, a contradiction.  Define
 \begin{equation}
-e_{ij}^{\mathrm{cav}}
+e_{ij}^{\mathrm{excl}}
 =\E\min\{\eta_{ij}(Y_{ij}),1-\eta_{ij}(Y_{ij})\},
 \qquad
 \eta_{ij}(y)=\Pr(T_{ij}=1\mid Y_{ij}=y).
 \label{eq:cavity-bayes-floor}
 \end{equation}
 
-\begin{proposition}[Cavity Bayes floor]
+\begin{proposition}[Endpoint-exclusion Bayes floor]
 \label{prop:cavity-bayes-floor}
 Every strict deterministic or independently randomized router satisfies
 \begin{equation}
-\Pr(Z_{ij}\ne T_{ij})\geq e_{ij}^{\mathrm{cav}}.
+\Pr(Z_{ij}\ne T_{ij})\geq e_{ij}^{\mathrm{excl}}.
 \end{equation}
 \end{proposition}
 
@@ -3925,7 +4001,7 @@ proves the claim.
 \BookInsert{chapters/11_cavity_tradeoff_example}
 
 As an illustrative training design, an optional MSA teacher can estimate family-level edge
-importance while the inference-time cavity floor remains fixed.  Let $E_c$ be a declared candidate set,
+importance while the inference-time endpoint-exclusion floor remains fixed.  Let $E_c$ be a declared candidate set,
 $q_{ij}^{\theta}\in[0,1]$ a student support confidence, and $\widehat G_{ij}^{\theta}$ its
 reference-centered block.  Teacher and student must use the same detached categorical reference:
 \begin{equation}
@@ -3950,7 +4026,10 @@ and statistical consistency require separate analysis.
 
 \BookInsert{chapters/10_coda}
 \BookChapter{Falsification and Biological Interpretation}
+\BookChapterLabel{chap:book-falsification}
 \BookInsert{chapters/11_opening}
+\BookInsert{chapters/14_epistasis_primer}
+\BookInsert{chapters/12_vertical_audit}
 
 \BookSection{A falsifiable static--dynamic program}
 
@@ -4005,8 +4084,8 @@ output response is tied to a proposed computational mechanism \cite{zhang2024mot
 \item \emph{Architectural and biological intervention.}  Report support size, categorical rank,
 higher-order residual, and persistent state memory separately.  Endpoint interventions must leave
 context, support, references, coefficients, and raw pair tables invariant for every strict claim.
-Compare strict cavity, local-gauge, dense-attention, and pair-track baselines; report routing
-calibration, captured teacher mass, set recall, and the gap to the cavity Bayes floor.  A Hopfield
+Compare endpoint-excluding, local-gauge, dense-attention, and pair-track baselines; report routing
+calibration, captured teacher mass, set recall, and the gap to the endpoint-exclusion Bayes floor.  A Hopfield
 claim additionally requires Lyapunov decrease and fixed-point tests.  Finally, compare static,
 dynamic, and higher-order operators with matched structural, double-mutant, and multi-background
 experimental endpoints.
@@ -4020,24 +4099,33 @@ evolutionary statistics.  Claims about an internal motif library, physical energ
 biological interaction require their corresponding interventions.
 \fi
 
-\BookInsert{chapters/12_vertical_audit}
+\BookInsert{chapters/12_statistical_mechanics_falsification}
 
 \BookSection{Biological validation is typed}
 
 The scalar graph and the full operator make different predictions.  If
-$F_{ij}(a,b)$ is a measured log-fitness or quantitative phenotype for a double-mutant panel around
-reference residues $(a_0,b_0)$, define experimental epistasis
+\ifdefined\BOOKMODE
+ $F_{e,ij}(a,b;c)=g_e(Y_e(a,b;c))$ denotes the transformed assay endpoint introduced in
+Eq.~\ref{eq:book-epistasis-primer}, the resulting table retains a separate measured contrast for
+each substitution pair.
+\else
+$Y_{e,ij}(a,b;c)$ is the declared endpoint of assay $e$ for a double-mutant panel around reference
+residues $(a_0,b_0)$ under condition $c$.  For a declared scalar coordinate $g_e$, set
+$F_{e,ij}=g_e\circ Y_{e,ij}$ and define experimental epistasis
 \begin{equation}
-\epsilon_{ij}(a,b)
-=F_{ij}(a,b)-F_{ij}(a,b_0)-F_{ij}(a_0,b)+F_{ij}(a_0,b_0).
+\epsilon_{ij}^{(e,g)}(a,b;c)
+=F_{e,ij}(a,b;c)-F_{e,ij}(a,b_0;c)-F_{e,ij}(a_0,b;c)+F_{e,ij}(a_0,b_0;c).
 \label{eq:experimental-epistasis}
 \end{equation}
+\fi
 The operator-level comparison is between $G_{ij}(a,b)$ and the corresponding projected epistasis
 table in a common reference, rather than only between $M_{ij}$ and a binary contact label
 \cite{hopf2017,olson2014}.
-Model logits, evolutionary energies, and measured fitness generally occupy different units and may
-be related nonlinearly.  Their comparison therefore uses a scale or link function fitted on a
-training subset and evaluated on held-out mutations, rather than direct numerical equality.
+Model logits, evolutionary energies, transformed assay coordinates, and Malthusian growth rates
+generally occupy different units and may be related nonlinearly.  Their comparison therefore uses a
+scale or link function fitted on a training subset and evaluated on held-out mutations, rather than
+direct numerical equality.  A population-selection claim additionally requires a declared
+genotype-to-demography map.
 
 \begin{center}
 \small
@@ -4066,6 +4154,7 @@ mathematical object.
 \BookInsert{chapters/11_coda}
 \ifdefined\BOOKMODE
 \BookChapter{What Kind of Object Is a Protein Interaction?}
+\BookChapterLabel{chap:book-epilogue}
 \BookInsert{chapters/12_epilogue}
 \else
 \BookChapter{Discussion}
@@ -4123,7 +4212,7 @@ extension-independent external object.  For recurrent linear attention, the cros
 the frozen memory channel and the state-variation recurrence supplies its complete Jacobian block.
 Dense transient routes, persistent pair tracks, sparse
 signed routing, and endpoint-removable cavities make different memory and measurability tradeoffs.  The
-support no-go and cavity Bayes floor quantify the limits that strict conditional meaning places on
+support no-go and endpoint-exclusion Bayes floor quantify the limits that strict conditional meaning places on
 content-dependent routing and single-sequence recoverability.  Optional MSA supervision changes
 the training signal while those inference-time information constraints remain.
 
@@ -4202,6 +4291,10 @@ schedules, and an evaluation protocol.  Family-scale validation, biological inte
 matched-compute systems benchmarks form the next evidence layer.
 
 \fi
+\BookAppendices
+\BookOnlyChapter{Population Selection as an Optional Bridge}
+\BookChapterLabel{app:book-population-selection}
+\BookInsert{chapters/appendix_population_selection}
 \BookBackMatter
 \BookBibliographySize
 \BookBibliographyColumnsBegin
@@ -4209,6 +4302,34 @@ matched-compute systems benchmarks form the next evidence layer.
 \begin{thebibliography}{99}
 \setlength{\itemsep}{-0.2pt}
 \setlength{\parskip}{0pt}
+
+\ifdefined\BOOKMODE
+\bibitem{derrida1980}
+B.~Derrida.
+\newblock Random-energy model: Limit of a family of disordered models.
+\newblock \emph{Physical Review Letters}, 45:79--82, 1980.
+
+\bibitem{mezard1987}
+M.~M\'ezard, G.~Parisi, and M.~A. Virasoro.
+\newblock \emph{Spin Glass Theory and Beyond}.
+\newblock World Scientific, Singapore, 1987.
+
+\bibitem{mezardmontanari2009}
+M.~M\'ezard and A.~Montanari.
+\newblock \emph{Information, Physics, and Computation}.
+\newblock Oxford University Press, Oxford, 2009.
+
+\bibitem{mezard2002sat}
+M.~M\'ezard, G.~Parisi, and R.~Zecchina.
+\newblock Analytic and algorithmic solution of random satisfiability problems.
+\newblock \emph{Science}, 297:812--815, 2002.
+
+\bibitem{sompolinsky1988}
+H.~Sompolinsky, A.~Crisanti, and H.-J. Sommers.
+\newblock Chaos in random neural networks.
+\newblock \emph{Physical Review Letters}, 61:259--262, 1988.
+
+\fi
 
 \bibitem{hoeffding1948}
 W.~Hoeffding.
@@ -4628,6 +4749,13 @@ Z.~Zhang, H.~K. Wayment-Steele, G.~Brixi, H.~Wang, D.~Kern, and S.~Ovchinnikov.
 R.~Rao, J.~Liu, R.~Verkuil, J.~Meier, J.~F. Canny, P.~Abbeel, T.~Sercu, and A.~Rives.
 \newblock MSA Transformer.
 \newblock \emph{Proceedings of ICML}, PMLR 139:8844--8856, 2021.
+
+\bibitem{akiyama2026msapairformer}
+Y.~Akiyama et al.
+\newblock Expanding the scope of protein language modeling to protein--protein interactions with
+MSA Pairformer.
+\newblock \emph{Cell}, 189:4964--4979.e8, 2026.
+\newblock doi:10.1016/j.cell.2026.06.029.
 
 \bibitem{jumper2021}
 J.~Jumper et al.

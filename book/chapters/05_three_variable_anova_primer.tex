@@ -1,0 +1,66 @@
+\section{A three-variable ANOVA calculation}
+\label{sec:book-three-variable-anova-primer}
+
+The relation between a dynamic edge and a higher-order interaction can be calculated with two
+binary source coordinates.  Let $x_j,x_k\in\{-1,+1\}$ and let
+$A,B,C\in\mathcal H_i^0$ be three target-contrast vectors.  Consider the target-centered score
+\begin{equation}
+\Phi(x_j,x_k)
+=\phi_0+A x_j+B x_k+C x_jx_k,
+\qquad \phi_0\in\mathcal H_i^0.
+\label{eq:book-three-variable-score}
+\end{equation}
+Under the uniform product reference, the four scalar functions
+$1,x_j,x_k,x_jx_k$ are orthonormal.  They respectively encode a target-only term, two pair terms,
+and one target--source--source term.
+
+Audit the response to source $j$ while holding $x_k$ fixed.  Since the centered binary source
+space is one-dimensional, identify the edge operator with its coefficient multiplying $x_j$.
+Equation~\ref{eq:book-three-variable-score} then gives
+\begin{equation}
+G_{i\leftarrow j}(x_k)=A+C x_k.
+\label{eq:book-three-variable-response}
+\end{equation}
+The $A$ direction persists across backgrounds.  The $C$ direction changes sign when the second
+source changes.  With $X_k$ uniform,
+\begin{equation}
+\overline G_{i\leftarrow j}
+=\mathbb E_{X_k}G_{i\leftarrow j}(X_k)=A,
+\qquad
+\delta G_{i\leftarrow j}(X_k)=C X_k,
+\label{eq:book-three-variable-mean-residual}
+\end{equation}
+and therefore
+\begin{equation}
+\mathbb E_{X_k}
+\|\delta G_{i\leftarrow j}(X_k)\|_{p_i}^2
+=\|C\|_{p_i}^2.
+\label{eq:book-three-variable-dynamic-variance}
+\end{equation}
+The dynamic variance is exactly the squared mass of the component containing the audited source
+$j$ and the additional source $k$.  The general interaction-hierarchy theorem replaces these two
+binary coordinates by arbitrary categorical source sets and sums the corresponding orthogonal
+masses.
+
+The word ``exactly'' uses the product reference.  To see the role of that geometry, keep balanced
+binary marginals but let a correlated law $\mu$ satisfy
+\begin{equation}
+\mathbb E_\mu[X_jX_k]=\rho\ne0.
+\end{equation}
+Then
+\begin{equation}
+\langle x_j,x_k\rangle_{L^2(\mu)}=\rho,
+\qquad
+\langle 1,x_jx_k\rangle_{L^2(\mu)}=\rho,
+\label{eq:book-three-variable-correlated-inner-products}
+\end{equation}
+and, for example,
+\begin{equation}
+\mathbb E_\mu\|A X_j+B X_k\|_{p_i}^2
+=\|A\|_{p_i}^2+\|B\|_{p_i}^2
++2\rho\langle A,B\rangle_{p_i}.
+\label{eq:book-three-variable-correlated-cross-term}
+\end{equation}
+The algebraic section $A+C x_k$ still describes the finite response at a fixed background.
+Its attribution to a sum of mutually orthogonal interaction orders now requires a new conditional
+geometry or must retain the cross terms induced by $\mu$.

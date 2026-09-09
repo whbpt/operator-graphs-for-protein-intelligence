@@ -1,0 +1,64 @@
+\section{Population selection as an optional bridge}
+
+This appendix records one explicit population-genetic construction for the boundary introduced in
+Chapter~\ref{sec:book-protein-scales}.  It is not needed for the operator or MSA arguments.  Its role
+is to show exactly what must be added before an assay endpoint can receive a population-dynamic
+interpretation.
+
+On the finite sequence space $\mathcal X=[q]^L$, let $n_x(t)$ be the expected abundance of genotype
+$x$.  Let $Q_{\mathrm{mut}}$ be an irreducible mutation generator in the column convention:
+$Q_{xy}\geq0$ is the rate from $y$ to $x$ for $x\neq y$, and $\sum_xQ_{xy}=0$.  For an infinite
+asexual population in a fixed environment, with frequency-independent Malthusian rates $m_c(x)$ and
+no recombination,
+\begin{equation}
+\frac{dn}{dt}=\mathcal L_cn,
+\qquad
+\mathcal L_c=Q_{\mathrm{mut}}+\operatorname{diag}(m_c).
+\label{eq:book-mutation-selection-operator}
+\end{equation}
+After normalization by total abundance, $p=n/(\mathbf1^{\mathsf T}n)$ obeys the
+replicator--mutator equation
+\begin{equation}
+\frac{dp}{dt}=Q_{\mathrm{mut}}p+
+\left[\operatorname{diag}(m_c)-\overline m_c(p)I\right]p,
+\qquad
+\overline m_c(p)=\sum_xm_c(x)p_x.
+\label{eq:book-replicator-mutator-equation}
+\end{equation}
+The irreducible Metzler operator $\mathcal L_c$ has a positive principal right eigenvector,
+\begin{equation}
+\mathcal L_cv_c=\lambda_cv_c,
+\qquad
+p_c^\star=\frac{v_c}{\mathbf1^{\mathsf T}v_c},
+\qquad
+\overline m_c(p_c^\star)=\lambda_c.
+\label{eq:book-mutation-selection-perron-equilibrium}
+\end{equation}
+This equilibrium is an eigenproblem coupling mutation and growth.  It follows from the declared
+population model, not from exponentiating an arbitrary assay value.
+
+A different, reversible stationary construction gives a Gibbs-like law.  Suppose a coarse-grained
+substitution chain has rates $K_c(x\mid y)$ from $y$ to $x$, the neutral chain has full-support
+stationary law $\pi_{\mathrm{mut}}$, and a dimensionless selection potential $\Psi_c$ is derived
+from a fixation or diffusion model such that
+\begin{equation}
+\frac{K_c(x\mid y)}{K_c(y\mid x)}
+=\frac{\pi_{\mathrm{mut}}(x)}{\pi_{\mathrm{mut}}(y)}
+\exp\!\left[\Psi_c(x)-\Psi_c(y)\right].
+\label{eq:book-selection-local-detailed-balance}
+\end{equation}
+Detailed balance then gives
+\begin{equation}
+\pi_c(x)=
+\frac{\pi_{\mathrm{mut}}(x)e^{\Psi_c(x)}}
+{\sum_{y\in\mathcal X}\pi_{\mathrm{mut}}(y)e^{\Psi_c(y)}},
+\qquad
+H_c(x)=-\log\pi_{\mathrm{mut}}(x)-\Psi_c(x)+\log Z_c.
+\label{eq:book-reversible-selection-law}
+\end{equation}
+The potential $\Psi_c$ is a coordinate of this specified construction.  It can be identified with
+$Y_e$, $m_c$, or a model score only after a separate derivation and dimensional calibration.
+
+Finite-population drift, recombination, changing environments, frequency dependence, and genealogy
+alter the state dynamics or the observation law.  They belong to the population model and should not
+be silently absorbed into one scalar called fitness.
