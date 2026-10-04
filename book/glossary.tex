@@ -1,0 +1,155 @@
+\chapter*{Glossary}
+\addcontentsline{toc}{chapter}{Glossary}
+
+This glossary collects the words that travel most easily between statistical physics, graphical
+modeling, neural computation, and experimental biology.  Each entry lists the meanings the word
+carries in those literatures and states what this book requires before the word is used in a
+claim.  The entries are grouped by the space in which the word is most often anchored; within each
+group they are ordered alphabetically.  The notation chapter fixes symbols; this chapter fixes
+usage.
+
+\section*{Probability and statistical physics}
+
+\begin{center}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.14\linewidth}
+                >{\raggedright\arraybackslash}p{0.44\linewidth}
+                >{\raggedright\arraybackslash}p{0.32\linewidth}@{}}
+\toprule
+Term & Meanings across literatures & Required declaration \\
+\midrule
+cavity & a site removed from a locally tree-like factor graph; the surrounding fields passed to
+it; by extension any message-passing approximation to a marginal &
+the factorization being assumed and the graph to which the cavity belongs
+(Chapter~\ref{chap:book-probability-geometry}) \\
+coupling & a pair term of a joint Hamiltonian; a conditional-dependence parameter; a message
+coefficient; a measured epistatic effect &
+the sample space of the law in which the term appears and its gauge \\
+energy & minus the logarithm of an unnormalized weight; a learned scalar score; a physical
+potential with units and dynamics &
+which normalization converts the score into an energy coordinate \\
+field & a one-body term of a Hamiltonian; an external input; a feature map; a gauge degree of
+freedom &
+whether the object is a physical field or a reparametrization artifact \\
+Hamiltonian & the generator of a joint Gibbs law; the drift of a stochastic dynamics; a learned
+energy function &
+the law or dynamics it generates and its intended domain \\
+joint law & the normalized measure on complete configurations; sometimes claimed from a
+collection of conditionals or marginals &
+whether a compatibility condition has actually been checked \\
+marginal & a projection of a joint law onto sites or blocks; an empirical frequency estimate of
+one &
+population versus sample, and the estimator that produced it \\
+message & a cavity summary in belief propagation; a feature vector in a neural aggregation; an
+edge payload in a graph network &
+the state space it lives in and the operation that consumes it \\
+partition function & the normalizer of a Gibbs law; a sum over exponentially many states; an
+intractable quantity approximated by variational or cavity methods &
+which sample space is being summed over \\
+temperature & a physical scale; a softmax parameter; a noise level in sampling dynamics &
+whether the parameter is a physical temperature or a local normalization constant
+(Chapter~\ref{chap:book-translation}) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section*{Computation and architecture}
+
+\begin{center}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.14\linewidth}
+                >{\raggedright\arraybackslash}p{0.44\linewidth}
+                >{\raggedright\arraybackslash}p{0.32\linewidth}@{}}
+\toprule
+Term & Meanings across literatures & Required declaration \\
+\midrule
+attention & a source-normalized routing coefficient inside a computation; a claimed relational
+structure; a soft dictionary lookup &
+the normalization axis and the fact that a route is not yet an interaction
+(Chapter~\ref{chap:book-alphafold}) \\
+Laplacian & the divergence of the gradient on a declared graph; a normalized operator on a
+position graph; a discretized diffusion generator &
+which graph, which weights, and which vertex state it acts on
+(Chapter~\ref{chap:book-spectra}) \\
+memory & a stored pattern in an attractor network; an addressable key--value table; a pair
+representation updated across layers &
+the state being stored, retrieved, and confused with others \\
+mode & an eigenvector over positions; a categorical constant direction; a phylogenetic principal
+component; an attractor &
+the space in which the mode is a mode (Chapter~\ref{chap:book-spectra}) \\
+normalization & division by a partition function; by a source-position sum; by a memory sum; by a
+marginal &
+the axis of the simplex on which the operation projects \\
+route & a one-step computational path; a chosen edge in an adaptive graph; a sparse execution
+decision &
+whether the route is a declared part of the model or an observed trajectory \\
+softmax & the map from scores to a probability simplex &
+which sample space the resulting law lives on (Chapter~\ref{chap:book-translation}) \\
+spectrum & eigenvalues of a declared operator on a declared state space; sometimes reported
+without either declaration &
+the operator and the null model against which it is read \\
+state & a configuration of a physical system; a hidden vector of a network; a relational buffer
+updated across layers &
+the state space and its update law \\
+transport & moving an operator between reference geometries; moving mass in optimal transport;
+propagating a state through layers or time &
+the origin, the target, and the Jacobian of the movement \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section*{Inference and evidence}
+
+\begin{center}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.14\linewidth}
+                >{\raggedright\arraybackslash}p{0.44\linewidth}
+                >{\raggedright\arraybackslash}p{0.32\linewidth}@{}}
+\toprule
+Term & Meanings across literatures & Required declaration \\
+\midrule
+background & the surrounding sequence on which a response is conditioned; a null model; a
+measurement noise floor &
+the conditioning set and the reference with respect to which residuals are taken
+(Chapter~\ref{chap:book-static-dynamic}) \\
+contact & a geometric finding at a threshold; a predicted edge; a validated interaction &
+the criterion and the evidence level (Chapter~\ref{chap:book-falsification}) \\
+direct & a one-step route; a term surviving a conditional-independence test; a physical
+proximity; an effect remaining after a lower-order null &
+which alternative explanations were excluded (Chapter~\ref{chap:book-translation}) \\
+endpoint & the measured quantity of an assay; the validation target of a model; the output
+coordinate of a readout &
+the physical meaning attached to the number \\
+epistasis & a nonadditive intervention effect relative to a declared scale and null &
+the measurement scale, the background genotype, and the assay conditions
+(Chapter~\ref{chap:book-falsification}) \\
+estimand & the population quantity an estimator targets, before any data are seen &
+the full pipeline from observations to the target (Chapter~\ref{chap:book-observations}) \\
+falsification & a failed prediction; a rejected identification claim; an audit outcome with a
+declared alternative &
+the claim, the test, and the alternative that was preferred \\
+gauge & a reparametrization freedom that leaves a law invariant; a fixing convention; a
+centering projection &
+the chosen reference and the transported coordinates
+(Chapter~\ref{chap:book-reference-geometry}) \\
+realizability & whether an architecture can represent a function class; whether a conditional
+structure is compatible with any joint law; whether a sparse program computes the same map &
+which capacity notion is meant (Chapters~\ref{chap:book-architecture}
+and~\ref{chap:book-conditional-limits}) \\
+reciprocity & equality of forward and backward responses; symmetry of a pair energy; a
+compatibility condition &
+the reference transport under which the two directions are compared \\
+shadow & a scalar compression of a typed operator, such as a contact score or a Frobenius norm &
+which information the compression provably discards
+(Chapter~\ref{chap:book-order-rank}) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Two habits make this glossary redundant.  Before using any term above, name the space in which
+the object lives and the alternative explanations that have been excluded; after using it, keep
+the carried object visible until the validation endpoint has been declared.  The book's chapters
+repeat those two requirements in progressively stronger forms.

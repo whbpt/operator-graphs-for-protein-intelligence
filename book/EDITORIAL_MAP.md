@@ -9,8 +9,9 @@ and synthesis rather than by adding more unstructured theory.
 ### Chapter 1: One Edge, Several Meanings
 
 - Extend the running residue-pair example through later empirical chapters.
-- Add a one-page visual map from sequence, probability law, route graph, operator graph, and
-  biological experiment.
+- The one-page visual map from sequence, probability law, route graph, operator graph, and
+  biological experiment is in place (`fig:book-space-map`); keep its arrows aligned with the
+  declared transformations when later chapters add spaces.
 - Keep the opening narrative free of literature-review and contribution-list prose.
 
 ### Chapter 2: When Equations Change Their Meaning
@@ -182,8 +183,13 @@ and synthesis rather than by adding more unstructured theory.
 
 - Treat source-file numeric prefixes as historical grouping labels; the authoritative printed order
   is the wrapper and insert sequence in `paper/protein_operator_graph_framework.tex`.
-- Build a notation index and glossary.
-- Move references to a BibTeX database.
+- The glossary is in place as backmatter (`book/glossary.tex`): overloaded terms grouped by
+  probability/physics, computation/architecture, and inference/evidence, each with its required
+  declaration.  Extend it when a new overloaded term enters the manuscript.
+- References now live in a BibTeX database (`paper/refs.bib`, 107 entries) compiled with the
+  vendored `tools/bibtex/plain.bst`; the shared body calls it through `\BookBibliographyDatabase`
+  so book and article builds resolve the same database.  Add new citations to `refs.bib` rather
+  than restoring manual `\bibitem` blocks.
 - Add chapter codas, historical notes, and open questions where they sharpen the argument.
 - Add consistent diagrams; avoid decorative figures that do not encode a mathematical relation.
 - Decide whether the final edition is English, Chinese, or parallel bilingual before prose

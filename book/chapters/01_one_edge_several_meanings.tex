@@ -139,6 +139,62 @@ the support and type of its edges, the context available to an edge, the represe
 order, the updated state, the normalization or conserved quantity, the estimation procedure, and
 the external endpoint used for validation.
 
+Figure~\ref{fig:book-space-map} places the main spaces on one page.  A sequence family supports
+two parallel constructions: a declared probability law, reached through a gauge choice and an
+estimator, and a trained model with its internal routes and memories.  The two constructions meet
+only after a reference-centered audit places both edge objects in common typed coordinates.  Every
+arrow in the map adds an assumption, and the downward arrows out of the operator graph either
+compress type into a scalar shadow or confront the prediction with an intervention.
+
+\begin{figure}[htbp]
+\centering
+\small
+\begin{tabular}{c@{\hspace{9mm}}c}
+\multicolumn{2}{c}{\fbox{\begin{minipage}{0.60\linewidth}
+\centering sequence family: $X\in[q]^L$, weighted MSA rows
+\end{minipage}}}\\[7pt]
+\begin{minipage}{0.36\linewidth}\centering
+$\Big\downarrow$\\[1pt]{\scriptsize declare gauge, fit estimator}
+\end{minipage} &
+\begin{minipage}{0.36\linewidth}\centering
+$\Big\downarrow$\\[1pt]{\scriptsize train or parse encoder, fix normalization axis}
+\end{minipage}\\[7pt]
+\fbox{\begin{minipage}{0.36\linewidth}
+\centering probability law\\ $J_{ij}(a,b)$ in a declared gauge
+\end{minipage}} &
+\fbox{\begin{minipage}{0.36\linewidth}
+\centering route graph\\ $\alpha^{(h,\ell)}_{ij}(x)$, pair memory
+\end{minipage}}\\[7pt]
+\begin{minipage}{0.36\linewidth}\centering
+$\Big\downarrow$\\[1pt]{\scriptsize reference-centered projection}
+\end{minipage} &
+\begin{minipage}{0.36\linewidth}\centering
+$\Big\downarrow$\\[1pt]{\scriptsize masked-response audit}
+\end{minipage}\\[7pt]
+\multicolumn{2}{c}{\fbox{\begin{minipage}{0.74\linewidth}
+\centering operator graph (common typed coordinates)\\
+$G_{i\leftarrow j}(C)=\overline G_{i\leftarrow j}+\delta G_{i\leftarrow j}(C)$
+\end{minipage}}}\\[7pt]
+\begin{minipage}{0.36\linewidth}\centering
+$\Big\downarrow$\\[1pt]{\scriptsize compression discards type}
+\end{minipage} &
+\begin{minipage}{0.36\linewidth}\centering
+$\Big\downarrow$\\[1pt]{\scriptsize matched intervention, declared null}
+\end{minipage}\\[7pt]
+\fbox{\begin{minipage}{0.36\linewidth}
+\centering scalar shadow\\ $A_{ij}$: contact score, norm
+\end{minipage}} &
+\fbox{\begin{minipage}{0.36\linewidth}
+\centering biological experiment\\ $\epsilon_{ij}$: epistasis
+\end{minipage}}
+\end{tabular}
+\caption{The spaces of this book on one page.  Shared indices $(i,j)$ appear in every box; the
+carried object differs.  Only the operator-graph level holds both the fitted law and the audited
+model in common typed coordinates, and every arrow is a declared transformation whose lost or
+added assumptions the corresponding chapter makes explicit.}
+\label{fig:book-space-map}
+\end{figure}
+
 The construction proceeds from local meaning to global claims.  We first establish a translation
 language across physics, probability, and computation.  We then define reference-centered
 categorical fibers and the operators between them.  Static and dynamic responses lead to
