@@ -90,25 +90,11 @@ require an additional correspondence.
 
 \subsection{MSE reconstruction: the same optimum through another objective}
 
-Chapter~\ref{chap:book-models} showed that a regularized linear self-reconstruction problem can have an optimum that is
-an affine function of $(S+\lambda I)^{-1}$.  The 2022 essay emphasized the same fact from the
-opposite direction: a matrix learned by squared-error reconstruction can land on the same
-precision-like solution as a multivariate Gaussian fit even though the loss surfaces are not the
-same.  One route differentiates a log determinant and imposes positive definiteness; the other
-differentiates a quadratic reconstruction loss and can be implemented as an ordinary linear
-layer.
-
-The exact shared optimum is valuable.  It permits solvers and regularizers to move between
-statistical modeling and neural reconstruction.  The Gaussian objective identifies a normalized
-joint density when its constraints are satisfied.
-The MSE objective identifies a best linear reconstruction map under a chosen data geometry.  A
-common stationary point makes the fitted matrices equal, while thermodynamic and probabilistic
-interpretations remain tied to their respective objectives and constraints.
-
-This is the same pattern encountered in the 2019 unified framework \cite{dauparas2019}.  The
-horizontal equivalence there grouped models by reconstruction loss.  The present longitudinal
-case groups them by spectral action.  Together they show why implementation-level unification is
-scientifically productive: it exposes exactly which remainder must still be typed.
+The MSE equivalence in Eq.~\ref{eq:book-unified-mse-solution} supplies a reconstruction route to a
+regularized precision-like matrix.  Chapter~\ref{chap:book-models} derived the shared optimum and
+the regularization transfer \cite{dauparas2019}.  In the present spectral comparison, it is another
+route to the same inverse transform; the fitted reconstruction map retains its own objective and
+constraints.
 
 \subsection{Sparse and ridge precision: regularization chooses the graph}
 

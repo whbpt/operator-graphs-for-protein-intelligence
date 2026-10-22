@@ -1968,23 +1968,8 @@ S_t=\overline S_{t-1}
 \label{eq:kda-delta-correction}
 \end{equation}
 Thus retention first attenuates the previous state, after which the rank-one delta rule corrects the
-value associated with the current key.  This correction is one online-gradient step for
-\begin{equation}
-\mathcal L_t(S)
-=\frac12\left\|v_t-S^{\mathsf T}k_t\right\|_2^2,
-\qquad
--\nabla_S\mathcal L_t(\overline S_{t-1})
-=k_t\left(v_t-\overline S_{t-1}^{\mathsf T}k_t\right)^{\mathsf T}.
-\label{eq:kda-online-regression}
-\end{equation}
-For a unit key, the write reduces its current-key residual exactly:
-\begin{equation}
-v_t-S_t^{\mathsf T}k_t
-=(1-\beta_t)\left(v_t-\overline S_{t-1}^{\mathsf T}k_t\right).
-\label{eq:kda-current-key-error}
-\end{equation}
-The state is therefore a compressed online associative memory with retention and interference
-between nonorthogonal keys.
+value associated with the current key.  This is an online least-squares correction after retention.
+The state compresses key--value associations, with interference between nonorthogonal keys.
 
 Define the path-ordered propagator
 \begin{equation}
@@ -2076,9 +2061,7 @@ $F_x(S)=M_xS+B_x$, then
 =\left(M_2M_1,\,M_2B_1+B_2\right).
 \label{eq:affine-state-composition}
 \end{equation}
-This composition is associative.  When every $(M_t,B_t)$ is available before the recurrence is
-evaluated, it supports a parallel prefix or chunk scan; state-dependent transition generation
-removes that guarantee.  Reversing two input-conditioned transitions gives
+This affine composition is associative.  Reversing two input-conditioned transitions gives
 \begin{equation}
 F_b(F_a(S))-F_a(F_b(S))
 =[M_b,M_a]S+(M_b-I)B_a-(M_a-I)B_b.
@@ -2104,11 +2087,9 @@ w_{t\leftarrow s}=\beta_s\alpha^{t-s}q_t^{\mathsf T}k_s,
 \label{eq:kda-exponential-distance}
 \end{equation}
 so the recurrent construction reduces to an exponential relative-distance kernel.  For variable
-$M_r$, finite-horizon memory is governed by singular values of $\Phi_{t:s}$ and by nonnormal
-transients; under a stated stochastic law and existence assumptions, asymptotic behavior may be
-summarized by Lyapunov exponents.  These are spectra in channel-state space.  They must be kept
-distinct from a Laplacian spectrum on residue positions and from singular spectra of categorical
-response blocks.
+$M_r$, finite-horizon memory depends on singular values of $\Phi_{t:s}$ and nonnormal transients.
+These channel-state spectra differ from positional Laplacian spectra and categorical response
+spectra.
 
 \BookSubsection{What NoPE establishes}
 

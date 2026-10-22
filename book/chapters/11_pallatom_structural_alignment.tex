@@ -1,71 +1,10 @@
-\section{Case study: inductive bias as structural alignment}
-\sectionmark{Inductive bias as structural alignment}
+\section{Pallatom: structural alignment across scales}
+\sectionmark{Pallatom: structural alignment}
 
-An inductive bias is the preference that makes a learning procedure choose some solutions over
-other solutions that fit the available data
-equally well.  It may enter through a prior, a regularizer, a function class, or the architecture
-itself.  Battaglia et al. use this idea to argue that entity--relation structure should be built
-into neural computation when the world is usefully described by entities, relations, and reusable
-composition rules \cite{battaglia2018relational}.  A structural assumption that matches the
-data-generating organization can
-reduce sample complexity and support combinatorial generalization.
-
-In concrete terms, choosing an inductive bias means writing a function whose organization can
-correspond to regularities internal to the data.  That correspondence is a hypothesis about how
-the problem is structured.  A representation $\phi_\theta$ chooses which
-distinctions and relations become easy to express, while a function class $\mathcal H$ determines
-which maps of those representations can be learned efficiently.  Let
-\begin{equation}
-m(x)=\mathbb E[Y\mid X=x]
-\end{equation}
-be the population response.  A structurally aligned representation--function pair makes
-\begin{equation}
-\inf_{f\in\mathcal H}
-\mathbb E\!\left[\bigl(m(X)-f(\phi_\theta(X))\bigr)^2\right]
-\label{eq:representation-bias-alignment}
-\end{equation}
-small while keeping $\mathcal H$ simple enough to estimate from the available data.  The
-representation exposes a regularity; the function class is organized so that this regularity can
-be expressed without relearning the structure from scratch.  This is the precise content of
-``matching the function to the data structure.''  It is an architectural claim to be tested, not
-a property guaranteed by scale, pretraining, or a graph-shaped input alone.
-
-One-body structure is one special inductive bias, not a synonym for inductive bias.  An additive
-class $f(x)=c+\sum_i h_i(x_i)$ prefers explanations assembled from independent site effects; a
-pairwise Potts class enlarges that preference to include $G_{ij}(x_i,x_j)$; low-rank constraints
-and sparse support impose further biases inside the pairwise class.  Other architectures may
-instead prefer locality, symmetry, relational composition, hierarchy, or low-rank structure.
-Whether one-body, pairwise, local, equivariant, compositional, or low-rank structure is appropriate
-is an empirical claim about the endpoint in the chosen coordinates.
-
-For coordinate models, symmetry supplies a particularly explicit example.  A global rigid motion
-$g=(R,t)$ acts on every atomic coordinate by
-\begin{equation}
-g\cdot r_i=Rr_i+t,
-\qquad R\in SO(3),\quad t\in\mathbb R^3,
-\qquad g\in SE(3).
-\label{eq:se3-action-on-coordinates}
-\end{equation}
-A coordinate-valued map is $SE(3)$-equivariant when
-$F(g\cdot r)=g\cdot F(r)$; a scalar readout is invariant when
-$q(g\cdot r)=q(r)$.  Restricting the function class to obey these identities builds the physical
-irrelevance of the laboratory frame into the model before any data are observed.  This is a group-
-theoretic inductive bias.  Reflections belong to the larger Euclidean group $E(3)$, but are not in
-$SE(3)$; because protein stereochemistry is chiral, a mirror reflection is not generally a
-physically equivalent coordinate change.
-
-Finally, low approximation error on one benchmark establishes task alignment.  Alignment with the
-scientific mechanism requires separating alternatives such as phylogeny,
-experimental batch, database composition, or another nuisance regularity.  Prospective tests,
-clade-aware splits, uncertainty calibration, and endpoint-specific interventions are what
-distinguish useful structural alignment from shortcut alignment.
-
-\subsection{Pallatom: a case study in structural alignment}
-
-Pallatom makes this idea unusually concrete \cite{qu2025pallatom}.  Its coordinate convention,
-relational architecture, denoising objective, and sequence readout are designed together around
-one hypothesis: sequence identity, backbone shape, and side-chain packing can be generated
-coherently by modeling a suitably represented all-atom coordinate distribution.
+Pallatom allows the representation, relational architecture, training distribution, objective,
+and evaluation endpoint to be examined together \cite{qu2025pallatom}.  The relevant question is
+which protein regularities each choice makes easy to represent, and which alternatives the
+reported tests exclude.
 
 The first bias is introduced before the neural network sees any data.  A residue with variable
 chemical topology is embedded into fourteen coordinate slots.  Native heavy atoms occupy their
@@ -130,12 +69,9 @@ departures from exact equivariance.  This distinction
 is substantive: symmetry learned from augmentation is an approximate empirical regularity,
 whereas symmetry imposed by the architecture holds by construction.
 
-The training distribution contributes a third, unusually strong bias.  The reported model uses
-short monomers, crops of length at most 128, 7,459 filtered PDB structures, and 27,697 heavily
-curated AFDB structures.  AFDB candidates are required to have high predicted confidence and are
-then filtered for packing density, core-residue fraction, loop content and length, radius of
-gyration, secondary-structure segmentation, and redundancy.  Consequently the learned density is
-better written as
+The training set is restricted to short monomers, with crops of at most 128 residues and filtered
+PDB and AFDB structures selected for confidence, compactness, and redundancy.  The learned density
+is better written as
 \begin{equation}
 p_\theta\!\left(r\mid r\in\mathcal F_{\mathrm{compact,designable}}
 (\mathrm{PDB}\cup\mathrm{AFDB})\right)
@@ -155,15 +91,10 @@ designability while reducing diversity and shifting the fraction of all-helical 
 sampler is therefore part of the inductive bias and changes which region of the learned
 distribution is visited.
 
-The evaluation closes the same loop.  Pallatom reports $85.03\%$ all-atom designability in its
-primary comparison, where a sample passes when ESMFold assigns mean pLDDT above 80 and the
-all-atom RMSD between the generated structure and the structure predicted from its generated
-sequence is below $2$~\AA.  ProteinMPNN, ESMFold, Foldseek, and MMseqs2 provide useful tests of
-self-consistency, backbone redesignability, novelty, and diversity.  Their own training
-distributions and structural priors also enter the measurement.  High designability therefore
-licenses the statement that the generated sequence and coordinates are mutually recoverable under
-current predictors.  Stability, catalytic activity, binding specificity, equilibrium weights, and
-experimental success remain separate validation endpoints.
+The primary designability endpoint requires ESMFold mean pLDDT above 80 and all-atom RMSD below
+$2$~\AA\ between a generated structure and the structure predicted from its generated sequence.
+This tests predictor-mediated sequence--structure consistency.  Stability, activity, specificity,
+and equilibrium weights require separate measurements.
 
 Pallatom remains context-dependent even though its final sequence head is residuewise.  The head
 pools atomic embeddings and applies a linear classifier after those embeddings have received global
@@ -171,14 +102,6 @@ residue, pair, triangle, and recycled-coordinate information.  The output logit 
 therefore a function of the generated molecular context.  A
 local readout can therefore express pairwise and higher-order context already mixed into its input
 representation.
-
-Pallatom's main methodological achievement is therefore an alignment result.  A fixed-cardinality
-all-atom representation, a local--global relational network, curated compact-protein data, a
-composite geometric objective, and predictor-based designability metrics all point toward the
-same target.  That alignment explains the model's strong in-silico performance more precisely
-than saying that it simply ``learned chemistry.''  The remaining scientific question is whether
-the aligned target is broad enough for the intended use; answering it requires prospective
-synthesis and measurements under functional and negative-control conditions.
 
 Pallatom shows how representation, architecture, objective, and evaluation can point toward one
 endpoint.  The next case follows the computation more closely: RFD4-Proteina writes single states

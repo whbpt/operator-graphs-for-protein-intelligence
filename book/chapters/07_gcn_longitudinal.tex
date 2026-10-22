@@ -2,30 +2,9 @@
 {A second longitudinal case: from spectral filters to geometric messages}
 \label{sec:book-gcn-lineage}
 
-This section extends the model audit along a graph-network lineage.
-
-The phrase ``graph convolutional network'' now covers a lineage of spectral filtering,
-neighborhood aggregation, and typed message passing.  Spectral networks begin from functional
-calculus of a graph Laplacian.  The
-Kipf--Welling GCN retains a first-order normalized propagation rule.  GraphSAGE turns propagation
-into permutation-invariant neighborhood aggregation.  GAT makes the route state-dependent.  MPNNs
-allow typed edge messages, GIN asks which neighborhood multisets survive aggregation, and geometric
-networks constrain how scalar, vector, and coordinate states transform.  Each transition changes
-what an edge does as well as increasing capacity.
-
-This history is especially useful here because the equations look continuous while their meanings
-change.  The audit will follow
-\begin{equation}
-\boxed{
-\begin{aligned}
-\text{spectral function}&\longrightarrow\text{local polynomial},\\
-\text{fixed normalized route}&\longrightarrow\text{adaptive aggregation},\\
-&\longrightarrow\text{typed geometric message}.
-\end{aligned}}
-\label{eq:book-gcn-lineage}
-\end{equation}
-At no point does successful propagation alone identify a statistical interaction, a physical
-force, or a biological mechanism.
+Graph-network models range from fixed spectral filters and local propagation to adaptive routes,
+typed messages, and geometric maps.  The following sequence keeps the node and channel axes
+explicit so that these computations can later be compared with AlphaFold's pair state.
 
 \subsection{Spectral convolution is functional calculus on a declared graph}
 
@@ -42,21 +21,11 @@ g_\theta *_G x
 =g_\theta(L)x.
 \label{eq:book-gcn-spectral-convolution}
 \end{equation}
-The equality on the right is the important one.  The native object is a spectral function of a
-specified Laplacian.  Low values of $\lambda$ describe signals that vary slowly across heavily
-weighted edges, so a filter concentrated at low graph frequencies acts as a graph-relative
-smoother \cite{bruna2014,defferrard2016}.
-
-Nothing in Eq.~\ref{eq:book-gcn-spectral-convolution} discovers what the graph means.  If $A$ is a
-covalent graph, a spatial contact graph, a sequence-neighborhood graph, or a learned similarity
-graph, the same functional calculus has different semantics.  The spectrum belongs to the pair
-$(L,\mathcal H_{\mathrm{node}})$ after the node state and edge weights have been declared.
-
-The original spectral parameterization also has two practical liabilities.  Applying an arbitrary
-$g_\theta(\Lambda)$ appears to require eigendecomposition, and parameters attached to the
-eigenvalues of one graph transfer only through an additional alignment or parameterization.
-Locality appears when the multiplier is restricted, since an unrestricted spectral multiplier
-generally produces a dense operator in node coordinates.
+Low values of $\lambda$ describe signals that vary slowly across heavily weighted edges, so a
+low-frequency filter smooths the node signal relative to the declared graph
+\cite{bruna2014,defferrard2016}.  A covalent, contact, or learned-similarity graph gives the same
+calculus a different meaning.  An unrestricted spectral multiplier is generally dense in node
+coordinates; locality requires a restricted multiplier.
 
 \subsection{Chebyshev filters convert frequency response into finite-hop propagation}
 
@@ -76,10 +45,8 @@ Because a degree-$k$ polynomial in $L$ connects only nodes reachable within $k$ 
 degree-$K$ filter is $K$-hop localized.  Spectral approximation has become a spatial propagation
 rule without ceasing to be a function of the Laplacian.
 
-This step exposes an assumption that the Fourier notation can hide.  A polynomial filter shares
-coefficients across edges: the graph supplies the support and geometry, while the
-shared coefficients $\theta_0,\ldots,\theta_K$ specify how different path lengths and spectral
-scales are combined.  Two edges with the same local role are processed by the same polynomial.
+The graph supplies the support, while shared coefficients combine path lengths and spectral
+scales.
 
 \subsection{The classical GCN is a tied first-order filter}
 
@@ -127,11 +94,8 @@ The propagation matrix $S$ is fixed once the input graph is fixed; the trainable
 shared over nodes.  Standard GCN therefore learns channel transformations around a prescribed,
 degree-normalized node-mixing rule, with edgewise freedom limited by the input graph.
 
-The self-loop has a precise computational purpose: a node's current state participates in the next
-state.  Its meaning is computational.  Degree normalization controls the relative scale of messages
-from differently connected nodes.  This normalization belongs to the propagation geometry;
-probability normalization over molecular conformations is a separate object, and the rows of the
-symmetric normalization generally have varying sums.
+The self-loop retains the node's current state.  Degree normalization controls message scale;
+its rows need not sum to one, and it is not a probability law over molecular configurations.
 
 \subsection{Depth reveals the diffusion assumption}
 
@@ -157,43 +121,12 @@ an edge instead connects complementary types, opposite labels, or directed roles
 low-pass smoothing can destroy the signal of interest.  Adjacency grants permission to
 communicate; similarity requires an additional assumption about the signal and edge semantics.
 
-APPNP makes the retained source explicit through a restart term \cite{klicpera2019}:
-\begin{equation}
-H^{(k+1)}=(1-\alpha)SH^{(k)}+\alpha H^{(0)}.
-\label{eq:book-gcn-appnp-recursion}
-\end{equation}
-At convergence, when the inverse exists,
-\begin{equation}
-H^*=\alpha\left[I-(1-\alpha)S\right]^{-1}H^{(0)}.
-\label{eq:book-gcn-appnp-resolvent}
-\end{equation}
-The result is a resolvent or personalized-PageRank filter with a persistent contribution from the
-initial signal.  GCNII similarly preserves initial features and identity mappings across depth
-\cite{chen2020gcnii}.  Both methods reshape how multi-hop evidence accumulates.
-
-\subsection{GraphSAGE turns propagation into a set function}
-
-GraphSAGE writes the update without committing to one full-graph matrix multiplication
-\cite{hamilton2017}:
-\begin{align}
-m_i^{(\ell)}
-&=\operatorname{AGG}^{(\ell)}
-\left(\{h_j^{(\ell)}:j\in\mathcal N(i)\}\right),\nonumber\\
-h_i^{(\ell+1)}
-&=\sigma\!\left(
-W^{(\ell)}[h_i^{(\ell)}\Vert m_i^{(\ell)}]
-\right).
-\label{eq:book-gcn-graphsage}
-\end{align}
-The aggregation must be invariant to an arbitrary enumeration of the neighbors.  Mean, sum,
-pooling, and recurrent aggregators retain different information about the neighborhood multiset.
-Neighbor sampling makes the computation inductive and scalable, but also turns exact propagation
-into a sampling estimator.
-
-The mathematical question has shifted.  Spectral GCN asks which function of a graph operator acts
-on the signal.  GraphSAGE asks which permutation-invariant function summarizes a local multiset.
-Both propagate over edges, but their approximation errors and information bottlenecks are typed
-differently.
+APPNP and GCNII counter repeated smoothing by retaining the initial signal
+\cite{klicpera2019,chen2020gcnii}.  GraphSAGE instead formulates propagation as a
+permutation-invariant neighborhood aggregator, with sampling as an additional estimation step;
+GIN studies which neighborhood multisets survive aggregation
+\cite{hamilton2017,xu2019gin}.  These refinements concern propagation and information retention.
+The next transition changes the route itself.
 
 \subsection{GAT makes the route depend on the current state}
 
@@ -210,20 +143,10 @@ h_i^{(\ell+1)}
 \alpha_{ij}^{(\ell)}Wh_j^{(\ell)}\right).
 \label{eq:book-gcn-gat}
 \end{align}
-Now the graph support may remain fixed while the weighted route changes with input and layer:
-\begin{equation}
-S\quad\longrightarrow\quad P_\theta(H,E).
-\end{equation}
-For each receiver $i$, the coefficients form a categorical distribution over allowed sources.  The
-normalization makes $P_\theta$ row-stochastic under the receiver-to-source convention and generally
-asymmetric.  These coefficients type the computational route; conditional dependence, interaction
-energy, and physical force require separate extraction and validation.  The same distinction reappears in
-Transformer attention on a dense token graph.
-
-GAT replaces the fixed self-adjoint graph-relative filter of a GCN with an input-dependent,
-generally directed propagation rule.
-The appropriate spectral geometry, if one is needed, must be reconstructed for that directed
-state-dependent operator.
+The support may remain fixed while the weighted route becomes $P_\theta(H,E)$.  Its rows normalize
+over allowed sources, so the route is generally directed and state dependent.  Its coefficients
+have the same computational role as Transformer attention weights; a categorical substitution
+response requires the full input--output audit.
 
 \subsection{MPNNs promote the edge from a coefficient to a typed computation}
 
@@ -247,22 +170,6 @@ may implement a map between typed node fibers.
 Depth also changes interaction order.  A two-layer update at $i$ can depend on paths $k\to j\to i$
 and therefore on configurations of several nodes even when every primitive message is pair-indexed.
 Pairwise execution support can compose into higher-order output dependence across layers.
-
-GIN isolates a separate issue: whether aggregation distinguishes different neighborhood
-multisets \cite{xu2019gin}.  Its update is
-\begin{equation}
-h_i^{(\ell+1)}
-=\operatorname{MLP}^{(\ell)}\!\left(
-(1+\epsilon^{(\ell)})h_i^{(\ell)}
-+\sum_{j\in\mathcal N(i)}h_j^{(\ell)}
-\right).
-\label{eq:book-gcn-gin}
-\end{equation}
-With appropriate injective maps, it reaches the discriminative power of the one-dimensional
-Weisfeiler--Lehman test.  This is an expressivity statement relative to a combinatorial test, not a
-claim that the recovered features are causal or physical.  Mean aggregation, sum aggregation, and
-scalar edge compression can agree on a downstream benchmark while discarding different structural
-information.
 
 \subsection{Geometric networks add transformation law, not molecular energy}
 
@@ -315,9 +222,9 @@ in a configuration space and learns its score for reverse transport.  A graph La
 inside a generative model.  The state space and generator determine which diffusion is meant and
 which physical interpretation is available.
 
-\subsection{What actually changed across the lineage}
+\subsection{The operator progression}
 
-The longitudinal compression is
+The transitions can be recorded in one line:
 \begin{equation}
 \boxed{
 \begin{aligned}
@@ -328,40 +235,7 @@ g_\theta(L)&\longrightarrow\sum_k\theta_kL^k\longrightarrow SHW,\\
 \end{aligned}}
 \label{eq:book-gcn-operator-progression}
 \end{equation}
-The progression relocates complexity.  Spectral GCN places it in the graph filter; classical GCN
-compresses it into a fixed normalized route plus learned channel maps; attention moves some of it
-into state-dependent routing; MPNNs place it inside message functions; geometric networks add
-exact transformation constraints.  None of these moves monotonically increases interpretability.
-
-For protein models, this history supplies a clean audit.  Is the adjacency observed, constructed,
-or generated from the current state?  Is an edge a scalar route, a hidden vector, or an operator
-between typed fibers?  Does depth merely spread evidence, or does it create a higher-order output
-response?  Is symmetry guaranteed by architecture, and what physical claim remains unlicensed?
-AlphaFold's persistent pair track and triangle computations go beyond a classical node-only GCN,
-but they inherit the same central design question: which relations deserve state, and what may be
-concluded from the way that state is propagated?
-
-\subsection{One audit ledger across the lineage}
-
-The lineage can now be returned to the same coordinates used for the model portraits:
-\begin{center}
-\small
-\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.17\linewidth}
-                >{\raggedright\arraybackslash}p{0.24\linewidth}
-                >{\raggedright\arraybackslash}p{0.25\linewidth}
-                >{\raggedright\arraybackslash}p{0.24\linewidth}@{}}
-\toprule
-Family & State, support, and edge carrier & Context, dynamics, and normalization & Estimator and first unlicensed claim \\
-\midrule
-Spectral/ChebNet & node signals on a declared graph; edge meaning inherited from $A$ & fixed self-adjoint filter; polynomial locality & supervised filter coefficients; physical meaning remains inherited from the declared graph \\
-GCN/APPNP & node features; fixed degree-normalized scalar route & repeated smoothing, with optional restart to initial state & task loss; propagation defines computational smoothing, with statistical or molecular meaning requiring a corresponding generative law \\
-GraphSAGE and GAT & sampled neighborhoods or state-dependent routes & set aggregation or row-normalized adaptive routing & task loss and neighbor sampling; attention weights describe adaptive routes \\
-MPNN, GIN, and geometric networks & typed node and edge states, optionally coordinates & compositional messages; equivariant variants constrain transformation laws & task-specific loss; force, energy, and mechanism claims additionally require their defining physical structure \\
-\bottomrule
-\end{tabular}
-\end{center}
-
-The common entry is computation on a graph.  What changes is the graph's provenance, the object
-carried by an edge, the information available to the message, and the transformation law of the
-state.  Those are precisely the coordinates in Eq.~\ref{eq:model-audit-map}; together they determine
-the meaning carried by each historical name.
+Spectral filters and GCNs share channel maps around a declared positional operator.  Attention
+makes the route adaptive; MPNNs make the edge computation richer; geometric networks constrain
+its transformation law.  AlphaFold adds persistent pair state and triangle composition.  The
+comparison therefore follows which relations carry state and how that state reaches the output.

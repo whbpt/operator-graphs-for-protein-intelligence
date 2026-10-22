@@ -56,8 +56,11 @@ correlation, spectral method selection, Bayes error, and experimental epistasis.
 
 Several long chapters use an explicit internal grammar. Chapter 7 starts with a compact model
 comparison, then develops neural transport, the 2019 reconstruction framework, and the GNN lineage.
+The GNN case follows changes in edge computation; related historical variants remain short
+comparisons. The 2019 objective equivalences are derived once and reused in the spectral chapter.
 Chapter 10 develops AlphaFold's relational state, diffusion transport, and MSA Pairformer in one
-protein-facing sequence.
+protein-facing sequence. Its Pairformer interlude retains finite response, rank, and uncertainty
+calculations without introducing unused continuum limits or numerical reproduction settings.
 Chapter 11 separates core spectral constructions, case studies, localized filters, and context
 averaging.  Chapter 12 separates exact capacity results, constructive designs, and protein-generation
 cases: Pallatom on structural alignment and RFD4-Proteina on multiplicative writes, relational
@@ -74,5 +77,6 @@ portraits, historical context, and open research questions.
 
 The consolidation pass keeps the mathematical derivations and worked examples while shortening
 repeated model introductions, generic interpretation caveats, peripheral application surveys, and
-implementation details. The shared source preserves the same central definitions in article and
+implementation details. The Pallatom case begins with its representation and relational
+bottlenecks; the epilogue concentrates on unresolved questions. The shared source preserves the same central definitions in article and
 book modes; book-only orientation introduces them without repeating the formulas.

@@ -35,26 +35,9 @@ This is the same spectral-to-spatial passage used by Chebyshev graph filters.  T
 organizes several band-pass scales around localized centers; a task-specific graph filter instead
 learns the propagation profile required by its objective.
 
-A low-pass scaling function $\phi_J$ retains the coarsest component.  A stable wavelet transform
-requires more than an appealing collection of bands.  If constants $0<A\leq B<\infty$ satisfy
-\begin{equation}
-A
-\leq
-|\phi_J(\lambda)|^2+\sum_{s\in\mathcal S}|\psi(s\lambda)|^2
-\leq B
-\label{eq:graph-wavelet-frame-spectrum}
-\end{equation}
-on the spectrum of $L$, then
-\begin{equation}
-A\|y\|_2^2
-\leq
-\|\phi_J(L)y\|_2^2
-+\sum_{s\in\mathcal S}\|\psi(sL)y\|_2^2
-\leq B\|y\|_2^2.
-\label{eq:graph-wavelet-frame}
-\end{equation}
-The transform is then a stable frame: it can be redundant without losing control of the signal
-energy.  This distinguishes multiscale analysis from an arbitrary collection of spectral plots.
+A coarsest-scale low-pass component completes the bands.  Positive lower and finite upper bounds
+on the summed squared filter responses over the spectrum give a stable frame
+\cite{hammond2011}; this is the additional condition needed for stable signal reconstruction.
 
 Heat diffusion, wavelets, and graph convolution can now be placed in one functional calculus:
 \begin{equation}

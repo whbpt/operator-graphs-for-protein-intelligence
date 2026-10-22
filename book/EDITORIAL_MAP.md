@@ -65,14 +65,15 @@ material should add a distinct derivation or comparison rather than repeat the t
 
 ### Chapter 7: Model Correspondences in Operator Coordinates
 
-- Preserve the completed longitudinal case on the 2019 unified reconstruction framework: exact
-  objective equivalences, transferred regularization, semantic remainders, and the progression to
-  typed operator audits.
+- Preserve the 2019 reconstruction case through its objective equivalences, regularization
+  transfer, and categorical identification conditions. Refer back to its MSE solution in the
+  inverse-covariance case rather than repeating the comparison.
 - Keep the six model portraits as a compact comparison table; let the subsequent sections supply
   the derivations rather than introduce each model twice.
-- Preserve the completed NoPE/KDA derivation: support automorphisms, normalized delta-rule online
-  regression, affine semigroup propagation, implicit path kernels, cross-cut rank, full state
-  variation, positional observability, and the distinct symmetry of MSA rows and columns.
+- Preserve the NoPE/KDA derivation: support automorphisms, normalized delta correction, affine
+  propagation, implicit path kernels, cross-cut rank, full state variation, positional
+  observability, and the distinct symmetry of MSA rows and columns. Keep online-regression and
+  execution remarks brief.
 - Keep Kimi as an existence example; layer counts, numerical retention settings, and training
   curricula are outside the argument developed here.
 - Preserve the encoder--transport--readout bridge: the categorical vertex table is an exact finite
@@ -83,7 +84,8 @@ material should add a distinct derivation or comparison rather than repeat the t
 - Preserve the four-block navigation: probabilistic model portraits, neural route/state/response
   correspondences, the longitudinal 2019 reconstruction case, and the graph-network lineage.
 - Keep the GNN derivation in the chapter: spectral filters, local propagation, adaptive routes,
-  typed messages, and geometric equivariance form one continuous operator audit.
+  typed messages, and geometric equivariance form one continuous operator audit. APPNP, GCNII,
+  GraphSAGE, and GIN supply short historical comparisons rather than separate tutorials.
 
 ### Chapter 8: Phylogeny as Tree-Constrained Transport
 
@@ -102,8 +104,8 @@ material should add a distinct derivation or comparison rather than repeat the t
 - Add practical null-model and uncertainty checklists.
 - Keep data construction, estimator choice, gauge handling, and biological validation as separate
   stages of the inference pipeline.
-- Keep EVOLVEpro, VIRAL, and PLMSearch as a short estimator-factorization example. Generic GP
-  posterior and acquisition formulas do not need a separate tutorial in this chapter.
+- Keep EVOLVEpro, VIRAL, and PLMSearch as an unnumbered estimator-factorization example within
+  the inference discussion. Generic GP posterior and acquisition formulas do not need a tutorial.
 
 ### Chapter 10: Three AlphaFolds: The Evolution of Relational State
 
@@ -123,6 +125,9 @@ material should add a distinct derivation or comparison rather than repeat the t
 - Keep the MSA Pairformer question order mathematical: empirical row measure, weighted edge
   statistic, row--edge/path dynamics, output-law identification, paired-MSA estimand, and only then
   the task-conditional 111M-versus-15B result.
+- Keep its mathematical interlude finite: response derivatives, rank bounds, dependent-row
+  uncertainty, pairing uncertainty, and adaptive-versus-frozen routing. Omit unused continuum
+  limits, numerical layer settings, and repeated AlphaFold introductions.
 
 ### Chapter 11: Spectra After the Graph Has Been Declared
 
@@ -138,6 +143,8 @@ material should add a distinct derivation or comparison rather than repeat the t
 - Make the null geometry explicit in every spectral portrait.
 - Keep inverse covariance visibly marked as a case study; graph wavelets and context averaging
   remain top-level sections rather than descendants of that case.
+- Use graph wavelets to connect scale filters, localization, and categorical transport. A short
+  cited frame condition suffices unless a later argument actually uses stable reconstruction.
 
 ## Part IV: Realizability, Evidence, and Interpretation
 
@@ -152,6 +159,8 @@ material should add a distinct derivation or comparison rather than repeat the t
   through encoder and readout maps before making a categorical-capacity claim.
 - Preserve the focused Pallatom case study as the concrete example of inductive bias through
   structural alignment across representation, architecture, objective, data, and evaluation.
+  Begin with its representation and communication bottlenecks; omit a general learning-theory
+  introduction and retain only task-defining training restrictions and evaluation evidence.
 - Preserve the RFD4-Proteina case after Pallatom: endpoint-local assumptions for centered
   additive/Hadamard writes, pair-memory/route/readout distinctions, repeated input injection in
   within-step recycling, inference derivatives versus training detachment, and separate transport,
@@ -179,6 +188,8 @@ material should add a distinct derivation or comparison rather than repeat the t
 ### Chapter 15: What Kind of Object Is a Protein Interaction?
 
 - Keep the ending synthetic rather than recapitulating every theorem.
+- Open directly with the comparison achieved and the unresolved questions; do not repeat the
+  earlier taxonomies of graphs, softmax, and low complexity.
 - Develop the open problems on graph ensembles, higher-order operators, causal validation,
   scalable sparse execution, and cross-family universality.
 
