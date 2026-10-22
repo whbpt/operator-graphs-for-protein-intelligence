@@ -1,0 +1,181 @@
+\section{RFD4-Proteina: writing, refining, and reading relational state}
+\sectionmark{RFD4-Proteina: relational state}
+\label{sec:book-rfd4-case}
+
+RFD4-Proteina writes single states multiplicatively into pair memory, uses that memory to bias
+token routing, and refines both tracks repeatedly within one generation step
+\cite{corley2026rfd4proteina}.  The operator audit isolates two calculations: the centered
+component introduced by a write, and the input response of repeated refinement.
+
+\subsection{Declare the represented objects}
+
+Each supported polymer residue has an anchor $x_i\in\mathbb R^3$ and a latent
+$\ell_i\in\mathbb R^{32}$.  The autoencoder reconstructs identity, relative atom coordinates,
+and atom presence; other components can remain explicit atom tokens.  Its self-attention mixes
+tokens without a persistent pair track, while the flow trunk maintains single states $s_i$ and
+pair states $z_{ij}$ (Supplementary Sections S3.1--S3.2).
+
+A per-token latent is therefore not an endpoint-local encoding: changing one source may change
+several latents.  Its width 32 bounds the differential rank of a path passing exclusively through
+that latent, while anchors, other latents, and pair states supply additional paths.  The
+categorical rank bound in Eq.~\ref{eq:etr-rank-bound} applies only to a specified intervention
+and readout.
+
+\subsection{Why multiplicative writes survive a pair audit}
+
+In the flow trunk, normalized single states are projected and written into the pair track as
+\begin{equation}
+u_i=\operatorname{LayerNorm}(s_i),\qquad
+a_i=W_au_i,\qquad b_j=W_bu_j,\qquad
+z_{ij}\leftarrow z_{ij}+a_i\odot b_j.
+\label{eq:rfd4-hadamard-write}
+\end{equation}
+Each channel lets one endpoint gate the other's contribution.  The reference-centered geometry
+gives a precise comparison with additive writing.
+
+\begin{proposition}[Centered additive and multiplicative writes]
+\label{prop:rfd4-centered-write}
+Fix an endpoint-excluding background, positive references $p_i,p_j$, and feature tables
+$A\in\mathbb R^{q_i\times d_p}$ and $B\in\mathbb R^{q_j\times d_p}$ that depend only on
+their respective endpoint categories.  Let $w\in\mathbb R^{d_p}$ be a fixed linear channel
+readout.  The additive and multiplicative write tables are
+\begin{align}
+T^+&=(Aw)\mathbf1^{\mathsf T}+\mathbf1(Bw)^{\mathsf T},\\
+T^\times&=A\operatorname{diag}(w)B^{\mathsf T}.
+\end{align}
+Their centered components satisfy
+\begin{align}
+P_iT^+P_j^{\mathsf T}&=0,\\
+P_iT^\times P_j^{\mathsf T}
+&=(P_iA)\operatorname{diag}(w)(P_jB)^{\mathsf T},
+\label{eq:rfd4-centered-product}\\
+\operatorname{rank}(P_iT^\times P_j^{\mathsf T})
+&\leq\min\{d_p,q_i-1,q_j-1\}.
+\end{align}
+\end{proposition}
+
+\begin{proof}
+Since $P_i\mathbf1=P_j\mathbf1=0$, both endpoint-only summands vanish.  Matrix multiplication
+gives Eq.~\ref{eq:rfd4-centered-product}, and the rank bound follows from the ranks of its
+factors.
+\end{proof}
+
+One product channel supplies an outer product of centered category profiles.  It vanishes if
+either profile is constant or its readout weight is zero; dependence and cancellation can reduce
+the rank across channels.  In the actual trunk, context-mixed $s_i$ may already depend on both
+endpoints, so an additive write can inherit an interaction and later nonlinearities can create
+one.  A multiplicative component can also disappear at readout.  The proposition isolates the
+write under endpoint-local features and a fixed linear readout; it does not predict the complete
+model's ablation performance.
+
+\subsection{From pair memory through routes to output response}
+
+RFD4 projects normalized pair states into head-specific biases:
+\begin{equation}
+\alpha_{ij}^{h}
+=\operatorname{softmax}_{j}\!\left(
+\frac{(q_i^h)^{\mathsf T}k_j^h}{\sqrt{d_h}}+\beta_{ij}^{h}\right),
+\qquad
+\beta_{ij}^{h}=b_h\!\left(\operatorname{Norm}(z_{ij})\right).
+\label{eq:rfd4-pair-route}
+\end{equation}
+Thus pair memory affects token routing, and routed token states subsequently write back into pair
+memory.  Outgoing and incoming triangle multiplication further update a pair through pairs sharing
+a token, schematically
+\begin{equation}
+\Delta z_{ij}
+\sim\sum_k A(z_{ik})\odot B(z_{jk}).
+\label{eq:rfd4-triangle-path}
+\end{equation}
+The third index gives a relational path; its statistical order requires the audit of
+Chapter~\ref{chap:book-order-rank}.  All single, pair, coordinate, and latent paths enter
+$\mathbb J^{\mathrm{lat}}$ in Eq.~\ref{eq:global-etr-factorization}, followed by the encoder
+and readout maps.  Freezing $\alpha_{ij}^h$ keeps only value transport.  The full response also
+includes the query, key, pair-bias, gate, and upstream derivatives of
+Eq.~\ref{eq:attention-full-differential}.
+
+The output contract needs equal care.  The flow trunk predicts coordinate and latent velocities,
+with auxiliary heads for sequence identity and motif correspondence.  The auxiliary heads are
+trained on detached single states, but their outputs still depend on those states at inference.
+Sequence predictions also condition the decoder.  Consequently, an audit must include this
+conditioning path when it is used.  Argmax choices, sampling, and Hungarian motif assignment
+are discrete operations: local derivatives describe a fixed smooth branch, while finite
+interventions can also change the selected branch.
+
+RFD4 does not automatically supply the masked conditional required by
+Eq.~\ref{eq:conditional-logit-table}.  To extract such a categorical object, an investigator must
+define the target-withholding and source-substitution protocol.  The protocol must remove target
+identity from every input intended to exclude it, including cached latents, side-chain geometry,
+and atom-presence patterns.  Re-encoding the intervened structure and changing one latent while
+holding the others fixed are different experiments.
+
+\subsection{Recycling has repeated input injection}
+
+The model refines hidden states repeatedly while holding the current noisy coordinates, latents,
+and molecular conditions fixed.  This places two clocks in the computation: generation time and
+within-step recurrent depth.  Hidden single and pair states are reset at each generation step;
+within that step, each pass adds projected previous states to the original embeddings.
+
+Write $u$ for the fixed-step inputs, including noisy coordinates, latents, times, and conditions;
+let $e(u)$ be the initial single/pair embeddings and $m^{(r)}$ their recurrent state.  A schematic
+form of the reported recurrence is
+\begin{equation}
+m^{(0)}=0,\qquad
+m^{(r+1)}=F_\theta\!\left(e(u)+\mathcal P(m^{(r)});c_r(u)\right),
+\qquad 0\leq r<R,
+\label{eq:rfd4-recycle}
+\end{equation}
+where $\mathcal P$ includes normalization and projection, and $c_r$ includes pass-dependent
+conditioning.  Hold the discrete pass count $R$ fixed for the differential audit.  Along one
+orbit define
+\begin{equation}
+A_r=D_1F_\theta\,D\mathcal P(m^{(r)}),\qquad
+B_r=D_1F_\theta\,De(u)+D_2F_\theta\,Dc_r(u),
+\label{eq:rfd4-recycle-factors}
+\end{equation}
+with both derivatives of $F_\theta$ evaluated at the arguments in
+Eq.~\ref{eq:rfd4-recycle}.  The complete input sensitivity obeys
+\begin{align}
+Z_0&=0,\qquad Z_{r+1}=A_rZ_r+B_r,\\
+Z_R&=\sum_{k=0}^{R-1}A_{R-1}\cdots A_{k+1}B_k,
+\label{eq:rfd4-forced-response}
+\end{align}
+where the product is the identity for $k=R-1$.  For a smooth head $o=g(m^{(R)})$, its input
+response is $Do=Dg(m^{(R)})Z_R$.
+
+The sum is essential: every pass reinjects the original evidence.  The homogeneous product
+$A_{R-1}\cdots A_0$ instead describes propagation of a hidden-state perturbation with inputs
+fixed.  Even a stable homogeneous product can coexist with a substantial forced response from
+the $B_k$ terms.  Parameter sharing also does not make the $A_r$ identical, because they are
+evaluated at different states.  More passes can change response directions and path lengths
+without adding a new set of trunk parameters; improvement, convergence, and Lyapunov descent
+each require additional evidence.
+
+The reported training recipe propagates gradients through only the final trunk pass.  That
+optimization convention must be separated from the derivative of the executed inference
+function.  An inference response audit must differentiate through, or numerically perturb,
+all executed passes rather than inherit the training-time detach operations.
+
+\subsection{Probability transport, energy supervision, and selection}
+
+Flow matching generates coordinates and residue latents jointly, with temporal score rescaling
+and stochastic noise injection in the released sampler.  The transport distinction of
+Section~\ref{sec:book-diffusion-transport} applies in this joint space under the model's time
+and noise conventions.
+
+Rosetta supervision fine-tunes atomic reconstruction: energy penalties accompany reconstruction
+losses, the encoder stays fixed, and low-rank adapters modify the decoder (Supplementary
+Section S4.3.1).  This does not identify a Rosetta Boltzmann law for the complete generator.
+External search further changes the selected law through user metrics, branching, pruning, and
+evaluation budget.  The resulting predictor-based passing rate and an experimental binding or
+catalytic endpoint remain separate measurements.
+
+\subsection{Three tests suggested by the translation}
+
+Compare additive and Hadamard writes under matched interventions, references, and readouts,
+measuring both the centered write and the output response.  Then fix a noisy input and vary
+recurrent depth, reporting homogeneous propagation separately from the forced response in
+Eq.~\ref{eq:rfd4-forced-response}; full-generation comparisons must match compute.
+Finally, carry selected source substitutions through sequence and coordinate readouts to
+structural and mutational endpoints.  Replicate seeds or shared random numbers can control
+sampling variation, while finite audits must retain changes of discrete branch.

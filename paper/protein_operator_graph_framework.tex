@@ -690,8 +690,7 @@ Potts parameter redundancy, distinct from an Ising gauge field.
 
 The canonical decomposition is a functional-ANOVA statement relative to $p_ip_j^{\mathsf T}$
 \cite{hoeffding1948}.  It
-identifies a mathematical component, not a physical mechanism.  In particular, nonzero
-$G_{ij}$ identifies a mathematical component; direct contact, causal epistasis, and phylogenetic
+identifies a bivariate component; direct contact, causal epistasis, and phylogenetic
 independence are separate empirical properties.
 
 The underlying interaction is a gauge class rather than one selected representative.  Define the
@@ -1505,8 +1504,7 @@ typed extraction
 This full record replaces comparison by one displayed matrix.
 
 \ifdefined\BOOKMODE
-The portraits below follow these coordinates model by model and retain the first claim that remains
-unlicensed after each correspondence.
+The comparison below locates each model's native object before the detailed correspondences.
 \BookInsert{chapters/07_model_portraits}
 \else
 The table records all structural coordinates in compressed form; the final column states the
@@ -2114,29 +2112,11 @@ response blocks.
 
 \BookSubsection{What NoPE establishes}
 
-Kimi K3 uses three KDA layers for each periodic Gated MLA layer and applies no explicit positional
-embedding to the MLA queries or keys; its reported 93-layer backbone contains 69 KDA and 24 Gated
-MLA layers.  The KDA projections include a causal short convolution, and the recurrence contributes
-causal support, cumulative retention, content-dependent correction, and boundary sensitivity.  The
-later MLA layers therefore receive position-sensitive hidden states while retaining unrestricted
-global content interaction \cite{kimik3}.  KDA holds a fixed-size $d_k\times d_v$ state per head and
-supplies compressed historical memory.  Periodic MLA retains length-dependent key--value memory and
-direct global token access.  The hybrid separates compressed state transport from explicitly
-addressable token memory; its global layers also provide paths outside the single-state cross-cut
-rank bound in Proposition~\ref{prop:kda-cross-cut-rank}.
-
-K3 parameterizes the per-head log retention by
-\begin{equation}
-g_t^h=g_{\min}\operatorname{Sigmoid}(e^{A_h}z_t^h),
-\qquad
-\alpha_t^h=\exp(g_t^h),
-\qquad
-g_{\min}=-5,
-\label{eq:k3-log-retention}
-\end{equation}
-so each one-step factor lies in $(e^{-5},1)$.  The lower bound controls reciprocal cumulative-decay
-rescaling in finite-precision chunkwise computation.  Long-term retention still depends on products
-of many factors and on the complete propagator in Eq.~\ref{eq:kda-propagator}.
+Kimi K3 combines KDA recurrence and causal short convolutions with periodic global Gated MLA
+layers whose queries and keys use no explicit positional embedding \cite{kimik3}.  The global
+layers still receive states shaped by ordered computation.  They also retain addressable token
+memory, supplying paths outside the fixed-state cross-cut bound in
+Proposition~\ref{prop:kda-cross-cut-rank}.
 
 Position use should be audited at three levels:
 \begin{equation}
@@ -2147,18 +2127,11 @@ Position use should be audited at three levels:
 \end{aligned}
 \label{eq:position-identifiability-levels}
 \end{equation}
-Kimi K3 supplies an existence example in which NoPE coexists with frontier-scale long-context
-performance.  Its report uses a progressive $8$K, $64$K, $256$K, and $1$M context curriculum and
-specialized long-context data; direct extrapolation there means that no positional-encoding
-rescaling or interpolation is required.  The report does not contain a matched, single-variable
-RoPE--NoPE ablation at K3 scale.  KDA, Gated MLA, attention residuals, model scale, training data, and
-optimization change together, so their separate causal contributions remain open.
-
-Earlier controlled studies had already shown that causal Transformers without explicit positional
-embeddings can recover position information from their computation and can exhibit competitive
-length generalization on selected tasks \cite{haviv2022nope,kazemnejad2023positional}.  K3 extends
-the existence evidence to a hybrid frontier-scale system; it does not isolate one universal NoPE
-mechanism.
+Earlier controlled studies showed that causal NoPE Transformers can recover position and
+support length generalization on selected tasks \cite{haviv2022nope,kazemnejad2023positional}.
+K3 supplies a large-scale hybrid example, but its joint architectural and training changes do
+not isolate a universal NoPE mechanism.  The relevant claim is that explicit position embeddings
+are one carrier of order among several.
 
 \BookSubsection{Protein sequences and MSA axes}
 
@@ -3637,52 +3610,26 @@ Sum over $R$ and use $E\leq Lk$.  The storage bounds follow from the shapes of t
 coefficient, intermediate, and output arrays.
 \end{proof}
 
-This rearrangement improves on applying $U_rV_r^{\mathsf T}$ independently at every edge, whose
-direct cost is $O(LkRd\rho)$.  Equation~\ref{eq:factorized-sparse-schedule} uses dense thin matrix
-products and sparse aggregation available in current tensor frameworks, so a reference
-implementation is straightforward once $A_r$ is supplied.  High-throughput execution is more
-demanding.  Unstructured per-step COO or CSR routes require repacking, $R$ sparse reductions unless
-they are fused, and low-$\rho$ kernels that can be bandwidth- or launch-bound.  Static or block
-sparsity is substantially easier to optimize.  For moderate $L$, a dense matrix multiplication
-with more formal FLOPs can run faster than an irregular sparse gather--reduce.  A systems claim
-therefore requires forward and backward latency, throughput, peak memory, and kernel utilization in
-addition to Eq.~\ref{eq:factorized-sparse-complexity}.
+The factorization replaces an independent $O(LkRd\rho)$ edgewise implementation by shared thin
+projections and sparse aggregation.  Its count is conditional on supplied routes.  End-to-end
+execution has three additional costs.
 
-Declared sparse support and discovered sparse support have different costs.  Let
-$\mathcal C_i$ be a candidate set of size at most $c$ and define
+\paragraph{Finding support.}
+For candidate sets $|\mathcal C_i|\leq c$, define
 \begin{equation}
 \mathcal N_i
-=\operatorname{TopK}_{j\in\mathcal C_i}
-s_\theta(h_i,h_j,S).
+=\operatorname{TopK}_{j\in\mathcal C_i}s_\theta(h_i,h_j,S).
 \label{eq:candidate-support-selection}
 \end{equation}
-For a dot-product scorer of projected width $d_s$, projections cost $O(Ldd_s)$ and pair scoring
-costs $O(Lc\,d_s)$; an arbitrary scorer should instead report its measured per-candidate cost.
-Exact selection additionally performs $O(Lc)$ to $O(Lc\log k)$ comparisons, depending on the
-algorithm.  Producing all $R$ retained coefficients writes at least $LkR$ activations and may cost
-more than the rank-$\rho$ message itself.
+A width-$d_s$ dot-product scorer costs $O(Ldd_s+Lc\,d_s)$ before selection and coefficient
+production.  All-pairs candidates set $c=L$, so top-$k$ output alone gives no subquadratic
+search guarantee.  Local or block candidates, approximate content routing, and rebuilt indices
+make different coverage and execution tradeoffs
+\cite{beltagy2020longformer,zaheer2020bigbird,kitaev2020reformer,roy2021routing}.
+Periodic global attention also retains a quadratic term when its frequency is fixed.
 
-Exact all-pairs top-$k$ uses $c=L$ and retains quadratic route-discovery work even though the
-realized message graph has only $Lk$ edges.  Tiling can remove quadratic score storage while leaving
-the work and comparisons quadratic.  End-to-end subquadratic execution therefore needs a candidate
-graph of size $O(Lc)$ before learned pair scoring.  Declared local or block patterns provide the
-most hardware-compatible case; approximate content routing and indices rebuilt on changing states
-add recall and rebuild costs \cite{beltagy2020longformer,zaheer2020bigbird,kitaev2020reformer,roy2021routing}.
-Periodic global attention changes the constant when its frequency is fixed and retains an
-$O(L^2d)$ term.  A fixed-size latent bottleneck or a genuinely subquadratic global mechanism is
-required for linear asymptotics.  The per-step accounting is therefore
-\begin{equation}
-F_{\mathrm{step}}
-=F_{\mathrm{candidate}}
-+F_{\mathrm{score}}
-+F_{\mathrm{message}}
-+F_{\mathrm{state}}
-+F_{\mathrm{FFN}}.
-\label{eq:computational-cost-ledger}
-\end{equation}
-
-Cross-depth sharing gives a second separation.  If a shared cell is evaluated $N$ times, then,
-ignoring step adapters and shared overhead,
+\paragraph{Repeated execution.}
+With $C$ shared cells evaluated over $N$ recurrent steps,
 \begin{equation}
 P_{\mathrm{depth}}\simeq C P_{\mathrm{cell}},
 \qquad
@@ -3690,37 +3637,26 @@ F_{\mathrm{depth}}\simeq N F_{\mathrm{cell}},
 \qquad C\ll N.
 \label{eq:shared-depth-parameter-compute-split}
 \end{equation}
-The nonlinear recurrence has $N$ sequential update stages.  Storing all node trajectories for
-reverse-mode differentiation has the rough activation ledger
+Parameter tying saves parameter and optimizer storage.  It retains the sequential updates and,
+without recomputation, their saved training activations.  A nonlinear state-dependent router
+has no general associative-scan guarantee.  Node states, sparse support, and route coefficients
+still scale with $L$ even if a separate recurrent memory has fixed size.
+
+\paragraph{The rest of the cell.}
+For $d_{\mathrm{ff}}=4d$, an ordinary FFN has approximately $8d^2$ parameters, compared with
+$4d^2$ for the four attention projections.  Compressing messages alone can leave most parameters
+in the FFN.  The complete per-step ledger is
 \begin{equation}
-M_{\mathrm{train}}^{\mathrm{naive}}
-=O\!\left(
-N[Ld+Ld_{\mathrm{ff}}+LR\rho+LkR+M_S]
-\right),
-\label{eq:recurrent-training-memory}
+F_{\mathrm{step}}
+=F_{\mathrm{candidate}}+F_{\mathrm{score}}+F_{\mathrm{message}}
++F_{\mathrm{state}}+F_{\mathrm{FFN}}.
+\label{eq:computational-cost-ledger}
 \end{equation}
-where $M_S$ counts state activations per step, before pair features and implementation-specific
-router intermediates are added.  Parameter tying reduces parameter and optimizer-state memory,
-while these trajectory activations remain.
-Checkpointing trades activation memory for recomputation; reversible updates require invertibility,
-and equilibrium differentiation requires convergence and an implicit solve.  A general nonlinear
-dynamic router has no associative scan guarantee.  Tying preserves the $N$-stage critical path of
-an equal-depth untied stack; extra recurrent steps or adaptive stopping can increase latency and
-create batch divergence.  In the present whole-graph recurrence, only a deliberately fixed-size
-$S$ is independent of $L$: node state remains $O(Ld)$, support remains $O(Lk)$, and retained route
-coefficients remain $O(LkR)$.
+Sparse kernel overhead and memory traffic can also erase an arithmetic saving.  Benchmarks
+should time the supplied-route message, route discovery, and complete recurrent cell separately,
+including backward execution, peak memory, and matched-quality comparisons.
 
-The feed-forward path must be counted separately.  With $d_{\mathrm{ff}}=4d$, the ordinary FFN in
-Eq.~\ref{eq:transformer-block-parameters} contributes approximately $8d^2$ parameters and the four
-attention projections contribute approximately $4d^2$.  A dictionary that compresses only the
-message path can therefore leave most block parameters in $f_\theta$.  At sequence length $L$, the
-corresponding MAC-scale terms are approximately $8Ld^2$ for the FFN, $4Ld^2$ for the projections,
-and $2L^2d$ for dense attention.  The FFN often dominates at moderate protein lengths; attention
-dominates only after the quadratic term becomes large enough.  Cross-depth tying, a factorized FFN,
-or a shared nonlinear expert dictionary must be evaluated as an additional design choice.
-
-Finally, several mathematical audits are intentionally off the training critical path.  The
-coverage dimensions in Proposition~\ref{prop:dictionary-coverage-ceiling} are obtained directly
+The capacity audit can be conducted outside the training path.  Dictionary coverage is obtained
 from
 \begin{equation}
 u=\operatorname{rank}[U_1\ \cdots\ U_R],
@@ -3728,30 +3664,16 @@ u=\operatorname{rank}[U_1\ \cdots\ U_R],
 v=\operatorname{rank}[V_1\ \cdots\ V_R].
 \label{eq:dictionary-coverage-rank-audit}
 \end{equation}
-Writing $p=R\rho$, an exact thin QR or SVD of either concatenated factor costs
-$O(dp\min\{d,p\})$ arithmetic and $O(dp)$ storage; a rank tolerance and the singular-value spectrum
-are part of the audit.  An exact basis for a full generated algebra can contain $d^2$ matrices and
-require $O(d^4)$ storage, so large models need randomized word-span probes.  A complete
-$(Ld)\times(Ld)$ Jacobian is likewise replaced by sampled substitutions, Jacobian--vector products,
-vector--Jacobian products, or trace estimators.
-
-A frozen-family stability audit may seek a common quadratic certificate
+Rank tolerances and singular values matter; at large width, sampled word-span probes and
+Jacobian--vector products replace explicit algebra bases and full response Jacobians.  One
+sufficient frozen-family stability certificate is
 \begin{equation}
 T_n^{\mathsf T}QT_n\preceq\gamma^2Q,
 \qquad Q\succ0,
 \label{eq:shared-update-stability}
 \end{equation}
-over a declared update set.  This is a sufficient certificate for that set; failure to find a
-common $Q$ does not establish instability.  At large $d$, product norms and iterative spectral
-estimates provide scalable diagnostics before a full semidefinite solve.  Mathematical existence,
-algorithmic complexity, and measured systems performance are three separately reported claims.
-
-A matched benchmark should preserve the same separation.  First time
-Eq.~\ref{eq:factorized-sparse-schedule} with support and coefficients supplied; then add candidate
-generation and coefficient routing; then measure the complete recurrent cell in forward and
-backward passes; finally compare full models at matched data, quality, parameter count, FLOPs, and
-wall-clock budget.  This prevents a fast message microkernel from being reported as an end-to-end
-architecture speedup.
+over a declared update set.  Failure to find a common $Q$ does not establish instability.
+State-dependent and nonlinear response requires the full Jacobian audit.
 
 \BookSubsection{Protein realization and tests}
 
@@ -3795,10 +3717,11 @@ coefficient routing, sparse aggregation, nonlinear updates, recurrent backward p
 communication to satisfy the same resource ledger.
 
 \ifdefined\BOOKMODE
-The final block changes evidence level.  It uses a concrete protein generator to examine whether
+The final block changes evidence level.  It uses concrete protein generators to examine whether
 representation, relational architecture, objective, data curation, and evaluation are aligned with
-one endpoint.  The case illustrates the preceding design principles without turning them into a
-theorem about biological validity.
+one endpoint.  Pallatom examines structural alignment; RFD4-Proteina then makes multiplicative
+writes, hidden-state refinement, and output response explicit.  These cases illustrate the
+preceding design principles without turning them into a theorem about biological validity.
 \fi
 \BookInsert{chapters/11_pallatom_structural_alignment}
 
@@ -3851,6 +3774,7 @@ architecture, and objective can give a powerful computational graph without maki
 slots physical entities, its pair state an identified energy, or its learned symmetry exact.
 \fi
 
+\BookInsert{chapters/12_rfd4_latent_relational_case}
 \BookInsert{chapters/12_architecture_coda}
 \BookOnlyChapter{Conditional Realizability and Information Limits}
 \BookChapterLabel{chap:book-conditional-limits}

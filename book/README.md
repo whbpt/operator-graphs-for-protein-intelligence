@@ -10,7 +10,7 @@ Chapter insert filenames retain historical drafting prefixes.  Those prefixes gr
 files but do not encode the current printed chapter number.  The authoritative order is the
 `\BookChapter`, `\BookOnlyChapter`, and `\BookInsert` sequence in
 `../paper/protein_operator_graph_framework.tex`, together with the chapter list below.  For
-example, `08_msa_pairformer_case.tex` is currently Section 10.8, `09_opening.tex` opens Chapter 11,
+example, `08_msa_pairformer_case.tex` is currently Section 10.7, `09_opening.tex` opens Chapter 11,
 and `10_opening.tex` opens Chapter 12.
 
 Build from this directory:
@@ -54,13 +54,14 @@ Short, hand-checkable primers now precede the main abstraction jumps: sequence a
 categorical linear algebra, three-variable ANOVA, binary probability geometry, tree-induced
 correlation, spectral method selection, Bayes error, and experimental epistasis.
 
-Several long chapters use an explicit internal grammar.  Chapter 7 moves from probabilistic model
-portraits and neural transport through the 2019 reconstruction framework to the GNN lineage.
+Several long chapters use an explicit internal grammar. Chapter 7 starts with a compact model
+comparison, then develops neural transport, the 2019 reconstruction framework, and the GNN lineage.
 Chapter 10 develops AlphaFold's relational state, diffusion transport, and MSA Pairformer in one
 protein-facing sequence.
 Chapter 11 separates core spectral constructions, case studies, localized filters, and context
-averaging.  Chapter 12 separates exact capacity results, constructive designs, and an empirical
-protein-generation case.
+averaging.  Chapter 12 separates exact capacity results, constructive designs, and protein-generation
+cases: Pallatom on structural alignment and RFD4-Proteina on multiplicative writes, relational
+state, and recurrent response.
 
 ## Reading Routes
 
@@ -70,3 +71,8 @@ protein-generation case.
 
 The editorial model is a scientific monograph: sustained argument, exact derivations, model
 portraits, historical context, and open research questions.
+
+The consolidation pass keeps the mathematical derivations and worked examples while shortening
+repeated model introductions, generic interpretation caveats, peripheral application surveys, and
+implementation details. The shared source preserves the same central definitions in article and
+book modes; book-only orientation introduces them without repeating the formulas.

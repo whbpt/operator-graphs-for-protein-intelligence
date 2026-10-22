@@ -66,7 +66,7 @@ an empirical-sample axis, while $(i,j)$ is the edge index of a complete residue-
 For two learned maps $A,B:\mathbb R^{d_m}\to\mathbb R^{c}$, define
 \begin{equation}
 \begin{aligned}
-u_{si}&=A(\operatorname{LN}M_{si}),qquad
+u_{si}&=A(\operatorname{LN}M_{si}),\qquad
 v_{sj}=B(\operatorname{LN}M_{sj}),\\[-2pt]
 \mathcal O_{q,ij}
 &=\frac{\displaystyle\sum_s\omega_s(q)\,\chi_{si}\chi_{sj}
@@ -98,8 +98,8 @@ Section~\ref{sec:book-msa-pairformer-math}.
 
 The MSA update has the complementary contraction
 \begin{equation}
-\beta^h_{ij}=w_z^h{}^{\mathsf T}\operatorname{LN}(z_{ij}),qquad
-A^h_{ij}=\operatorname{softmax}_{j}(\beta^h_{ij}),qquad
+\beta^h_{ij}=w_z^h{}^{\mathsf T}\operatorname{LN}(z_{ij}),\qquad
+A^h_{ij}=\operatorname{softmax}_{j}(\beta^h_{ij}),\qquad
 \Delta m_{si}=W_o\operatorname{concat}_{h}\left[
 g^h_{si}\odot\sum_jA^h_{ij}v^h_{sj}\right],
 \label{eq:msa-pairformer-pwa-operator}

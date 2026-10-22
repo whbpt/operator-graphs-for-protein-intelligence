@@ -290,7 +290,10 @@ Equivariance licenses a symmetry statement.  Energy, momentum conservation, and 
 evolution additionally require integrability, conservation laws, units, and a dynamical model.
 The same distinction applies to invariant point attention and conditional diffusion in
 Chapter~\ref{chap:book-alphafold}; Section~\ref{sec:book-diffusion-transport} develops the latter
-transport law.
+transport law.  Coordinate generation also need not impose equivariance at every layer.  AF3
+uses unconstrained coordinate projections and attention, together with rigid-motion augmentation;
+Section~\ref{sec:book-af3-symmetry} separates this learned handling of orientation from an exact
+transformation law.  Diffusion and architectural equivariance are independent design choices.
 
 \subsection{Two diffusions that share a word but not a state space}
 

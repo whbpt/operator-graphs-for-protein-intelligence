@@ -1,8 +1,9 @@
 # Monograph Editorial Map
 
-The current manuscript is a mathematically complete core for a scientific monograph. Its next
-stage is expansion through narrative, concrete derivations, visual structure, historical context,
-and synthesis rather than by adding more unstructured theory.
+The manuscript is a scientific monograph spanning statistical physics and protein models.
+The current editing pass consolidates repeated exposition while preserving the theorem--proof
+core, worked examples, historical cases, and model-specific identification conditions. New
+material should add a distinct derivation or comparison rather than repeat the translation ledger.
 
 ## Part I: Language and Foundations
 
@@ -32,8 +33,8 @@ and synthesis rather than by adding more unstructured theory.
 ### Chapter 3: Reference-Centered Operator-Valued Graphs
 
 - Carry the three-state categorical example forward when later chapters need a concrete operator.
-- Preserve the concrete-to-formal progression from the three-state table through the finite
-  categorical-geometry primer to the typed-system tuple.
+- Preserve the three-state table and short categorical-geometry orientation. State the weighted
+  inner product, projectors, whitening, and edge-map formulas once in the formal construction.
 - Visualize the quotient from raw tables to centered edge operators.
 - Extend the geometric commentary to one nonuniform reference-transport example.
 
@@ -67,11 +68,13 @@ and synthesis rather than by adding more unstructured theory.
 - Preserve the completed longitudinal case on the 2019 unified reconstruction framework: exact
   objective equivalences, transferred regularization, semantic remainders, and the progression to
   typed operator audits.
-- Carry the completed model portraits into a single comparative figure: state space, energy or
-  update, edge object, normalization, and non-equivalence remainder.
+- Keep the six model portraits as a compact comparison table; let the subsequent sections supply
+  the derivations rather than introduce each model twice.
 - Preserve the completed NoPE/KDA derivation: support automorphisms, normalized delta-rule online
   regression, affine semigroup propagation, implicit path kernels, cross-cut rank, full state
   variation, positional observability, and the distinct symmetry of MSA rows and columns.
+- Keep Kimi as an existence example; layer counts, numerical retention settings, and training
+  curricula are outside the argument developed here.
 - Preserve the encoder--transport--readout bridge: the categorical vertex table is an exact finite
   audit, its Jacobian factorization is anchor- and extension-dependent, and target-specific masked
   blocks come from separate audit runs unless a joint encoder and common base point are declared.
@@ -99,6 +102,8 @@ and synthesis rather than by adding more unstructured theory.
 - Add practical null-model and uncertainty checklists.
 - Keep data construction, estimator choice, gauge handling, and biological validation as separate
   stages of the inference pipeline.
+- Keep EVOLVEpro, VIRAL, and PLMSearch as a short estimator-factorization example. Generic GP
+  posterior and acquisition formulas do not need a separate tutorial in this chapter.
 
 ### Chapter 10: Three AlphaFolds: The Evolution of Relational State
 
@@ -113,6 +118,8 @@ and synthesis rather than by adding more unstructured theory.
 - Keep the full heat-semigroup, score, reverse-SDE, and probability-flow derivation in this chapter
   after the AlphaFold comparison.
 - Preserve the distinction between architectural correspondence and historical design intent.
+- Use one closing AlphaFold synthesis. Keep OpenDDE focused on parent--role lifting, pair-memory
+  refinement, and coordinate conditioning; avoid repeating the general triangle and energy caveats.
 - Keep the MSA Pairformer question order mathematical: empirical row measure, weighted edge
   statistic, row--edge/path dynamics, output-law identification, paired-MSA estimand, and only then
   the task-conditional 111M-versus-15B result.
@@ -137,14 +144,18 @@ and synthesis rather than by adding more unstructured theory.
 ### Chapter 12: Architectural Consequences and Realizability
 
 - Separate theorem-driven constraints from optional engineering designs.
-- Preserve the completed parameter-efficiency derivation: frozen-attention separation rank,
-  resource ledgers, reusable low-rank operator dictionaries, ordered-word capacity, dictionary
-  coverage ceilings, router-Jacobian escape, exact factorized sparse execution, support-discovery
-  cost, recurrent training memory, FFN accounting, and matched-compute stability tests.
+- Preserve frozen-attention separation rank, reusable low-rank dictionaries, ordered-word capacity,
+  coverage ceilings, router-Jacobian escape, and exact factorized sparse execution. Keep the
+  execution discussion focused on support discovery, repeated computation, FFN cost, and measured
+  end-to-end performance; omit implementation inventories that do not change these conclusions.
 - Connect every dictionary or attention Kronecker block to the latent Jacobian, then carry it
   through encoder and readout maps before making a categorical-capacity claim.
 - Preserve the focused Pallatom case study as the concrete example of inductive bias through
   structural alignment across representation, architecture, objective, data, and evaluation.
+- Preserve the RFD4-Proteina case after Pallatom: endpoint-local assumptions for centered
+  additive/Hadamard writes, pair-memory/route/readout distinctions, repeated input injection in
+  within-step recycling, inference derivatives versus training detachment, and separate transport,
+  energy-supervision, search, and biological-validation claims.
 - Keep parameter reuse, representational capacity, and exact sparse execution as distinct claims.
 - Preserve the evidence-level navigation: exact statements, constructive architecture, and the
   empirical protein-generation case.

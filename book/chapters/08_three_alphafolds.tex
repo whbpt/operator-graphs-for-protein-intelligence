@@ -346,161 +346,72 @@ inside the same vector.
 
 \subsection{OpenDDE: lifting pair memory to structural roles}
 
-The AF3 pair track stores heterogeneous relational evidence at token resolution.  OpenDDE offers a
-useful architectural case in which this memory is refined once more before it conditions all-atom
-generation \cite{opendde2026}.  A residue Pairformer first produces a single state
-$s_i^{r}\in\mathbb R^{d_s}$ and a pair state $z_{ij}^{r}\in\mathbb R^{d_p}$.  These states summarize
-sequence, MSA, template, bond, and relative-position evidence at the residue level.  A structural
-refiner then expands each residue into a small set of role-labelled structural tokens, updates the
-resulting single and pair tracks, and supplies the refined states to an atom-coordinate denoiser.
-The architecture therefore inserts an intermediate relational scale:
+OpenDDE inserts an intermediate relational scale between residue context and all-atom generation
+\cite{opendde2026}.  A residue Pairformer supplies single states $s_i^r$ and pair states
+$z_{ij}^r$.  A structural refiner expands each residue into role-labelled tokens, updates their
+single and pair tracks, and supplies the refined condition to an atom-coordinate denoiser:
 \begin{equation}
-\text{residue context}
-\longrightarrow
-\text{structural-role context}
-\longrightarrow
-\text{all-atom coordinates}.
+\text{residue context}\longrightarrow\text{structural-role context}
+\longrightarrow\text{all-atom coordinates}.
 \label{eq:book-opendde-resolution-chain}
 \end{equation}
-The comparison developed here concerns the organization of state and computation.  Historical
-design lineage and empirical superiority require their own evidence.
 
-Let $V_r=[L]$ be the residue-token set.  For residue $i$, let
-$\mathcal R_i$ contain its instantiated structural roles, such as a protein-backbone role and,
-where present, a side-chain role.  The expanded node set is
+For residue $i$, let $\mathcal R_i$ contain the instantiated roles, such as backbone and
+side-chain roles.  The expanded node set $V_s=\{(i,\rho):\rho\in\mathcal R_i\}$ has maps
 \begin{equation}
-V_s=\{(i,\rho):i\in V_r,\ \rho\in\mathcal R_i\}.
-\end{equation}
-It carries a parent map and a role map,
-\begin{equation}
-\pi:V_s\longrightarrow V_r,\qquad
-\pi(i,\rho)=i,
+\pi:V_s\to[L],\quad \pi(i,\rho)=i,
 \qquad
-\varrho:V_s\longrightarrow\mathcal R,\qquad
-\varrho(i,\rho)=\rho.
+\varrho:V_s\to\mathcal R,\quad\varrho(i,\rho)=\rho.
 \label{eq:book-opendde-parent-map}
 \end{equation}
-The cardinality $M=|V_s|$ may vary with molecular composition because different parents instantiate
-different role sets.  An atom-owner map
-$\omega:[N_{\mathrm{atom}}]\to V_s$ subsequently assigns each represented atom to one structural
-token.  Together, $\omega$ and $\pi$ define the hierarchy
-\[
-\text{atom}\xrightarrow{\ \omega\ }\text{structural token}
-\xrightarrow{\ \pi\ }\text{residue token}.
-\]
-This construction refines the graph base.  The reference-centered categorical feature fibers used
-elsewhere in this book remain a separate mathematical coordinate.
+An atom-owner map $\omega:[N_{\mathrm{atom}}]\to V_s$ completes the hierarchy.  The
+construction refines the graph's node set; it does not identify new categorical interaction
+fibers.
 
-The single-state expansion is a parent pullback followed by role-dependent symmetry breaking.  If
-$f_{\mathrm{split}}$ is the learned residue transformation and $e_\rho$ is a role embedding, then
-the initial structural single state has the schematic form
+The initial structural single state inherits its parent's context and adds a role embedding:
 \begin{align}
 c_i&=s_i^r+f_{\mathrm{split}}(s_i^r),\\
-s_u^{s,0}&=c_{\pi(u)}+e_{\varrho(u)},
-\qquad u\in V_s.
+s_u^{s,0}&=c_{\pi(u)}+e_{\varrho(u)}.
 \label{eq:book-opendde-single-lift}
 \end{align}
-Structural tokens with the same parent initially inherit the same residue context.  Their role
-embeddings break the within-parent exchange symmetry and allow subsequent layers to specialize
-backbone, side-chain, and other structural functions.  At this stage the distinction is
-representational: the role label declares how the tokenizer groups atoms and which shared
-parameters become available.
-
-The pair expansion applies the same parent map to both pair axes.  For structural tokens $u,v$, a
-schematic update is
+A schematic pair lift applies the parent map on both axes:
 \begin{equation}
 z_{uv}^{s,0}
 =z_{\pi(u)\pi(v)}^r
-+W_{\varrho(u)\to\varrho(v)}
-  \!\left(z_{\pi(u)\pi(v)}^r\right)
++W_{\varrho(u)\to\varrho(v)}\!\left(z_{\pi(u)\pi(v)}^r\right)
 +e_{\phi(u,v)}.
 \label{eq:book-opendde-pair-lift}
 \end{equation}
-The first term is the pullback $(\pi\times\pi)^*z^r$ of residue-pair memory.  The second term permits
-directed role-pair specialization, so backbone-to-side-chain and side-chain-to-backbone records may
-differ.  The relation code $\phi(u,v)$ can record shared parentage, paired roles within one residue,
-backbone precedence, and other declared structural relations.  Equation
-\ref{eq:book-opendde-pair-lift} separates three information sources: inherited global context,
-role-conditioned correction, and explicit relational metadata.
+The terms retain residue-pair context, permit directed role-pair specialization, and add relation
+metadata such as shared parentage.  Thus two structural roles can inherit the same residue
+context while developing different relational records.
 
-The resulting $z_{uv}^{s,0}$ is a persistent edge record in the neural computation.  Its status
-differs from the reference-centered categorical operator $\mathcal K_{u\leftarrow v}$ developed
-elsewhere in this book.  Pair-biased attention turns the record into a computational route or
-message modifier.  A categorical interaction claim requires an output intervention audit, a
-declared reference geometry, and the corresponding lower-order projection.  Pair indexing supplies
-a common address for these objects while preserving their distinct semantics.
-
-The structural refiner updates the expanded pair track through triangle multiplication, triangle
-attention, and pair transitions.  It then uses the updated pair state as a bias for structural-token
-attention.  A representative triangle contribution has the form
+Triangle multiplication, triangle attention, and pair transitions refine the lifted track.
+A representative contribution is
 \begin{equation}
-\Delta z_{uv}^{s}
-\propto
-\sum_{k\in V_s}
-A(z_{uk}^{s})\odot B(z_{vk}^{s}),
+\Delta z_{uv}^s\propto\sum_{k\in V_s}A(z_{uk}^s)\odot B(z_{vk}^s).
 \label{eq:book-opendde-triangle-update}
 \end{equation}
-with incoming and endpoint-attention variants using related orientations.  This equation exposes
-two kinds of order.  The state cell $z_{uv}^{s}$ has address order two because two token indices
-identify its storage location.  Its update has computational dependency order three because a
-third token $k$ participates in every composed path.  Repeated refinement can mix information from
-still larger neighborhoods.  Statistical interaction order begins with a functional decomposition
-of an audited input--output map.  Physical many-body order additionally requires a justified
-energy or intervention endpoint.  Triangle computation alone licenses the architectural statement
-that pair memory is updated through composed relational paths.
+As in AF2, the state is pair-indexed while the update composes paths through a third node.
+The statistical order of an output still requires the ANOVA audit.
 
-After refinement, write
+Let $(s^{s,*},z^{s,*})=F_{\mathrm{refine}}(s^{s,0},z^{s,0})$, and let
+$\widetilde z^s$ combine the refined pair projection with structural relative-position features.
+One denoising step has the form
 \begin{equation}
-(s^{s,*},z^{s,*})
-=F_{\mathrm{refine}}(s^{s,0},z^{s,0}).
-\end{equation}
-A channel projection of $z^{s,*}$ and additional structural relative-position features form the
-pair condition $\widetilde z^{s}$.  One coordinate update can then be summarized by
-\begin{equation}
-x_{t-1}
-=D_\theta\!\left(
-x_t,t;\,
-s^{s,*},\widetilde z^{s}
-\right),
+x_{t-1}=D_\theta(x_t,t;\,s^{s,*},\widetilde z^s).
 \label{eq:book-opendde-conditioned-denoising}
 \end{equation}
-where $x_t\in\mathbb R^{N_{\mathrm{atom}}\times3}$ changes across denoising steps while, in the
-reported schematic, the refined single and pair conditions remain fixed for the sampled trajectory.
-Local atom processing can query $\widetilde z^s_{\omega(a)\omega(b)}$ through the owner map, global
-communication occurs among the $M$ structural tokens, and decoded token states return coordinate
-corrections to their owned atoms.  The persistent global pair tensor therefore lives at
-structural-token resolution.
+In the reported schematic, the refined condition is held across the sampled trajectory.
+Atom processing queries pair information through $\omega$, global communication acts on
+$M=|V_s|$ structural tokens, and decoded corrections return to their owned atoms.  Persistent
+pair storage therefore costs $O(M^2d_p)$ rather than using a global atom-pair grid; direct triangle
+work remains cubic in $M$ before kernel-specific reductions.
 
-This placement of computation has an explicit resource cost.  A dense structural pair track uses
-\begin{equation}
-M_{\mathrm{pair}}=O(M^2d_p)
-\end{equation}
-memory.  A direct triangle implementation evaluates a third structural-token axis and has leading
-work of order $O(M^3d_\triangle)$, up to channel factorizations and kernel details.  If
-$M=rL$, expansion multiplies dense pair storage by approximately $r^2$ relative to the residue pair
-track and multiplies naive triangle work by approximately $r^3$.  The atom-owner hierarchy avoids
-placing the persistent global relation state on an $N_{\mathrm{atom}}\times N_{\mathrm{atom}}$ grid.
-Local atom neighborhoods, global token attention, repeated denoising, and gather--scatter
-operations contribute additional terms.  Cached conditioning saves repeated refiner evaluation;
-each denoising step still incurs its own atom and token computation.  FLOP counts provide an
-accounting model, while latency, peak memory, communication, and kernel utilization determine
-realized systems performance.
-
-The evidence boundaries follow from these types.  The architecture demonstrates a coherent
-multiscale conditioning scheme and a reusable parent--role decomposition.  Learned pair records
-gain scientific meaning through endpoint-matched validation.  Structural roles encode a chosen
-computational partition; chemical ontology requires correspondence with molecular entities and
-interventions.  Triangle paths establish higher-order computation; statistical and physical
-many-body claims require additional audits.  The denoising clock indexes corruption scale and
-numerical transport.  Molecular time, equilibrium populations, and calibrated conformational
-weights require independent physical calibration.  Reported channel widths, role inventories,
-block counts, and sampling schedules are implementation coordinates tied to a cited model version.
-
-OpenDDE consequently sharpens the role of pair memory in all-atom generation.  A residue-level
-relation can be inherited across a finer node set, differentiated by directed structural roles,
-composed through triangle paths, and consumed as a cached condition by coordinate transport.  The
-following summary identifies the probability law and path semantics of that final transport stage;
-Section~\ref{sec:book-diffusion-transport} gives the derivation.
+The distinctive choice is where the long-range bottleneck lies: residue relations are inherited
+by finer roles, refined there, and cached for coordinate generation.  Pair memory and its
+categorical output response remain separate objects.  The next subsection identifies the
+probability law generated from this condition.
 
 \subsection{Diffusion changes the output from a coordinate to a law}
 
@@ -544,6 +455,51 @@ token state and a persistent pair state into which MSA, template,
 chemical, and geometric evidence has already been compressed.  Diffusion changes the output law;
 the pair track still determines which relational evidence is available to shape that law.
 
+\subsection{All-atom denoising without architectural equivariance}
+\label{sec:book-af3-symmetry}
+
+AF3 removes the requirement that each coordinate-processing layer be equivariant to rigid motion
+\cite{abramson2024}.  AF2's invariant point attention enforces geometric transformation rules
+through residue frames and point-based attention.  AF3 instead projects noisy Cartesian
+coordinates into ordinary hidden channels, processes them with atom-level attention and a
+token-level Transformer conditioned on the trunk states, and decodes atom features back into
+three coordinate components.  Noise-dependent input and output scalings and a coordinate skip
+connection complete the denoiser.  These learned projections do not constrain hidden channels to
+transform as scalar, vector, or higher-order rotation representations.  Direct all-atom output
+also avoids requiring a residue-frame and side-chain-torsion parametrization for every molecular
+species.
+
+Rigid-motion augmentation exposes the denoiser to different orientations and translations during
+training.  It also remains active during generation.  In the public sampler, every denoising step
+first centers the current coordinates using the atom mask, applies a random proper rotation and
+a random translation, and then adds noise, evaluates the denoiser, and advances the sample
+\cite{alphafold3diffusioncode}.  The changing coordinate frame leaves the current structure's
+internal distances intact.  It discourages dependence on one fixed orientation without making
+each network evaluation exactly equivariant.
+
+For comparison, an exactly equivariant coordinate denoiser would satisfy
+\begin{equation}
+\mathcal D_\theta(g\!\cdot\!R_t,t;g\!\cdot\!c)
+=g\!\cdot\!\mathcal D_\theta(R_t,t;c),
+\qquad g\in SE(3),
+\label{eq:book-af3-denoiser-equivariance}
+\end{equation}
+where $c$ contains all conditioning inputs, $g$ acts on any coordinate-valued components, and
+scalar token and pair conditions remain unchanged.  AF3's architecture does not enforce this
+identity.  Augmentation can encourage the corresponding behavior, but its accuracy must be
+measured.  For a denoiser audit, transform the input and geometric conditions, undo that transform
+on the prediction, and compare it with the original prediction at the same noise level.  A
+comparison of final sample distributions is a different test and does not establish equality of
+individual denoising maps.
+
+The diffusion task and the symmetry constraint therefore enter separately.  Small-noise
+denoising trains local stereochemistry; larger noise levels require reconstruction over longer
+distances, with the token and pair states supplying molecular context \cite{abramson2024}.
+This training task can be implemented with either an equivariant network or an unconstrained
+coordinate network.  In the operator description, both retain routes and feature maps; what
+changes is whether their geometric transformation law is guaranteed by construction or assessed
+after training.  Neither choice alone establishes a molecular force law.
+
 \subsection{Input chemical graph, relational graph, and coordinate graph}
 
 AF3 also makes three graphs especially easy to conflate.  The input chemical graph records known
@@ -559,92 +515,28 @@ ligands, nucleic acids, ions, and modifications coexist, ``one graph over tokens
 description.  Node type, edge provenance, allowed context, and output interpretation become part
 of the mathematical object.
 
-\section{What the three generations mastered}
+\section{What changes across the three generations}
 
-AlphaFold's most impressive theoretical competence is architectural.  Several principles recur.
+AF1 removes MSA rows before the trunk and exposes geometric distributions.  AF2 retains the rows
+through repeated exchange with pair state and realizes coordinates through an equivariant module.
+AF3 deposits alignment evidence earlier, expands the molecular types, and conditions coordinate
+diffusion on the resulting single and pair states.  The changing bottleneck is the central
+comparison: later pair tracks integrate more evidence, while its original provenance becomes
+harder to recover.
 
-\paragraph{They promote relations to state.}
-AF1 makes pair geometry an explicit prediction target.  AF2 and AF3 go further by giving pair
-representations persistent memory and their own update algebra.  Relations become state well
-before the final layer.
+This comparison leaves specific identification problems.  In AF1, which geometric predictions
+come from categorical coupling rather than profiles, gaps, or templates?  In AF2, can a decoder
+recover a reference-centered categorical field from $z_{ij}$, and does its background dependence
+track triangle computation?  In AF3, which relations originate in MSA evidence and which in learned
+chemical priors, and how should response fibers be typed across molecular species?
 
-\paragraph{They choose bottlenecks deliberately.}
-AF1 compresses the MSA before learned inference, AF2 delays compression, and AF3 moves it back
-toward the entrance after a learned deposition step.  These are different judgments about the
-value and cost of provenance.
+These questions call for interventions that preserve the alternative explanations under test:
+null the MSA while matching composition and depth, alter one evidence track at a time, and audit
+substitutions through the complete output.  Hidden pair channels mix evidence, so a separation
+into MSA, pair, single, and coordinate tracks does not by itself disentangle ancestry, chemical
+constraint, and function.
 
-\paragraph{They use paths to enforce relational consistency.}
-Triangle updates make the state of one edge depend on two-edge paths.  This is a powerful way to
-make dense pair predictions geometrically coherent without storing an explicit variable for every
-triple.
-
-\paragraph{They separate geometric handling from biological content.}
-AF2 hard-codes rigid-motion behavior in its structure module.  AF3 explicitly handles coordinate
-geometry, rigid transformations, and noisy structures inside a conditional generative procedure,
-with transformation guarantees that differ from IPA.  In both
-cases geometric transformation is controlled more directly than the biological content, which
-remains learned from data and supervision.
-
-\paragraph{They match output objects to tasks.}
-AF1 predicts distance distributions.  AF2 predicts frames and coordinates with geometric
-confidence.  AF3 samples an all-atom conditional distribution.  Across generations, the output
-state space itself expands.
-
-\paragraph{They iterate hypotheses.}
-Recycling and denoising let later computation condition on an evolving structural proposal.  The
-systems behave more like inference procedures than one-pass regressors, even when no exact energy
-descent theorem applies.
-
-These principles are close to the concerns of statistical physics: state choice, coarse graining,
-symmetry, collective consistency, iteration, and probability.  They operate first at the level of
-architecture; physical-observable status is a further identification problem.
-
-\section{What the operator framework still asks}
-
-The three systems solve structure prediction far more successfully than they solve internal
-identification.  The framework adds a set of questions left open by predictive performance.
-
-For AF1, how much of a learned geometric edge comes from categorical coupling rather than profile,
-gap, phylogenetic, or template structure?  Does the background-corrected distance potential behave
-consistently across families and sequence interventions?
-
-For AF2, can a decoder from $z_{ij}$ recover a reference-centered categorical field?  How stable is
-that field across backgrounds?  How much higher-order response is produced by triangle operations
-and deep composition?  Are the two directed substitution responses reciprocal even when the
-attention routes are not?
-
-For AF3, how should operator fibers be typed across residues, nucleotides, ligand atoms, and ions?
-Which pair-state components originate in MSA evidence and which in learned chemical priors?  Does
-diffusion sampling reproduce experimentally measured alternate-state populations, or only generate
-plausible structural modes?  Which noncovalent relations persist under matched changes of ligand,
-sequence, template, and diffusion seed?
-
-Across all generations, attention maps should be separated from output response graphs, hidden
-pair norms from decoded operators, and coordinate accuracy from physical mechanism.  The required
-experiments are interventions: remove or null the MSA while preserving composition, alter one
-evidence track at a time, decode typed pair responses, compare backgrounds, test reciprocity, and
-validate against mutation or binding measurements that preserve the predicted categorical or
-chemical structure.
-
-\section{The changing location of interpretability}
-
-The three generations reveal a general law of model development.  Later representations often
-integrate more evidence and support more accurate predictions, while preserving less information
-about where each component came from.
-
-AF1 exposes explicit statistical and geometric interfaces but discards individual MSA rows early.
-AF2 preserves the row axis and builds a rich pair dynamics, but the pair channels mix evolution,
-geometry, templates, and learned priors.  AF3 expands to heterogeneous molecular systems and a
-generative coordinate law, but concentrates still more kinds of evidence in one pair state before
-diffusion.
-
-Integration is often exactly what prediction requires.  Interpretation must therefore distinguish
-computational factorization into MSA, pair, single, and coordinate tracks from biological
-disentanglement of phylogeny,
-evolutionary constraint, physical interaction, and function.
-
-AlphaFold's deeper lesson concerns the design of representation: successful molecular inference
-depends on choosing when evidence should remain
-separate, when it should be compressed, which relations deserve persistent state, which symmetries
-should be exact, and which uncertainty should be represented by a distribution.  Those are the
-same design questions posed by the operator framework, answered in three different regimes.
+Diffusion adds a further question: what law do repeated coordinate samples represent, and how do
+their paths relate to molecular dynamics?  The following derivation separates the corruption
+process, learned score, and sampling transport.  The MSA Pairformer case then returns the same
+relational architecture to categorical sequence prediction.
