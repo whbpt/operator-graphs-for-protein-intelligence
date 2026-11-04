@@ -56,20 +56,48 @@ the additional population model used at the assay-to-evolution boundary.
 
 ## Status
 
-Draft monograph, July 2026. The PDF currently contains 171 pages. Substantive
-revisions will be tagged as versioned releases; small corrections may appear on the
-default branch between releases.
+Draft monograph, November 2026. The PDF currently contains 171 pages. The
+Lean 4 certificate companion (`lean/`) was added in November 2026 and
+certifies results from Chapters 5, 6, 8, and 13. Substantive revisions will
+be tagged as versioned releases; small corrections may appear on the default
+branch between releases.
 
 ## Repository layout
 
 - `book/`: book entry point, front matter, notation, and chapter-specific inserts;
 - `paper/protein_operator_graph_framework.tex`: shared mathematical body;
+- `lean/`: Lean 4 certificate companion (machine-checked counterexamples, see below);
 - `output/pdf/`: canonical compiled PDF;
 - `tools/tectonic/`: reproducible build wrapper.
 
+## Machine-checked certificates
+
+The monograph's finite counterexamples and core theorems carry Lean 4
+certificates in `lean/`, so that "audit" means *verified by the proof
+kernel*, not *asserted by the author*. Six files, all building against
+mathlib:
+
+| File | Certifies |
+|---|---|
+| `PairLaw.lean` | Ch. 6: three valid pair laws with no joint law (table, marginal, and measure-theoretic no-go) |
+| `Anova.lean` | Ch. 5: three-variable ANOVA primer (Walsh orthonormality, dynamic variance, correlated cross term) |
+| `NoRecovery.lean` | Ch. 8: "Refinement reorganizes; it does not recover" (processing cannot increase entropy) |
+| `Shadow.lean` | Ch. 5: two operators with the same scalar shadow (norms, spectra, differing actions) |
+| `Bayes.lean` | Ch. 13: binary Bayes-error primer (pointwise optimality, randomized convex bound) |
+| `Rem.lean` | Ch. 5: random-energy order-profile binomial identity |
+
+Every theorem is kernel-checked: `#print axioms` reports only `propext`,
+`Classical.choice`, and `Quot.sound` — the same axiomatic base as mathlib
+itself. Six positive exhibiting-table facts in `PairLaw.lean` use
+`native_decide` (compiled evaluation), as marked in that file; everything
+else is pure kernel proof.
+
+See [`lean/README.md`](lean/README.md) for the build procedure and trust
+structure.
+
 ## Build
 
-Install [Tectonic](https://tectonic-typesetting.github.io/) and run:
+**Book.** Install [Tectonic](https://tectonic-typesetting.github.io/) and run:
 
 ```sh
 cd book
@@ -78,6 +106,13 @@ sh ../tools/tectonic/build.sh main.tex
 
 The resulting file is `book/main.pdf`. The checked-in canonical edition is
 `output/pdf/operator_graphs_for_protein_intelligence.pdf`.
+
+**Certificates.** Install [elan](https://elan.lean-lang.org) and run:
+
+```sh
+cd lean
+lake update && lake exe cache get && lake build
+```
 
 ## Citation
 
