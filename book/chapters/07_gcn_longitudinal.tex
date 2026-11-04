@@ -10,7 +10,7 @@ explicit so that these computations can later be compared with AlphaFold's pair 
 
 Let $A$ be a symmetric nonnegative adjacency matrix, $D_{ii}=\sum_jA_{ij}$, and
 \begin{equation}
-L=I-D^{-1/2}AD^{-1/2}=U\Lambda U^{\mathsf T}
+L_{\mathrm{sym}}=I-D^{-1/2}AD^{-1/2}=U\Lambda U^{\mathsf T}
 \label{eq:book-gcn-laplacian}
 \end{equation}
 be the normalized graph Laplacian.  The columns of $U$ replace Fourier modes: $U^{\mathsf T}x$
@@ -18,7 +18,7 @@ are the graph-frequency coefficients of a node signal $x$.  A spectral convoluti
 \begin{equation}
 g_\theta *_G x
 =Ug_\theta(\Lambda)U^{\mathsf T}x
-=g_\theta(L)x.
+=g_\theta(L_{\mathrm{sym}})x.
 \label{eq:book-gcn-spectral-convolution}
 \end{equation}
 Low values of $\lambda$ describe signals that vary slowly across heavily weighted edges, so a
@@ -32,16 +32,16 @@ coordinates; locality requires a restricted multiplier.
 ChebNet replaces the unrestricted spectral multiplier by a polynomial.  Rescale the spectrum to
 $[-1,1]$ with
 \begin{equation}
-\widetilde L=\frac{2}{\lambda_{\max}}L-I
+\widetilde L_{\mathrm{sym}}=\frac{2}{\lambda_{\max}}L_{\mathrm{sym}}-I
 \end{equation}
 and use Chebyshev polynomials $T_k$:
 \begin{equation}
-g_\theta(L)x
+g_\theta(L_{\mathrm{sym}})x
 \approx
-\sum_{k=0}^{K}\theta_kT_k(\widetilde L)x.
+\sum_{k=0}^{K}\theta_kT_k(\widetilde L_{\mathrm{sym}})x.
 \label{eq:book-gcn-chebyshev}
 \end{equation}
-Because a degree-$k$ polynomial in $L$ connects only nodes reachable within $k$ graph steps, a
+Because a degree-$k$ polynomial in $L_{\mathrm{sym}}$ connects only nodes reachable within $k$ graph steps, a
 degree-$K$ filter is $K$-hop localized.  Spectral approximation has become a spatial propagation
 rule without ceasing to be a function of the Laplacian.
 
@@ -54,7 +54,7 @@ The familiar GCN layer follows from a strong truncation of
 Eq.~\ref{eq:book-gcn-chebyshev} \cite{kipf2017}.  Take $K=1$ and approximate
 $\lambda_{\max}\simeq2$.  Since
 \begin{equation}
-\widetilde L=L-I=-D^{-1/2}AD^{-1/2},
+\widetilde L_{\mathrm{sym}}=L_{\mathrm{sym}}-I=-D^{-1/2}AD^{-1/2},
 \end{equation}
 the one-channel filter becomes
 \begin{equation}
@@ -228,7 +228,7 @@ The transitions can be recorded in one line:
 \begin{equation}
 \boxed{
 \begin{aligned}
-g_\theta(L)&\longrightarrow\sum_k\theta_kL^k\longrightarrow SHW,\\
+g_\theta(L_{\mathrm{sym}})&\longrightarrow\sum_k\theta_kL_{\mathrm{sym}}^k\longrightarrow SHW,\\
 &\longrightarrow P_\theta(H)HW
 \longrightarrow\phi_m(h_i,h_j,e_{ij}),\\
 &\longrightarrow\text{typed equivariant edge maps}.

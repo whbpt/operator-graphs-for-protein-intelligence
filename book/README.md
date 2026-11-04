@@ -19,6 +19,9 @@ Build from this directory:
 sh ../tools/tectonic/build.sh main.tex
 ```
 
+Finite counterexamples with a machine-checked certificate live in `../lean/` (Lean 4 + mathlib;
+see `lean/README.md`).
+
 The current four-part structure is:
 
 1. **Language and Foundations**

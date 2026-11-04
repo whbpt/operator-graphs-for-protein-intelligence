@@ -3,10 +3,10 @@
 Fourier modes answer which graph frequencies are present, but each eigenvector is generally spread
 over the whole graph.  A wavelet asks a more localized question: at what scale, and around which
 node, does a change occur?  On a self-adjoint graph Laplacian
-$L=V\Lambda V^{\mathsf T}$, choose a band-pass generating function $\psi$ and define
+$L_G=V\Lambda V^{\mathsf T}$, choose a band-pass generating function $\psi$ and define
 \begin{equation}
 \Psi_s
-=\psi(sL)
+=\psi(sL_G)
 =V\psi(s\Lambda)V^{\mathsf T},
 \qquad
 \psi_{s,i}=\Psi_s\delta_i.
@@ -20,17 +20,17 @@ spatial localization.
 The scale convention depends on the chosen generator.  For the common dilation
 $\psi(s\lambda)$, increasing $s$ shifts a fixed band-pass profile toward smaller eigenvalues and
 usually produces a broader node-space atom.  Small scales emphasize finer graph variation; large
-scales emphasize coarser organization.  This is a statement relative to $L$.  Atomic-motion and
+scales emphasize coarser organization.  This is a statement relative to $L_G$.  Atomic-motion and
 protein-domain interpretations require a separately calibrated correspondence between graph scale
 and the biological geometry.
 
 Localization follows from the spectral construction.  If $\psi(s\lambda)$ is approximated by a
 degree-$K$ polynomial,
 \begin{equation}
-\psi(sL)\approx\sum_{k=0}^{K}c_k(s)L^k,
+\psi(sL_G)\approx\sum_{k=0}^{K}c_k(s)L_G^k,
 \label{eq:graph-wavelet-polynomial}
 \end{equation}
-then $\psi(sL)\delta_i$ is supported, up to approximation error, within $K$ graph steps of $i$.
+then $\psi(sL_G)\delta_i$ is supported, up to approximation error, within $K$ graph steps of $i$.
 This is the same spectral-to-spatial passage used by Chebyshev graph filters.  The wavelet family
 organizes several band-pass scales around localized centers; a task-specific graph filter instead
 learns the propagation profile required by its objective.
@@ -42,14 +42,14 @@ on the summed squared filter responses over the spectrum give a stable frame
 Heat diffusion, wavelets, and graph convolution can now be placed in one functional calculus:
 \begin{equation}
 \begin{aligned}
-e^{-tL}&:&\quad&\text{low-pass smoothing at diffusion scale }t,\\
-\psi(sL)&:&\quad&\text{localized band-pass analysis at scale }s,\\
-\sum_{k=0}^{K}\theta_kL^k&:&\quad&\text{finite-hop polynomial filtering},\\
+e^{-tL_G}&:&\quad&\text{low-pass smoothing at diffusion scale }t,\\
+\psi(sL_G)&:&\quad&\text{localized band-pass analysis at scale }s,\\
+\sum_{k=0}^{K}\theta_kL_G^k&:&\quad&\text{finite-hop polynomial filtering},\\
 S^KH&:&\quad&\text{repeated propagation with possible over-smoothing}.
 \end{aligned}
 \label{eq:spectral-operator-family}
 \end{equation}
-Their common mathematics is $g(L)$; their state, objective, and interpretation remain different.
+Their common mathematics is $g(L_G)$; their state, objective, and interpretation remain different.
 A heat kernel describes smoothing relative to a graph, a wavelet transform analyzes a signal, and a
 GCN layer is trained as part of a predictor.
 

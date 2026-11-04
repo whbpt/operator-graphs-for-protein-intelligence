@@ -73,7 +73,7 @@ System & Main relational state & Irreversible bottleneck & Strongest immediate s
 \midrule
 AF1 & explicit distogram and torsion-related outputs from an $L\times L$ trunk & raw MSA rows
 removed before the neural trunk & learned pairwise geometric evidence \\
-AF2 & evolving $z_{ij}$ coupled bidirectionally to $m_{si}$ & alignment information gradually
+AF2 & evolving $z_{ij}$ coupled bidirectionally to $m_{ni}$ & alignment information gradually
 projected into pair and first-row states & joint MSA--pair computation with equivariant coordinate
 realization \\
 AF3 & heterogeneous token-pair state conditioning all-atom denoising & MSA rows discarded after a
@@ -102,7 +102,7 @@ X_{sia}
 F_\theta(\phi_i,\phi_j,\Psi_{ij}),
 \label{eq:book-af1-compression}
 \end{equation}
-where the MSA row index $s$ is no longer present after the first arrow.
+where the MSA row index $n$ is no longer present after the first arrow.
 
 This is an irreversible statistical decision.  The two-dimensional network can learn how to
 combine profiles, couplings, templates, and positional context.  Individual homologous sequences
@@ -177,13 +177,13 @@ AlphaFold 2 changes the state space \cite{jumper2021}.  Persistent single and pa
 replace refinement of a fixed AF1-style potential.
 The Evoformer maintains an MSA representation
 \begin{equation}
-m_{si}^{(\ell)}\in\mathbb R^{c_m}
+m_{ni}^{(\ell)}\in\mathbb R^{c_m}
 \end{equation}
 and a pair representation
 \begin{equation}
 z_{ij}^{(\ell)}\in\mathbb R^{c_z}
 \end{equation}
-through many blocks.  The sequence axis $s$ is now an evolving part of the neural computation rather
+through many blocks.  The sequence axis $n$ is now an evolving part of the neural computation rather
 than a feature-engineering prelude.
 
 The two states communicate repeatedly.  Pair features bias row-wise attention in the MSA.  The MSA
@@ -191,8 +191,8 @@ updates the pair state through an outer-product mean,
 \begin{equation}
 \Delta z_{ij}
 =W\left[
-\frac{1}{N}\sum_s
-a(m_{si})\otimes b(m_{sj})
+\frac{1}{N}\sum_n
+a(m_{ni})\otimes b(m_{nj})
 \right].
 \label{eq:book-af2-opm}
 \end{equation}
@@ -329,8 +329,8 @@ evidence has already been deposited into $z$.
 The change can be written as a shift in bottleneck location:
 \begin{equation}
 \begin{aligned}
-\text{AF2:}&\quad m_{si}\rightleftarrows z_{ij}\quad\text{throughout the trunk},\\
-\text{AF3:}&\quad m_{si}\longrightarrow z_{ij}\quad\text{near the entrance},
+\text{AF2:}&\quad m_{ni}\rightleftarrows z_{ij}\quad\text{throughout the trunk},\\
+\text{AF3:}&\quad m_{ni}\longrightarrow z_{ij}\quad\text{near the entrance},
 \qquad z_{ij}\longrightarrow s_i\quad\text{in the core}.
 \end{aligned}
 \label{eq:book-af2-af3-bottleneck}
@@ -364,9 +364,27 @@ side-chain roles.  The expanded node set $V_s=\{(i,\rho):\rho\in\mathcal R_i\}$ 
 \varrho:V_s\to\mathcal R,\quad\varrho(i,\rho)=\rho.
 \label{eq:book-opendde-parent-map}
 \end{equation}
-An atom-owner map $\omega:[N_{\mathrm{atom}}]\to V_s$ completes the hierarchy.  The
-construction refines the graph's node set; it does not identify new categorical interaction
-fibers.
+An atom-owner map $\omega:[N_{\mathrm{atom}}]\to V_s$ completes the hierarchy.  In the vocabulary
+of Chapter~\ref{chap:book-reference-geometry}, the position set $[L]$ is the base of the
+categorical graph and the centered contrast spaces $\mathcal H_i^0$ are its fibers.  The
+expansion refines the base: $V_s$ is the total space of a role bundle $\pi:V_s\to[L]$ with fiber
+$\mathcal R_i$ over residue $i$.  Every categorical fiber remains untouched, so the construction
+does not identify new categorical interaction fibers.  What changes is which cells of the pair
+grid exist, not what a node can encode about residue identity.
+
+\begin{remark}[Roles are not fragments]
+\label{rem:book-opendde-role-not-fragment}
+The role set $\mathcal R$ is small, fixed, and functional: backbone and side-chain roles
+decompose a parent entity.  It is not a fragment vocabulary of reusable chemical building blocks
+whose identities transfer and recombine across molecules.  The atom-owner map $\omega$ does
+partition atoms into physical groups, so a fragment-level reading of the tokenization is partly
+accurate, and it correctly predicts the complexity motivation: pair memory opens on an $M^2$ grid
+of role tokens rather than an $N_{\mathrm{atom}}^2$ grid of atoms.  What the reading silently
+adds---library priors, compositional assembly, transfer of fragment identity---is absent: the
+same role label recurs at every residue, and transfer enters only through learned role-pair
+weights.  A functional decomposition has been upgraded into a compositional semantics that the
+architecture does not declare.
+\end{remark}
 
 The initial structural single state inherits its parent's context and adds a role embedding:
 \begin{align}
@@ -382,9 +400,20 @@ z_{uv}^{s,0}
 +e_{\phi(u,v)}.
 \label{eq:book-opendde-pair-lift}
 \end{equation}
-The terms retain residue-pair context, permit directed role-pair specialization, and add relation
-metadata such as shared parentage.  Thus two structural roles can inherit the same residue
-context while developing different relational records.
+Each term has a distinct office.  The first is the pullback $(\pi\times\pi)^*z^r$ of residue pair
+memory to the refined base: every role pair inherits its parents' record.  This movement differs
+from reference transport, which changes the gauge of an operator while keeping its base fixed;
+the pullback keeps the record and changes the base.  The second applies a
+linear map graded by the role pair $(\varrho(u),\varrho(v))\in\mathcal R\times\mathcal R$, so the
+lift acts as an $\mathcal R\times\mathcal R$-graded operator on the pulled-back state.  The third
+is a named metadata section: $\phi(u,v)$ records declared relations such as shared parentage,
+backbone--side-chain pairing, or polymer adjacency.  The lifted pair state is thus a section of a
+role-blocked bundle $\bigoplus_{(\rho,\rho')}Z_{\rho\rho'}$ with blocks
+$Z_{\rho\rho'}\cong\mathbb R^{d_p}$ over $V_s\times V_s$, and the typed node fibers and typed
+edge maps that the operator-graph view allows become constructive architecture here, once, at
+the lift.  They are also last guaranteed here: the triangle updates that follow compose paths
+through all structural tokens regardless of role, so block structure in the refined state is a
+property to be audited rather than a constraint the architecture enforces.
 
 Triangle multiplication, triangle attention, and pair transitions refine the lifted track.
 A representative contribution is
@@ -408,10 +437,51 @@ $M=|V_s|$ structural tokens, and decoded corrections return to their owned atoms
 pair storage therefore costs $O(M^2d_p)$ rather than using a global atom-pair grid; direct triangle
 work remains cubic in $M$ before kernel-specific reductions.
 
+The hierarchy sharpens the bottleneck comparison of this chapter into a one-line information
+statement.
+
+\begin{proposition}[Refinement reorganizes; it does not recover]
+\label{prop:book-opendde-no-recovery}
+Let $E$ denote the input evidence (alignment rows, templates, chemical identity) and let
+$(s^r,z^r,\phi)$ be the condition deposited from it by the residue trunk and the token
+construction.  If the refined states are computed from these alone, in the sense that
+$(s^{s,0},z^{s,0})$ is a function of $(s^r,z^r,\phi)$ and
+$(s^{s,*},z^{s,*})=F_{\mathrm{refine}}(s^{s,0},z^{s,0})$, then
+$E\to(s^r,z^r,\phi)\to(s^{s,*},z^{s,*})$ is a Markov chain and
+\begin{equation}
+I\big(E;\,(s^{s,*},z^{s,*})\big)
+\;\le\;
+I\big(E;\,(s^r,z^r,\phi)\big).
+\label{eq:book-opendde-dpi}
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+$(s^{s,*},z^{s,*})$ is a deterministic function of $(s^{s,0},z^{s,0})$, which is by assumption a
+function of $(s^r,z^r,\phi)$; the chain is therefore Markov, and the displayed inequality is the
+data-processing inequality applied to that chain.
+\end{proof}
+
+A machine-checked certificate accompanies this proposition
+(\texttt{lean/OperatorGraph/NoRecovery.lean}): the operative core---processing
+cannot increase entropy, applied to the deterministic-composition setting of
+the proposition---is formalized over arbitrary finite types, kernel-checked.
+
+In words: the role tier can redistribute relational memory across the refined base, but
+alignment rows, template provenance, or family evidence removed by the residue-level compression
+cannot reappear there.  The AF3 bottleneck of this chapter survives the refinement unchanged;
+what refinement buys is resolution and reorganization, not recovery.  The same statement applies
+to any future module that conditions on a deposited state alone.
+
 The distinctive choice is where the long-range bottleneck lies: residue relations are inherited
 by finer roles, refined there, and cached for coordinate generation.  Pair memory and its
-categorical output response remain separate objects.  The next subsection identifies the
-probability law generated from this condition.
+categorical output response remain separate objects.  Role typing at the lift is an architectural
+guarantee; whether the role blocks carry distinct information is a statistical hypothesis.  It
+is testable by nulling the role embeddings $e_{\varrho}$, by severing the metadata section
+$e_{\phi}$ and asking whether the learned updates reconstruct an equivalent blocking, and by
+auditing decoded response operators within and across $(\rho,\rho')$ blocks
+(Chapter~\ref{chap:book-falsification}).  The next subsection identifies the probability law
+generated from this condition.
 
 \subsection{Diffusion changes the output from a coordinate to a law}
 

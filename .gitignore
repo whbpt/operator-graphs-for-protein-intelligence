@@ -37,3 +37,6 @@ results/*
 book/main.pdf
 paper/*.pdf
 output/pdf/*.pdf
+
+# Lean 4 build artifacts
+lean/.lake/

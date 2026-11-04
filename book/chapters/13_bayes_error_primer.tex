@@ -39,3 +39,8 @@ A strict router can use any function of $Y_{ij}$, including a large learned repr
 it cannot recover label information that is absent from the conditional posterior
 $\Pr(T_{ij}=1\mid Y_{ij})$.  The Bayes-floor result below applies
 Eq.~\ref{eq:book-primer-bayes-error} to this declared information set.
+
+A machine-checked certificate accompanies this primer
+(\texttt{lean/OperatorGraph/Bayes.lean}): the pointwise optimality of the
+min and the convex-combination bound for randomized rules are formalized in
+Lean~4, kernel-checked.

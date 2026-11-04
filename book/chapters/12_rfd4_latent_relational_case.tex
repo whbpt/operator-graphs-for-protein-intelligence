@@ -3,9 +3,11 @@
 \label{sec:book-rfd4-case}
 
 RFD4-Proteina writes single states multiplicatively into pair memory, uses that memory to bias
-token routing, and refines both tracks repeatedly within one generation step
-\cite{corley2026rfd4proteina}.  The operator audit isolates two calculations: the centered
-component introduced by a write, and the input response of repeated refinement.
+token routing, refines both tracks repeatedly within one generation step, and delivers its
+conditions through declared gauges \cite{corley2026rfd4proteina}.  The operator audit isolates
+four objects: the centered component introduced by a write, the input response of repeated
+refinement, the gauge content of a delivered condition, and the commitment of a readout along the
+generation orbit.
 
 \subsection{Declare the represented objects}
 
@@ -109,6 +111,31 @@ identity from every input intended to exclude it, including cached latents, side
 and atom-presence patterns.  Re-encoding the intervened structure and changing one latent while
 holding the others fixed are different experiments.
 
+\subsection{Conditions arrive through a gauge}
+
+Motif and target geometry enter either as absolute coordinates or as internal coordinates,
+produced by centering and independently rotating each coordinate group; noise added to
+unconditioned groups carries independent per-group offsets; and noise aligned to stereochemical
+frames fixes the corresponding angular gauge.  Propositions~\ref{prop:randomized-gauge}
+and~\ref{prop:interpolant-statistic} type these choices.
+
+Absolute conditioning transmits the deposited frame with the geometry; the frame is an arbitrary
+gauge element, and the output placement is constrained by it without gaining information.  The
+randomized internal-coordinate representative carries exactly the invariant geometry, so
+placement must arrive through other inputs or the prior, and the conditional support over
+placements is the orbit rather than a point.  Replacing a mandatory origin token by optional,
+noisily specified chain centroids is the same declaration on the translational gauge.  Zero-mean
+noise would expose the clean placement of every unconditioned group as an interpolant identity;
+the per-group offsets close the identity, and applying them only outside coordinate-conditioned
+regions withholds the offset from the condition.  The reported exchange of absolute for internal
+target conditioning is consistent with this typing in direction; the propositions fix no
+magnitude.
+
+The gauge protocol joins the masking protocol of the previous subsection.  An intervention on a
+condition must declare whether its frame is transmitted or redrawn; replicates over redrawn
+gauges vary input realizations while holding invariant content fixed; and leakage checks on
+cached conditions must include frame statistics.
+
 \subsection{Recycling has repeated input injection}
 
 The model refines hidden states repeatedly while holding the current noisy coordinates, latents,
@@ -156,6 +183,35 @@ optimization convention must be separated from the derivative of the executed in
 function.  An inference response audit must differentiate through, or numerically perturb,
 all executed passes rather than inherit the training-time detach operations.
 
+\subsection{A third clock: readout commitment}
+
+Generation time and within-step depth are now separate clocks.  Temporal search reads a third:
+the progress at which a readout of an intermediate state predicts the same readout of the final
+state.  Fix a sampling procedure with declared shared randomness and trajectory states
+$X^{(s)}$, $0\le s\le 1$.  For a readout $f$, define its commitment by
+\begin{equation}
+\kappa_f(s)
+=1-\frac{\E\bigl[\operatorname{Var}\bigl(f(X^{(1)})\mid X^{(s)}\bigr)\bigr]}
+{\operatorname{Var}\bigl(f(X^{(1)})\bigr)}.
+\label{eq:rfd4-commitment}
+\end{equation}
+
+Commitment is an estimand, not a local object: it is not a derivative along the orbit and not a
+function of the forced response in Eq.~\ref{eq:rfd4-forced-response}.  No monotonicity in $s$ is
+guaranteed, and the ordering of commitment across readouts is an empirical property of the
+trained field.  Measurement requires protocol declarations: how intermediates are evaluated
+(single-step clean prediction or completed rollout), which randomness is shared (seeds and branch
+decisions), the full conditioning path through sequence-conditioned decoding, and the treatment
+of discrete branch selections.  Rank correlations between intermediate and final readouts, as
+reported for interface area, hydrogen bonding, and predictor confidence, estimate a
+commitment-type quantity under exactly such a protocol.
+
+Checkpoint termination is a stopping decision measurable in the trajectory filtration; it
+changes the selected ensemble through a selection layer and leaves the field untouched.  Both
+time-varying recycle schedules and time-varying search rewards allocate against this clock.  The
+observed resolution order---global interface properties before local contacts before predictor
+confidence---is evidence about the trained field, not a consequence of the architecture.
+
 \subsection{Probability transport, energy supervision, and selection}
 
 Flow matching generates coordinates and residue latents jointly, with temporal score rescaling
@@ -167,8 +223,11 @@ Rosetta supervision fine-tunes atomic reconstruction: energy penalties accompany
 losses, the encoder stays fixed, and low-rank adapters modify the decoder (Supplementary
 Section S4.3.1).  This does not identify a Rosetta Boltzmann law for the complete generator.
 External search further changes the selected law through user metrics, branching, pruning, and
-evaluation budget.  The resulting predictor-based passing rate and an experimental binding or
-catalytic endpoint remain separate measurements.
+evaluation budget; best-of-noise training selection, interpolated conditioning fields, and score
+rescaling are further instances of the same operation on the realized law
+(Definition~\ref{def:selection-layer} and Proposition~\ref{prop:selection-composite}).  The
+resulting predictor-based passing rate and an experimental binding or catalytic endpoint remain
+separate measurements.
 
 \subsection{Three tests suggested by the translation}
 
@@ -177,5 +236,8 @@ measuring both the centered write and the output response.  Then fix a noisy inp
 recurrent depth, reporting homogeneous propagation separately from the forced response in
 Eq.~\ref{eq:rfd4-forced-response}; full-generation comparisons must match compute.
 Finally, carry selected source substitutions through sequence and coordinate readouts to
-structural and mutational endpoints.  Replicate seeds or shared random numbers can control
-sampling variation, while finite audits must retain changes of discrete branch.
+structural and mutational endpoints.  Two further protocols accompany the gauge and commitment
+subsections: replicate audits over redrawn condition gauges at fixed invariant content, and
+commitment curves measured under a declared rollout protocol alongside the search thresholds
+that read them.  Replicate seeds or shared random numbers can control sampling variation, while
+finite audits must retain changes of discrete branch.

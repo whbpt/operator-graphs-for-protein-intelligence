@@ -23,3 +23,10 @@ simultaneously.  A sparse layer of pair tables does not supply that global certi
 This does not prevent finite pair \emph{potentials} from being added into a globally normalized
 Gibbs Hamiltonian.  It says that separately normalized pair \emph{marginals} need not be the
 marginals of that Gibbs law, or of any common joint law.
+
+A machine-checked certificate accompanies this example.  The normalized $2\times2$ tables and the
+incompatibility statement are formalized in Lean~4
+(\texttt{lean/OperatorGraph/PairLaw.lean} in the repository): the three almost-sure constraints
+are contradictory for normalized nonnegative tables on the eight-point space, in pair-marginal
+form, and for measurable coordinates on an arbitrary probability space.  The contradiction is
+certified by the proof checker, not by the author.

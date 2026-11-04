@@ -7,28 +7,28 @@ conditioned row measure, the triangle path, and the categorical response as its 
 
 \subsection{Measure derivatives and rank bounds}
 
-Writing $\phi_s(q)=r_s(q;M)$ and
-$Y_s^{ij}=\chi_{si}\chi_{sj}(u_{si}\otimes v_{sj})$, the complete-mask derivative is
+Writing $\phi_n(q)=r_n(q;M)$ and
+$Y_n^{ij}=\chi_{ni}\chi_{nj}(u_{ni}\otimes v_{nj})$, the complete-mask derivative is
 \begin{equation}
-\mathcal O_{q,ij}=\mathbb E_{\mu_q}Y_s^{ij},\qquad
+\mathcal O_{q,ij}=\mathbb E_{\mu_q}Y_n^{ij},\qquad
 \nabla_q\mathcal O_{q,ij}
-=\operatorname{Cov}_{\mu_q}\!\left(Y_s^{ij},\nabla_q\phi_s(q)\right),
+=\operatorname{Cov}_{\mu_q}\!\left(Y_n^{ij},\nabla_q\phi_n(q)\right),
 \label{eq:msa-pairformer-query-covariance-gradient}
 \end{equation}
 when the feature map has no direct query argument.  Gaps or query-dependent features add feature
 and denominator terms.  Higher derivatives contain higher cumulants of the tilted empirical law.
 
-For one feature channel, let $U^a_{is}=u^a_{si}$, $V^b_{js}=v^b_{sj}$, and
+For one feature channel, let $U^a_{in}=u^a_{ni}$, $V^b_{jn}=v^b_{nj}$, and
 $D=\operatorname{diag}(\omega)$.  Before nonlinear mixing,
 \begin{equation}
 \mathcal O_{ij}^{ab}=U^a_{i:}DV^{b\mathsf T}_{:j},
 \qquad
-\operatorname{rank}(U^aDV^{b\mathsf T})\leq\min(S,L).
+\operatorname{rank}(U^aDV^{b\mathsf T})\leq\min(N,L).
 \label{eq:msa-pairformer-cross-moment-rank}
 \end{equation}
 For a linearly combined output channel,
 \begin{equation}
-\mathcal O^d=\sum_{s=1}^{S}\omega_sA_sW_dB_s^{\mathsf T},
+\mathcal O^d=\sum_{n=1}^{N}\omega_nA_nW_dB_n^{\mathsf T},
 \qquad
 \operatorname{rank}(\mathcal O^d)\leq\min(L,Sc).
 \label{eq:msa-pairformer-output-channel-rank}
@@ -46,9 +46,9 @@ factorization into row weights and feature maps.
 
 Before LayerNorm, the two query--key fields combine into the bilinear kernel
 \begin{equation}
-h_{1,si}-\lambda h_{2,si}
+h_{1,ni}-\lambda h_{2,ni}
 =x_{0i}^{\mathsf T}
-\underbrace{(W_{Q1}^{\mathsf T}W_{K1}-\lambda W_{Q2}^{\mathsf T}W_{K2})}_{B_\lambda}x_{si},
+\underbrace{(W_{Q1}^{\mathsf T}W_{K1}-\lambda W_{Q2}^{\mathsf T}W_{K2})}_{B_\lambda}x_{ni},
 \qquad \operatorname{rank}(B_\lambda)\leq2d_q.
 \label{eq:msa-pairformer-effective-bilinear-kernel}
 \end{equation}
@@ -66,13 +66,13 @@ d\mathcal O_{q,ij}
 The corresponding pair-specific effective depth is
 \begin{equation}
 N_{\mathrm{eff}}^{ij}
-=\frac{d_{q,ij}^{2}}{\sum_s(\omega_s\chi_{si}\chi_{sj})^2}.
+=\frac{d_{q,ij}^{2}}{\sum_n(\omega_n\chi_{ni}\chi_{nj})^2}.
 \label{eq:msa-pairformer-effective-depth}
 \end{equation}
 For dependent rows, the variance has the covariance form
 \begin{equation}
 \operatorname{Var}(\mathcal O_{ij})
-=\sum_{s,t}\alpha_{s|ij}\alpha_{t|ij}\operatorname{Cov}(Y_s^{ij},Y_t^{ij}),
+=\sum_{n,t}\alpha_{n|ij}\alpha_{t|ij}\operatorname{Cov}(Y_n^{ij},Y_t^{ij}),
 \label{eq:msa-pairformer-dependent-row-variance}
 \end{equation}
 with a declared tree or resampling scheme.
@@ -131,8 +131,8 @@ objectives; the released procedure has no general exact-coordinate-ascent monoto
 For a source perturbation $\delta M$, the difference between adaptive and frozen routing is
 \begin{equation}
 D\mathcal O_{ij}^{\mathrm{adaptive}}[\delta M]-D\mathcal O_{ij}^{\mathrm{frozen}}[\delta M]
-=\sum_sD\omega_s[\delta M]\frac{\chi_{si}\chi_{sj}}{d_{q,ij}}
-\left(u_{si}\otimes v_{sj}-\mathcal O_{q,ij}\right).
+=\sum_nD\omega_n[\delta M]\frac{\chi_{ni}\chi_{nj}}{d_{q,ij}}
+\left(u_{ni}\otimes v_{nj}-\mathcal O_{q,ij}\right).
 \label{eq:msa-pairformer-router-mediated-response}
 \end{equation}
 A static pairwise Hamiltonian requires the additional reciprocity test

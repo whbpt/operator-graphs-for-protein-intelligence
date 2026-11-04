@@ -46,6 +46,9 @@ material should add a distinct derivation or comparison rather than repeat the t
 
 ### Chapter 5: Interaction Order, Rank, and Scalar Compression
 
+- The three-variable ANOVA primer carries a Lean certificate (`lean/OperatorGraph/Anova.lean`):
+  Walsh orthonormality, coefficient extraction, the response audit with dynamic variance, and the
+  correlated cross term.
 - Extend the completed same-shadow counterexample from one edge to a small operator graph.
 - Preserve the completed three-variable ANOVA calculation before the general interaction-order
   theorem.
@@ -122,6 +125,8 @@ material should add a distinct derivation or comparison rather than repeat the t
 - Preserve the distinction between architectural correspondence and historical design intent.
 - Use one closing AlphaFold synthesis. Keep OpenDDE focused on parent--role lifting, pair-memory
   refinement, and coordinate conditioning; avoid repeating the general triangle and energy caveats.
+  The subsection's mathematical core is the base-refinement statement, the role-not-fragment
+  remark, and the no-recovery proposition; keep these and resist benchmark commentary.
 - Keep the MSA Pairformer question order mathematical: empirical row measure, weighted edge
   statistic, row--edge/path dynamics, output-law identification, paired-MSA estimand, and only then
   the task-conditional 111M-versus-15B result.
@@ -163,8 +168,11 @@ material should add a distinct derivation or comparison rather than repeat the t
   introduction and retain only task-defining training restrictions and evaluation evidence.
 - Preserve the RFD4-Proteina case after Pallatom: endpoint-local assumptions for centered
   additive/Hadamard writes, pair-memory/route/readout distinctions, repeated input injection in
-  within-step recycling, inference derivatives versus training detachment, and separate transport,
-  energy-supervision, search, and biological-validation claims.
+  within-step recycling, inference derivatives versus training detachment, gauge delivery of
+  conditions with interpolant-statistic leakage, a third property-commitment clock with its
+  estimand protocol, and separate transport, energy-supervision, selection-layer, and
+  biological-validation claims.  The exact gauge and selection statements live in the diffusion
+  transport appendix (`sec:book-gauges-selection`).
 - Keep parameter reuse, representational capacity, and exact sparse execution as distinct claims.
 - Preserve the evidence-level navigation: exact statements, constructive architecture, and the
   empirical protein-generation case.
@@ -208,6 +216,12 @@ material should add a distinct derivation or comparison rather than repeat the t
 - The glossary is in place as backmatter (`book/glossary.tex`): overloaded terms grouped by
   probability/physics, computation/architecture, and inference/evidence, each with its required
   declaration.  Extend it when a new overloaded term enters the manuscript.
+- A Lean 4 companion (`lean/`) machine-checks finite certificates: `OperatorGraph/PairLaw.lean`
+  certifies Chapter 6's three-pair-law incompatibility (realizing tables, table-level no-go,
+  marginal form, measure-theoretic form) and `OperatorGraph/Anova.lean` certifies Chapter 5's
+  three-variable ANOVA primer (Walsh orthonormality, coefficient extraction, dynamic variance,
+  correlated cross term).  When a new finite counterexample enters the manuscript, extend the
+  companion rather than leaving the check implicit.
 - References now live in a BibTeX database (`paper/refs.bib`, 107 entries) compiled with the
   vendored `tools/bibtex/plain.bst`; the shared body calls it through `\BookBibliographyDatabase`
   so book and article builds resolve the same database.  Add new citations to `refs.bib` rather

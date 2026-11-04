@@ -44,7 +44,8 @@ features.  OpenDDE instead lifts residue memory to structural roles and, in the 
 schematic, holds the refined condition across atom denoising
 (Chapter~\ref{chap:book-alphafold}).  The comparison locates both the global communication
 bottleneck and the direction of coordinate feedback; exact recycling contracts remain
-implementation-specific.
+implementation-specific.  Under either contract the finer tier inherits, but cannot exceed, the
+deposited condition (Proposition~\ref{prop:book-opendde-no-recovery}).
 
 The slogan ``learn $P(\text{all-atom})$'' should be read with care.  Pallatom supplies the denoiser
 with a reduced side-chain labeling, and several amino acids share geometrically degenerate atom14

@@ -64,3 +64,9 @@ and, for example,
 The algebraic section $A+C x_k$ still describes the finite response at a fixed background.
 Its attribution to a sum of mutually orthogonal interaction orders now requires a new conditional
 geometry or must retain the cross terms induced by $\mu$.
+
+A machine-checked certificate accompanies this primer: the orthonormality of the four characters,
+the coefficient-extraction identities, the response audit $G(x_k)=A+C x_k$ with background mean
+$A$ and dynamic variance exactly $\|C\|^2$ in an arbitrary target inner product space, and the
+correlated cross term above are formalized in Lean~4 (\texttt{lean/OperatorGraph/Anova.lean}),
+with every theorem kernel-checked against the standard axiomatic base.

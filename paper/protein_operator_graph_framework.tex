@@ -1157,12 +1157,12 @@ contains hyperedge maps
 \qquad |A|\geq2.
 \label{eq:hyperedge-map}
 \end{equation}
-For a fixed background outside $\{i\}\cup N$, let $E_u$ average over $x_u$ under a positive
-product reference and let $P_u=I-E_u$.  For $B\subseteq\{i\}\cup N$, define
+For a fixed background outside $\{i\}\cup N$, let $\mathbb E_u$ average over $x_u$ under a positive
+product reference and let $P_u=I-\mathbb E_u$.  For $B\subseteq\{i\}\cup N$, define
 \begin{equation}
 \Pi_B=
 \left(\prod_{u\in B}P_u\right)
-\left(\prod_{v\notin B}E_v\right).
+\left(\prod_{v\notin B}\mathbb E_v\right).
 \label{eq:hierarchical-projector}
 \end{equation}
 
@@ -1185,9 +1185,9 @@ For the pairwise truncation $\mathcal I_i^{(1)}=\sum_{j\in N}T_{i,\{j\}}$,
 
 \begin{proof}
 The coordinate-wise averaging operators are commuting self-adjoint idempotents, and
-$P_u=I-E_u$ is the orthogonal complement of $E_u$.  Expanding
-$\prod_u(E_u+P_u)=I$ gives the decomposition.  Distinct components contain a factor
-$E_uP_u=0$ and are orthogonal.  Equation~\ref{eq:pair-truncation} is Pythagoras applied to the
+$P_u=I-\mathbb E_u$ is the orthogonal complement of $\mathbb E_u$.  Expanding
+$\prod_u(\mathbb E_u+P_u)=I$ gives the decomposition.  Distinct components contain a factor
+$\mathbb E_uP_u=0$ and are orthogonal.  Equation~\ref{eq:pair-truncation} is Pythagoras applied to the
 omitted terms.
 \end{proof}
 
@@ -1219,7 +1219,7 @@ Let $N\subseteq[L]\setminus\{i\}$ contain $j$ and define the centered, vector-va
 \label{eq:vector-valued-target-score}
 \end{equation}
 For $B\subseteq N$, let
-$\Pi_B^N=(\prod_{u\in B}P_u)(\prod_{v\in N\setminus B}E_v)$ act on the source coordinates of this
+$\Pi_B^N=(\prod_{u\in B}P_u)(\prod_{v\in N\setminus B}\mathbb E_v)$ act on the source coordinates of this
 Hilbert-valued function, and write $\Phi_B=\Pi_B^N\Phi$.  Set
 $C=X_{N\setminus\{j\}}$ and take the mean and residual in
 Eq.~\ref{eq:static-dynamic-split} under the product law
@@ -1324,7 +1324,7 @@ full-rank categorical blocks, while a dense graph may share only a low-dimension
 For a relative tolerance $\epsilon$, an error-controlled edge rank is
 \begin{equation}
 r_{ij}(\epsilon)=\min\left\{r:
-\frac{\sum_{s>r}\sigma_{ijs}^2}{\sum_s\sigma_{ijs}^2}\leq\epsilon\right\}.
+\frac{\sum_{t>r}\sigma_{ijt}^2}{\sum_t\sigma_{ijt}^2}\leq\epsilon\right\}.
 \label{eq:approx-rank}
 \end{equation}
 Low rank is therefore a measurable compression hypothesis independent of graph sparsity.
@@ -1528,7 +1528,7 @@ RBM & visible--hidden factors & static parameters; generally all visible orders 
 Message-passing GNN & declared or input-dependent support with shared messages & computation becomes higher order with depth & one-pass or iterated state; no required global normalization & supervised or self-supervised loss; route is not an identified coupling \\
 Modern Hopfield & maps between state and stored-memory fibers & state-dependent retrieval & iterative update with Lyapunov function under stated assumptions & learned or prescribed memories; Lyapunov energy is not a Potts sequence energy \\
 Transformer / pLM & dense or masked routes, optional recurrent state, plus audited categorical response & input-dependent; order may enter coordinates, support, local filters, or dynamics & layered or recurrent hidden state; route normalization is model-specific; usually no global sequence energy & corpus pretraining plus intervention audit; internal transport coefficients are not response tables \\
-MSA Transformer & tied position routes plus sequence-axis routes & current-family conditioned with a cross-family amortized prior & axial updates on an $R\times L$ state; no required joint energy & MSA masked reconstruction; routes mix constraint, phylogeny, gaps, and sampling \\
+MSA Transformer & tied position routes plus sequence-axis routes & current-family conditioned with a cross-family amortized prior & axial updates on an $N\times L$ state; no required joint energy & MSA masked reconstruction; routes mix constraint, phylogeny, gaps, and sampling \\
 Pallatom & residue and atom-slot nodes with persistent pair state & coordinate-conditioned, multiscale, and higher order & iterative all-atom denoising with coordinate--pair recycling & composite geometric supervision; atom14 slots and aligned loss are biases, not chemical ontology or exact equivariance \\
 \bottomrule
 \end{tabular}
@@ -1810,13 +1810,13 @@ z_C^{(N)}=\Phi_C(z_C^{(0)})
 be the joint encoder and common orbit, let $\varrho=(\varrho_1,\ldots,\varrho_L)$, and define
 $\mathbb D_p(f_i)_i=(D_if_i)_i$ and $\mathbb P=\bigoplus_iP_i$.  Then
 \begin{align}
-\mathbb E_C
+\mathfrak E_C
 &=D\bar\iota_C(p)\mathbb D_p:
 \mathcal H^0\longrightarrow T_{z_C^{(0)}}\mathscr Z^{(0)},\\
 \mathbb J_C^{\mathrm{lat}}
 &=D\Phi_C(z_C^{(0)}):
 T_{z_C^{(0)}}\mathscr Z^{(0)}\longrightarrow T_{z_C^{(N)}}\mathscr Z^{(N)},\\
-\mathbb R_C
+\mathfrak R_C
 &=\mathbb P D\varrho(z_C^{(N)}):
 T_{z_C^{(N)}}\mathscr Z^{(N)}\longrightarrow\mathcal H^0.
 \label{eq:global-etr-types}
@@ -1825,7 +1825,7 @@ The complete local response Jacobian has the compact realization
 \begin{equation}
 \boxed{
 \mathbb K_C^{\mathrm{lin}}
-=\mathbb R_C\,\mathbb J_C^{\mathrm{lat}}\,\mathbb E_C.}
+=\mathfrak R_C\,\mathbb J_C^{\mathrm{lat}}\,\mathfrak E_C.}
 \label{eq:global-etr-factorization}
 \end{equation}
 Its declared off-diagonal blocks form the operator graph.  Target-specific masking or pair-specific
@@ -1851,7 +1851,7 @@ For ordinary attention, the frozen value contribution on the token-state subspac
 under column-stacking vectorization.  Expanding Eq.~\ref{eq:latent-jacobian-product} gives the
 end-to-end computational path sum.  Equation~\ref{eq:attention-latent-jacobian-factor} is the
 token-to-token value-path block and is embedded into the larger augmented-state Jacobian when
-$\mathscr S^{(n)}$ is present.  Applying $\mathbb R_C$ and $\mathbb E_C$ converts internal transport
+$\mathscr S^{(n)}$ is present.  Applying $\mathfrak R_C$ and $\mathfrak E_C$ converts internal transport
 into the external categorical operator.
 
 This closes the operator hierarchy without identifying its levels.  A Potts block is a static
@@ -2144,37 +2144,37 @@ coordinates of this record.
 \BookSection{MSA Transformer as amortized family inference}
 
 MSA Transformer makes the family sample an explicit neural state rather than compressing it into
-fixed counts before the network \cite{rao2021}.  For an alignment with $R$ homologous sequences and
+fixed counts before the network \cite{rao2021}.  For an alignment with $N$ homologous sequences and
 $L$ positions, a layer acts on
 \begin{equation}
-H_f\in\R^{R\times L\times d}.
+H_f\in\R^{N\times L\times d}.
 \label{eq:msa-transformer-state}
 \end{equation}
 Column attention compares alignment rows at one fixed position,
 \begin{equation}
-A^{\mathrm{col}}_{i,rs}
-=\operatorname{softmax}_{s}
-\left(\frac{q_{ri}^{\mathsf T}k_{si}}{\sqrt d}\right),
+A^{\mathrm{col}}_{i,rn}
+=\operatorname{softmax}_{n}
+\left(\frac{q_{ri}^{\mathsf T}k_{ni}}{\sqrt d}\right),
 \qquad
-y_{ri}^{\mathrm{col}}=\sum_sA^{\mathrm{col}}_{i,rs}v_{si},
+y_{ri}^{\mathrm{col}}=\sum_nA^{\mathrm{col}}_{i,rn}v_{ni},
 \label{eq:msa-column-attention}
 \end{equation}
 whereas tied row attention aggregates evidence across homologues to produce one position route
 shared by all rows, schematically
 \begin{equation}
 S^{\mathrm{row}}_{ij}
-=\frac1R\sum_{r=1}^R\frac{q_{ri}^{\mathsf T}k_{rj}}{\sqrt d},
+=\frac1N\sum_{r=1}^N\frac{q_{ri}^{\mathsf T}k_{rj}}{\sqrt d},
 \qquad
 A^{\mathrm{row}}_{ij}=\operatorname{softmax}_{j}S^{\mathrm{row}}_{ij},
 \qquad
 y_{ri}^{\mathrm{row}}=\sum_jA^{\mathrm{row}}_{ij}v_{rj}.
 \label{eq:msa-tied-row-attention}
 \end{equation}
-Thus the native computation contains two graph families: an $R$-node sequence graph for each
+Thus the native computation contains two graph families: an $N$-node sequence graph for each
 position and an $L$-node position graph conditioned on the complete MSA.  Axial factorization
-reduces full attention over $RL$ cells from $O(R^2L^2)$ to
-$O(LR^2+RL^2)$ per layer.  Alternating the axes still permits information to travel from
-$(r,i)$ to $(s,j)$ through two-hop paths, but it is an architectural factorization rather than an
+reduces full attention over $NL$ cells from $O(N^2L^2)$ to
+$O(LN^2+NL^2)$ per layer.  Alternating the axes still permits information to travel from
+$(r,i)$ to $(n,j)$ through two-hop paths, but it is an architectural factorization rather than an
 exact equality with unrestricted joint attention.
 
 The cross-family commonality is most cleanly expressed hierarchically.  Let $\Theta_f$ denote the
@@ -2467,7 +2467,7 @@ direction must therefore be audited separately.
 
 \BookSection{Three graphs occupy three different base spaces}
 
-For an MSA $X\in[q]^{R\times L}$, three graph constructions must be kept separate:
+For an MSA $X\in[q]^{N\times L}$, three graph constructions must be kept separate:
 \begin{equation}
 \boxed{
 \begin{aligned}
@@ -3047,14 +3047,14 @@ remain validation questions.
 \ifdefined\BOOKMODE
 \BookSpectralSection{Spectral filters and localized multiscale analysis}
 \fi
-If $L=V\Lambda V^{\mathsf T}$ denotes either a scalar or connection Laplacian, the graph Fourier
+If $L_G=V\Lambda V^{\mathsf T}$ denotes either a scalar or connection Laplacian, the graph Fourier
 coefficients of a compatible signal $y$ are $\widehat y_k=v_k^{\mathsf T}y$, and a spectral filter
 is
 \begin{equation}
-g(L)y=Vg(\Lambda)V^{\mathsf T}y.
+g(L_G)y=Vg(\Lambda)V^{\mathsf T}y.
 \label{eq:graph-fourier-filter}
 \end{equation}
-The heat kernel $e^{-tL}$ probes progressively coarser interaction neighborhoods as $t$ increases;
+The heat kernel $e^{-tL_G}$ probes progressively coarser interaction neighborhoods as $t$ increases;
 band-pass filters can separate domain-scale modes from localized edge variation.  Low frequency
 means smoothness relative to the inferred graph; conservation, phylogeny, allostery, and function
 enter through calibrated correspondences.
@@ -3068,8 +3068,8 @@ typed edge operators
 $\longrightarrow$
 declared scalarization or transport
 $\longrightarrow$
-L
-$\xrightarrow{\ g(L)\ }$
+$L_G$
+$\xrightarrow{\ g(L_G)\ }$
 multiscale coefficients,\\[4pt]
 \small
 $g(\lambda)=e^{-t\lambda}$: heat smoothing

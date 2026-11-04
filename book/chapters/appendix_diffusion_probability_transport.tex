@@ -189,3 +189,138 @@ noise law, and forward-time dynamics.
 Repeated diffusion samples reflect the learned structural distribution, training data,
 conditioning information, noise schedule, and sampling procedure.  Comparing sample frequencies
 with experimental populations requires separate calibration.
+
+\section{Gauges and selection on the sampled law}
+\label{sec:book-gauges-selection}
+
+Generative design models add two questions to the transport distinction above.  Which statistics
+of a condition survive when the condition is delivered in a randomly drawn frame, and which
+statistics of the clean state are exactly recoverable from a noisy interpolant.  Both are gauge
+questions, and both have short exact answers.  A third question composes with them:
+training-time candidate selection, field combination, score rescaling, and trajectory search all
+replace the law that a sampler actually realizes.  The RFD4 case in
+Chapter~\ref{chap:book-architecture} instantiates all three.
+
+\subsection{Randomized gauge representatives}
+
+Let $G$ be a group acting measurably on one component $x_S$ of the state, with the group of rigid
+motions on a coordinate group as the running instance.  Assume the action is free on the orbit of
+$x_S$, so that a measurable canonical representative $r(x_S)$ and a gauge coordinate
+$g(x_S)\in G$ decompose $x_S=g(x_S)\,r(x_S)$; for a symmetric condition the gauge coordinate is
+defined up to its stabilizer.  Let $X$ denote the remaining state, jointly distributed with
+$x_S$.  Delivering $x_S$ transmits both factors.  Delivering the randomized gauge representative
+\begin{equation}
+c=g_0\,r(x_S),\qquad g_0\sim\nu\ \text{independent of }(X,x_S),
+\label{eq:book-randomized-gauge-delivery}
+\end{equation}
+transmits them differently.
+
+\begin{proposition}[Randomized gauge representation]
+\label{prop:randomized-gauge}
+With $c=g_0\,r(x_S)$ as in Eq.~\ref{eq:book-randomized-gauge-delivery}:
+\begin{enumerate}
+\item $r(c)=r(x_S)$ almost surely, so the invariant part is exactly preserved;
+\item conditionally on $r(x_S)$, the delivered condition $c$ is independent of
+$\bigl(X,g(x_S)\bigr)$;
+\item the conditional law of the remaining state satisfies
+$p(X\mid c)=p(X\mid r(x_S))$: conditioning on the delivered representative is conditioning on
+the orbit invariant.
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+(1) The representative $r$ is constant on orbits, and $c$ lies on the orbit of $x_S$.  (2) For
+bounded measurable $\varphi,\psi$, first condition on $x_S$:
+$\E[\varphi(c)\psi(X)\mid x_S]
+=\bigl(\int\varphi(g\,r(x_S))\,d\nu(g)\bigr)\,\E[\psi(X)\mid x_S]$,
+because $g_0$ is independent of $(X,x_S)$.  The first factor depends on $x_S$ only through
+$r(x_S)$; averaging over $x_S$ given $r(x_S)$ therefore factors the joint conditional
+expectation, which is the claim.  (3) By (2), adding $c$ to the conditioning leaves the
+conditional law of $X$ unchanged once $r(x_S)$ is given, and $r(x_S)=r(c)$ is $c$-measurable by
+(1).
+\end{proof}
+
+Under absolute-coordinate conditioning the deposited frame is transmitted with the geometry.  A
+deposited frame has no physical content: it constrains the output to one representative of the
+condition's orbit without adding information about the system.  Under a randomized gauge the
+conditional support over placements is the orbit, placement information must arrive through other
+inputs or the prior, and any dependence between shape and frame in the data reaches the model only
+through the joint law of the invariant part.  This is the continuous analogue of the support
+automorphisms in Proposition~\ref{prop:support-position-identifiability}: position is carried by
+whichever inputs break the symmetry, not by the order or frame in which a condition happens to be
+deposited.
+
+\subsection{Deterministic statistics of a linear interpolant}
+
+The second gauge question concerns the noise rather than the condition.
+
+\begin{proposition}[Interpolant statistics]
+\label{prop:interpolant-statistic}
+Let $x_t=\alpha_t x_1+\sigma_t\varepsilon$ with $\varepsilon$ independent of $x_1$, and let $S$
+be a linear statistic.  Then $S(x_t)=\alpha_tS(x_1)+\sigma_tS(\varepsilon)$.  If
+$S(\varepsilon)=\mu$ almost surely, then
+\begin{equation}
+S(x_1)=\frac{S(x_t)-\sigma_t\mu}{\alpha_t}
+\label{eq:book-interpolant-identity}
+\end{equation}
+is exactly recoverable from the noisy state for every $t\in(0,1)$.
+\end{proposition}
+
+\begin{proof}
+Linearity of $S$ and independence give the identity; the constant case solves for $S(x_1)$.
+\end{proof}
+
+The per-group mean is such a statistic.  With zero-mean noise, the clean placement of every
+unconditioned group is an identity of the interpolant: available to the network without learning
+anything, and inherited by outputs at sampling time.  Randomizing the statistic, as a per-group
+offset does, replaces the identity in Eq.~\ref{eq:book-interpolant-identity} by a sum of two
+unknown terms and closes the shortcut.  Two scope clauses matter.  The randomization must be
+withheld from every input that could reveal it: an absolutely conditioned region pins the offset,
+so offsets may enter only groups without coordinate conditioning.  And the same operation exists
+on the angular gauge---aligning the noise frame to a declared local frame is a deterministic
+gauge fixing, which makes orientation statistics identifiable along the interpolant, while an
+unaligned frame randomizes them.  A design declares, for each gauge component of the noise,
+whether it is fixed, transmitted, or randomized.
+
+\subsection{Selection layers and the realized law}
+\label{subsec:selection-layers}
+
+Selection acts at four places in a modern design pipeline: on training candidates, on the field
+at sampling time, on trajectories during search, and on outputs after evaluation.  The first
+three are one operation on the realized law.
+
+\begin{definition}[Selection layer]
+\label{def:selection-layer}
+Let $P$ be the law the sampler realizes on trajectories.  A selection layer is a declared
+modification of the realized law, of one of two forms:
+\begin{enumerate}
+\item a field substitution: the integrated field $v$ is replaced by a declared field $\tilde v$;
+\item a trajectory reweighting: $dQ/dP\propto\mathbf 1_C\prod_iw_i$, with measurable weights
+evaluated at declared checkpoints and a continuation event $C$; retention of a fixed number of
+candidates composes the tilt with a rank truncation.
+\end{enumerate}
+\end{definition}
+
+\begin{proposition}[Audits run on the composite law]
+\label{prop:selection-composite}
+For a reweighting layer with $W=\mathbf 1_C\prod_iw_i$, every readout $f$ satisfies
+$\E_Q[f]=\E_P[fW]/\E_P[W]$.  A field substitution instead changes the flow inside $\E_P$.  In
+both cases the audit object is the composite: derivatives and finite perturbations must pass
+through the sampler actually executed, including branch decisions as discrete operations.
+\end{proposition}
+
+\begin{proof}
+The first identity is a change of measure; the second is the definition of the realized law.
+\end{proof}
+
+Best-of-$K$ training selection keeps, among $K$ independently noised candidates at one sampled
+time, the lowest-loss candidate: the regression measure is the base measure transformed by rank
+selection, concentrating on low-loss noise draws as $K$ grows.  Classifier-free interpolation
+replaces the conditional field by $(1+w)v_c-wv_u$; for $w\notin\{0,1\}$ this is in general not
+the conditional field of any single conditioning value, and the realized law is the flow of the
+declared combination.  Score rescaling by a time-dependent factor substitutes a tempered field
+under matched noise injection.  Checkpoint search with continuation criteria reweights
+trajectories.  No layer changes the trained checkpoint, and every layer changes the law that a
+comparison must match.  Selection yields and compute-matched comparisons are therefore separate
+measurements: a layer moves the law and the cost together, and only the composed statement is
+well posed.

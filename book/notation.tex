@@ -33,6 +33,7 @@ assumption would be required to reverse its interpretation.
 Symbol & Type & Question answered \\
 \midrule
 $X=(X_1,\ldots,X_L)$ & sequence in $[q]^L$ & Which residue identity occurs at each position? \\
+$X^{(n)}\in[q]^L$ & alignment row $n$ of depth $N$ & Which sampled homologues, with what weights, enter an estimate? \\
 $p_i$ & reference distribution on the alphabet at site $i$ & Relative to which background are categorical contrasts centered? \\
 $\mathcal H_i^0$ & $(q-1)$-dimensional centered categorical fiber & Which source and target perturbations count as genuine contrasts? \\
 $P_i$ & projection onto $\mathcal H_i^0$ & Which constant and one-body directions are removed from a table? \\
@@ -73,7 +74,8 @@ Form & Usual role & Examples \\
 Lower-case italic & indices, states, scalar functions, or vectors & $i,j,a,b,t$; $f,u,v$ \\
 Plain capital & finite table, matrix, random object, or model state & $T,J,G,A,P,X$ \\
 Calligraphic capital & space, set, typed map, or functional & $\mathcal H,\mathcal U,\mathcal K,\mathcal E$ \\
-Blackboard/fraktur capital & assembled system or expectation operator & $\mathbb K,\mathfrak G,\mathbb E$ \\
+Script capital & latent architecture space or propagator & $\mathscr Z,\mathscr S$ \\
+Blackboard/fraktur capital & assembled system or expectation operator & $\mathbb K,\mathbb J,\mathfrak G,\mathfrak E,\mathfrak R,\mathbb E$ \\
 Arrow and indices & source, target, and level of action & $G_{i\leftarrow j}$ maps source $j$ toward target $i$ \\
 \bottomrule
 \end{tabular}
@@ -90,15 +92,32 @@ Decorations have stable meanings throughout the main construction:
 \end{equation*}
 Superscripts such as ${\mathrm P}$, ${\mathrm{pLM}}$, ${\mathrm{stat}}$, and ${\mathrm{dyn}}$
 name origin or role; they do not change the domain and codomain unless the text explicitly says so.
+Conditional expectations over one coordinate or over the context are written $\mathbb E_u$ and
+$\mathbb E_C$.  The encoder--transport--readout factors assembled in the architecture chapters are
+$\mathfrak E_C$, $\mathbb J_C^{\mathrm{lat}}$, and $\mathfrak R_C$; they are transport operators,
+not expectations.
 
-Four overloaded letters remain because they are standard in the literatures being compared.  Their
+Several overloaded letters remain because they are standard in the literatures being compared.  Their
 syntax disambiguates them.  $L$ is sequence length in $[q]^L$ and an index bound, whereas $L_G$ or a
-subscripted $L_{\mathrm{sym}},L_{\mathrm{rw}}$ is a graph Laplacian.  $P_i$ is categorical
-centering, bare $P$ in the routing chapters is a row-stochastic matrix, and $P(\cdot)$ denotes a
-probability.  $Q_{ij}$ is a pair law, while $Q_i$ is the Euclidean form of a categorical projector;
-nuisance residualizers are written $R$ rather than adding another meaning to $Q$.  Finally, bare
-$G$ can denote a generic graph in a quoted graph-network formalism, while an indexed
-$G_{i\leftarrow j}$ is always a categorical kernel in this book.
+subscripted $L_{\mathrm{sym}},L_{\mathrm{rw}}$ is a graph Laplacian and $L^2$ is a function space.
+$N$ is alignment depth with row index $n$; in the interaction-hierarchy theorem a bare $N$ is the
+neighbor set of a site and $\mathcal N(i)$ is a graph neighborhood, while the architecture chapters
+let a locally declared $N$ count layers, blocks, or recurrent steps.  $P_i$ is categorical
+centering, bare $P$ in the routing chapters is a row-stochastic matrix, $\mathbb P=\bigoplus_iP_i$
+is the assembled projection, and $P(\cdot)$ denotes a probability.  $Q_{ij}$ is a pair law, while
+$Q_i$ is the Euclidean form of a categorical projector; nuisance residualizers are written $R$
+rather than adding another meaning to $Q$.  Attention follows the query--key convention: uppercase
+$Q_i^{(h)},K_j^{(h)}$ in the audit formalism and lowercase $q,k,v$ inside a quoted architecture,
+with the head superscript and the argument keeping them separate from $Q_{ij}$ and $\mathcal K$.
+Bare $G$ can denote a generic graph in a quoted graph-network formalism, while an indexed
+$G_{i\leftarrow j}$ is always a categorical kernel in this book.  Bare $A$ is the scalar shadow; in
+the function-space hierarchy theorem $A$ and $B$ are position subsets with projections
+$\Pi_A,\Pi_B$, and the ANOVA primer reuses $A,B$ as scalar coefficients.  The letter $h$ is a Potts
+field $h_i(a)$ and, with a head superscript, an attention-head index; $\psi_{ij}$ is a cavity
+factor, while an unindexed $\psi$ is a spectral generating function whose scale parameter is $s$.
+In the MSA Pairformer case study, $q$ indexes the query row; the alphabet size does not appear
+there.  An unsubscripted $\epsilon$ in the diffusion appendix is Gaussian noise, while
+$\epsilon_{ij}$ is always the projected epistasis table.
 
 \clearpage
 \section*{Three spaces that should not be merged}

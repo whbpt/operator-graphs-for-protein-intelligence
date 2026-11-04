@@ -2,7 +2,7 @@
 \sectionmark{MSA Pairformer and the paired-alignment problem}
 
 MSA Pairformer supplies a compact empirical case for the progression developed in this chapter.
-It keeps an alignment state $m_{si}$, maintains a persistent pair state $z_{ij}$, writes from the
+It keeps an alignment state $m_{ni}$, maintains a persistent pair state $z_{ij}$, writes from the
 alignment into the pair track through an outer product, and updates pair state through triangular
 paths.  The model has 111 million parameters and was trained by masked-token prediction on
 269,455 single-chain UniClust30 alignments.  Its protein--protein interaction behavior appears when
@@ -37,13 +37,13 @@ alignment evidence back into the pair track.  Triangle multiplicative updates re
 paths through third residues $k$.  Schematically,
 \begin{equation}
 \begin{aligned}
-m^{(\ell+1/3)}_{si}
-&=\mathsf{PWA}_{\theta}\!\left(m^{(\ell)},z^{(\ell)}\right)_{si},\\
+m^{(\ell+1/3)}_{ni}
+&=\mathsf{PWA}_{\theta}\!\left(m^{(\ell)},z^{(\ell)}\right)_{ni},\\
 z^{(\ell+2/3)}_{ij}
 &=z^{(\ell)}_{ij}
 +W_{\theta}\!\left[
-\sum_s w_s(q;m^{(\ell+1/3)})
-a(m_{si})\otimes b(m_{sj})
+\sum_n w_n(q;m^{(\ell+1/3)})
+a(m_{ni})\otimes b(m_{nj})
 \right],\\
 z^{(\ell+1)}_{ij}
 &=z^{(\ell+2/3)}_{ij}
@@ -51,7 +51,7 @@ z^{(\ell+1)}_{ij}
 \end{aligned}
 \label{eq:book-msa-pairformer-layer}
 \end{equation}
-The sequence weights $w_s$ depend on the query.  Two queries embedded in the same broad family can
+The sequence weights $w_n$ depend on the query.  Two queries embedded in the same broad family can
 therefore induce different effective family samples.  The pair track stores the resulting
 relational evidence, while triangle paths give the model a direct computational route for
 combining two-hop paths.  The equation is still only a schematic until the normalization spaces
@@ -60,31 +60,31 @@ model.
 
 \subsubsection{What the outer-product write estimates}
 
-Let $M\in\mathbb R^{S\times L\times d_m}$ denote one encoded MSA, with $s$ indexing sampled
-homologues and $i$ indexing aligned residue columns.  These axes have different meanings: $s$ is
+Let $M\in\mathbb R^{N\times L\times d_m}$ denote one encoded MSA, with $n$ indexing sampled
+homologues and $i$ indexing aligned residue columns.  These axes have different meanings: $n$ is
 an empirical-sample axis, while $(i,j)$ is the edge index of a complete residue-position graph.
 For two learned maps $A,B:\mathbb R^{d_m}\to\mathbb R^{c}$, define
 \begin{equation}
 \begin{aligned}
-u_{si}&=A(\operatorname{LN}M_{si}),\qquad
-v_{sj}=B(\operatorname{LN}M_{sj}),\\[-2pt]
+u_{ni}&=A(\operatorname{LN}M_{ni}),\qquad
+v_{nj}=B(\operatorname{LN}M_{nj}),\\[-2pt]
 \mathcal O_{q,ij}
-&=\frac{\displaystyle\sum_s\omega_s(q)\,\chi_{si}\chi_{sj}
-        \,u_{si}\otimes v_{sj}}
+&=\frac{\displaystyle\sum_n\omega_n(q)\,\chi_{ni}\chi_{nj}
+        \,u_{ni}\otimes v_{nj}}
        {d_{q,ij}},\\[-2pt]
-d_{q,ij}&=\sum_s\omega_s(q)\chi_{si}\chi_{sj},
+d_{q,ij}&=\sum_n\omega_n(q)\chi_{ni}\chi_{nj},
 \end{aligned}
 \label{eq:msa-pairformer-exact-cross-moment}
 \end{equation}
-where $\chi_{si}$ is the observed-token mask.  The released implementation computes this
-quantity by multiplying both factors by $\sqrt{\omega_s}$ and dividing by $d_{q,ij}$ after the
+where $\chi_{ni}$ is the observed-token mask.  The released implementation computes this
+quantity by multiplying both factors by $\sqrt{\omega_n}$ and dividing by $d_{q,ij}$ after the
 contraction.  With complete alignments $d_{q,ij}=1$; with gaps, every residue pair has its own
 conditional empirical measure
 \begin{equation}
 \mu_{q,ij}
-=\frac1{d_{q,ij}}\sum_s\omega_s(q)\chi_{si}\chi_{sj}\,\delta_s,
+=\frac1{d_{q,ij}}\sum_n\omega_n(q)\chi_{ni}\chi_{nj}\,\delta_n,
 \qquad
-\mathcal O_{q,ij}=\mathbb E_{\mu_{q,ij}}[u_{si}\otimes v_{sj}].
+\mathcal O_{q,ij}=\mathbb E_{\mu_{q,ij}}[u_{ni}\otimes v_{nj}].
 \label{eq:msa-pairformer-pairwise-measure}
 \end{equation}
 Thus the outer product is a weighted cross-moment.  It becomes a covariance only after centering
@@ -100,14 +100,14 @@ The MSA update has the complementary contraction
 \begin{equation}
 \beta^h_{ij}=w_z^h{}^{\mathsf T}\operatorname{LN}(z_{ij}),\qquad
 A^h_{ij}=\operatorname{softmax}_{j}(\beta^h_{ij}),\qquad
-\Delta m_{si}=W_o\operatorname{concat}_{h}\left[
-g^h_{si}\odot\sum_jA^h_{ij}v^h_{sj}\right],
+\Delta m_{ni}=W_o\operatorname{concat}_{h}\left[
+g^h_{ni}\odot\sum_jA^h_{ij}v^h_{nj}\right],
 \label{eq:msa-pairformer-pwa-operator}
 \end{equation}
-with $v^h_{sj}$ and $g^h_{si}$ obtained from normalized MSA features.  The pair-to-MSA map is a
+with $v^h_{nj}$ and $g^h_{ni}$ obtained from normalized MSA features.  The pair-to-MSA map is a
 row-wise transport on the position graph; the MSA-to-pair map in Eq.~\ref{eq:msa-pairformer-exact-cross-moment}
 contracts the sample axis and expands a position edge.  The model's basic algebra is this
-alternation of three index operations: contraction over homologues $s$, expansion to $(i,j)$,
+alternation of three index operations: contraction over homologues $n$, expansion to $(i,j)$,
 and path composition over mediators $k$.
 
 \subsection{Adaptive row measure and identification}
@@ -116,16 +116,16 @@ and path composition over mediators $k$.
 
 The released model uses two pre-softmax query--key fields.  Suppressing layer and batch indices,
 \begin{equation}
-r_s(q;M)
-=\frac1{\sqrt d}\frac1{L_s}\sum_i\chi_{si}
-\left(q_{1i}^{\mathsf T}k_{1si}
--\lambda\,q_{2i}^{\mathsf T}k_{2si}\right),
+r_n(q;M)
+=\frac1{\sqrt d}\frac1{L_n}\sum_i\chi_{ni}
+\left(q_{1i}^{\mathsf T}k_{1ni}
+-\lambda\,q_{2i}^{\mathsf T}k_{2ni}\right),
 \qquad
-\omega_s=\frac{\rho_s e^{r_s}}{\sum_t\rho_t e^{r_t}},
+\omega_n=\frac{\rho_n e^{r_n}}{\sum_t\rho_t e^{r_t}},
 \label{eq:msa-pairformer-differential-row-score}
 \end{equation}
-where $\lambda$ is a learned differential scale, $\rho_s$ is the row-validity mask, and
-$L_s=\sum_i\chi_{si}$.  The score averages over observed columns, and the final softmax normalizes
+where $\lambda$ is a learned differential scale, $\rho_n$ is the row-validity mask, and
+$L_n=\sum_i\chi_{ni}$.  The score averages over observed columns, and the final softmax normalizes
 over valid MSA rows.  Query bias therefore changes the empirical measure used by the outer-product
 write.
 
@@ -136,7 +136,7 @@ The second training stage optimizes the denoising risk
 \begin{equation}
 \mathcal L_{\mathrm{query}}
 =\mathbb E_{M,I}\left[-\sum_{i\in I}
-\log p_\theta\!\left(M_{0i}\mid M_{0,-I},M_{1:S}\right)\right].
+\log p_\theta\!\left(M_{0i}\mid M_{0,-I},M_{1:N}\right)\right].
 \label{eq:msa-pairformer-query-pseudolikelihood}
 \end{equation}
 This is a query-conditional pseudolikelihood/denoising objective.  It does not define or maximize
@@ -144,8 +144,8 @@ a joint Potts likelihood unless additional compatibility conditions are imposed 
 logits.  Randomly changing the query row trains a row-exchangeable rule: a permutation of the
 non-query rows leaves the weighted moment unchanged up to the same permutation of weights.
 
-Under a mixture model with latent subfamily $H_s$, a Bayes-optimal relevance score would contain a
-log density ratio such as $\log p(M_s\mid q,H_s)/p(M_s\mid q)$, but the paper does not prove that
+Under a mixture model with latent subfamily $H_n$, a Bayes-optimal relevance score would contain a
+log density ratio such as $\log p(M_n\mid q,H_n)/p(M_n\mid q)$, but the paper does not prove that
 the learned score has this form.  The defensible statement is therefore query-conditioned
 empirical reweighting, with posterior interpretation treated as a hypothesis to test.
 
