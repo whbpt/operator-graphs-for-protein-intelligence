@@ -67,3 +67,9 @@ $b$ would change both the message and the gate selecting the message.  Double pr
 still center the resulting table, but Eq.~\ref{eq:book-two-background-edge} would no longer describe
 one fixed conditional pair operator.  This is the practical reason endpoint exclusion appears as a
 separate requirement rather than as a consequence of gauge fixing.
+
+A machine-checked certificate accompanies this calculation
+(\texttt{lean/OperatorGraph/TwoBackground.lean}): the orthogonality of $G_0$
+and $H$ under the uniform weighted inner product, their squared norms, and
+the dynamic-norm identity $\mathbb E_C\|G(C)\|^2 = \|G_0\|^2 +
+\lambda^2\|H\|^2$ are formalized in Lean~4, kernel-checked.

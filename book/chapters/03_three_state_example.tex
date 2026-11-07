@@ -109,3 +109,11 @@ after the loss has been declared.
 
 This finite calculation will serve as a running case.  We now restore the node, context, dynamics,
 estimator, and validation coordinates suppressed by the table calculation.
+
+A machine-checked certificate accompanies this example
+(\texttt{lean/OperatorGraph/ThreeState.lean}): the decomposition of
+Eq.~\ref{eq:book-three-state-raw} into grand mean, target-only, source-only,
+and bivariate components, and the fiber-operator action of
+Eq.~\ref{eq:book-three-state-action}, are formalized in Lean~4,
+kernel-checked.  The spectral and shadow properties of the gauged block $G$
+are certified separately in \texttt{lean/OperatorGraph/Shadow.lean}.

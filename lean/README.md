@@ -16,6 +16,10 @@ discussions stay in the book.
 | `OperatorGraph/Shadow.lean` | Ch. 5, "Two operators with the same scalar shadow": both Frobenius norms = 10, shadow identity `M_A = M_B = √10/3`, zero row/column means, spectral witnesses (G_AᵀG_A eigenvalues {9,1,0}, BᵀB eigenvalues {3,3,0}), eigenvector independence, differing actions on the same source contrast. |
 | `OperatorGraph/Bayes.lean` | Ch. 13, "A binary Bayes-error primer": pointwise optimality of `min{η,1-η}` and the convex-combination bound for randomized rules. |
 | `OperatorGraph/Rem.lean` | Ch. 5, "Random energy" order-profile identity: `Σ_k C(L,k)(q-1)^k = q^L` (binomial theorem, the combinatorial spine that normalizes the profile). |
+| `OperatorGraph/ThreeState.lean` | Ch. 3, "A three-state table, taken apart": the decomposition T = c + u + v + G and the fiber-operator action Kf = (1, -2/3, -1/3)ᵀ. |
+| `OperatorGraph/MeanSpectrum.lean` | Ch. 10/11, "When averaging graphs creates a mode": eigenvalue witnesses for context spectra {0,0,2} and mean spectrum {0,1/2,3/2}, plus independence. |
+| `OperatorGraph/Epistasis.lean` | Ch. 14, four-genotype epistasis primer: additive null, log-coordinate identity, multiplicative null. |
+| `OperatorGraph/TwoBackground.lean` | Ch. 4, two-background calculation: orthogonality, norms, dynamic-norm identity. |
 
 ## Build
 

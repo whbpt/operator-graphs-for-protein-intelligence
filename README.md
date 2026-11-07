@@ -85,6 +85,10 @@ mathlib:
 | `Shadow.lean` | Ch. 5: two operators with the same scalar shadow (norms, spectra, differing actions) |
 | `Bayes.lean` | Ch. 13: binary Bayes-error primer (pointwise optimality, randomized convex bound) |
 | `Rem.lean` | Ch. 5: random-energy order-profile binomial identity |
+| `ThreeState.lean` | Ch. 3: three-state table decomposition and fiber action |
+| `MeanSpectrum.lean` | Ch. 10/11: mean Laplacian spectrum (averaging creates modes) |
+| `Epistasis.lean` | Ch. 14: four-genotype epistasis identities |
+| `TwoBackground.lean` | Ch. 4: two-background static-dynamic decomposition |
 
 Every theorem is kernel-checked: `#print axioms` reports only `propext`,
 `Classical.choice`, and `Quot.sound` — the same axiomatic base as mathlib
